@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lunara — Intentional Connection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --ink:    #0e0c14;
+  --ink2:   #191626;
+  --off:    #f5f2ee;
+  --warm:   #ede8e0;
+  --coral:  #e8553e;
+  --violet: #6b3fa0;
+  --blush:  #f2c4b0;
+  --sage:   #8aab8c;
+  --amber:  #ffbe55;
+  --muted:  #7a7370;
+  --light:  #c8c0b8;
+  --border: rgba(245,242,238,0.09);
+  --glow:   rgba(232,85,62,0.22);
+  --font:   'Outfit', sans-serif;
+  --serif:  'Playfair Display', serif;
+  --max:    1000px;
+  --shadow: 0 12px 40px rgba(0,0,0,.5);
+  --radius: 18px;
+}
+
+html { scroll-behavior:smooth; }
+body { font-family:var(--font); background:var(--ink); color:var(--off); overflow-x:hidden; cursor:none; }
+
+/* ── CURSOR ─────────────────────── */
+.cursor { position:fixed; top:0; left:0; pointer-events:none; z-index:9999; width:12px; height:12px; border-radius:50%; background:var(--coral); mix-blend-mode:difference; transform:translate(-50%,-50%); transition:width .3s,height .3s; }
+.cursor-ring { position:fixed; top:0; left:0; pointer-events:none; z-index:9998; width:40px; height:40px; border-radius:50%; border:1px solid rgba(232,85,62,0.4); transform:translate(-50%,-50%); transition:transform .25s,width .3s,height .3s,opacity .3s; }
+
+/* ── TOPBAR ─────────────────────── */
+.topbar {
+  display:flex; align-items:center; justify-content:space-between;
+  position:fixed; top:0; left:0; right:0; z-index:200;
+  backdrop-filter:blur(18px);
+  background:rgba(14,12,20,0.85);
+  border-bottom:1px solid var(--border);
+  padding:14px 40px;
+  transition:padding .3s;
+}
+.topbar.compact { padding:10px 40px; }
+.brand { display:flex; gap:10px; align-items:center; cursor:none; }
+.logo-mark {
+  width:36px; height:36px; border-radius:12px;
+  background:linear-gradient(135deg,var(--coral),var(--violet));
+  box-shadow:0 6px 22px var(--glow);
+  display:flex; align-items:center; justify-content:center; font-size:16px;
+}
+.brand-name { font-family:var(--serif); font-size:18px; font-weight:900; letter-spacing:-.3px; }
+.brand-tag { font-size:11px; color:rgba(245,242,238,0.4); }
+
+.nav-links { display:flex; gap:4px; list-style:none; }
+.nav-item { position:relative; }
+.nav-links a {
+  padding:8px 14px; border-radius:10px;
+  font-size:13px; font-weight:500; color:rgba(245,242,238,0.65);
+  text-decoration:none; display:block; transition:.18s all; white-space:nowrap;
+  cursor:none;
+}
+.nav-links > li > a:hover { color:var(--off); background:rgba(255,255,255,0.05); }
+
+.nav-dropdown {
+  position:absolute; top:calc(100% + 10px); left:50%;
+  transform:translateX(-50%) translateY(6px);
+  background:rgba(18,15,26,0.98); backdrop-filter:blur(24px);
+  border:1px solid var(--border); border-radius:16px; padding:6px;
+  min-width:210px; opacity:0; visibility:hidden; pointer-events:none;
+  transition:.22s all; z-index:300;
+}
+.nav-item:hover .nav-dropdown { opacity:1; visibility:visible; pointer-events:all; transform:translateX(-50%) translateY(0); }
+.nav-dropdown a {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:10px 14px; border-radius:10px; font-size:13px;
+  color:rgba(245,242,238,0.7) !important; background:transparent !important;
+  text-decoration:none; cursor:none; transition:.15s all;
+}
+.nav-dropdown a:hover { background:rgba(255,255,255,0.07) !important; color:var(--off) !important; }
+.ddarrow { font-size:11px; opacity:.4; }
+
+.nav-right { display:flex; gap:10px; align-items:center; }
+.btn-nav {
+  padding:9px 20px; border-radius:100px;
+  font-family:var(--font); font-size:13px; font-weight:600;
+  cursor:none; transition:.2s all; border:none;
+}
+.btn-nav.ghost { background:transparent; color:var(--off); border:1px solid var(--border); }
+.btn-nav.ghost:hover { border-color:rgba(245,242,238,0.3); }
+.btn-nav.solid { background:var(--off); color:var(--ink); }
+.btn-nav.solid:hover { background:var(--blush); transform:scale(1.02); }
+
+/* Bottom nav hidden on landing, shown in app */
+body.on-landing .bottom-nav { display:none !important; }
+
+/* ── SCREENS ─────────────────────── */
+.screen { display:none; }
+.screen.active { display:block; animation:fadeIn .35s ease; }
+.screen:not(#s_landing).active { padding-top:70px; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── BOTTOM NAV ─────────────────── */
+.bottom-nav {
+  position:fixed; left:50%; transform:translateX(-50%); bottom:14px;
+  width:min(var(--max), calc(100% - 28px));
+  background:rgba(14,12,20,0.85); border:1px solid var(--border);
+  backdrop-filter:blur(16px); border-radius:22px; padding:10px;
+  display:flex; justify-content:space-around; gap:4px;
+  z-index:150; box-shadow:0 16px 48px rgba(0,0,0,.55);
+}
+.tab { flex:1; text-align:center; padding:9px 4px; border-radius:14px; font-size:11px; color:rgba(245,242,238,0.45); cursor:none; user-select:none; border:1px solid transparent; transition:.15s all; }
+.tab .ti { display:block; font-size:17px; margin-bottom:2px; }
+.tab.active { color:var(--off); background:rgba(255,255,255,0.06); border-color:var(--border); }
+
+/* ── COMMON COMPONENTS ─────────────── */
+.btn {
+  appearance:none; border:none; cursor:none;
+  padding:11px 18px; border-radius:13px;
+  background:rgba(255,255,255,0.06); color:var(--off);
+  border:1px solid var(--border); transition:.18s all;
+  font-weight:600; font-size:13px; font-family:var(--font);
+}
+.btn:hover { background:rgba(255,255,255,0.10); border-color:rgba(255,255,255,0.18); transform:translateY(-1px); }
+.btn.primary {
+  background:linear-gradient(135deg,var(--coral),var(--violet));
+  border-color:transparent; color:white;
+  font-family:var(--serif); box-shadow:0 6px 24px var(--glow);
+}
+.btn.primary:hover { box-shadow:0 10px 32px var(--glow); transform:translateY(-2px); }
+.btn.danger { border-color:rgba(232,85,62,.3); background:rgba(232,85,62,.08); color:#ffdbe1; }
+.btn.ghost { background:transparent; border-color:transparent; }
+.btn.sm { padding:8px 12px; font-size:12px; border-radius:10px; }
+
+.wrap { max-width:var(--max); margin:0 auto; padding:20px 16px 100px; }
+.grid { display:grid; grid-template-columns:1.2fr .8fr; gap:16px; }
+@media(max-width:800px){ .grid{grid-template-columns:1fr;} }
+.card {
+  background:linear-gradient(160deg,rgba(255,255,255,.055) 0%,rgba(255,255,255,.018) 100%);
+  border:1px solid var(--border); border-radius:22px;
+  box-shadow:var(--shadow); overflow:hidden;
+}
+.card .hd { padding:14px 18px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,.06); }
+.card .hd b { font-family:var(--serif); font-size:14px; letter-spacing:.2px; }
+.card .bd { padding:18px; }
+.note { padding:16px; border-radius:16px; border:1px solid var(--border); background:rgba(255,255,255,.03); }
+.h1 { font-family:var(--serif); font-size:clamp(26px,3.5vw,40px); line-height:1.1; letter-spacing:-.3px; }
+.h2 { font-family:var(--serif); font-size:18px; font-weight:700; }
+.muted { color:rgba(245,242,238,.5); }
+.small { font-size:12px; }
+.row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+.sp { height:14px; }
+.hr { height:1px; background:rgba(255,255,255,.07); margin:16px 0; }
+.split { display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
+.pill { display:inline-flex; align-items:center; gap:7px; padding:6px 12px; border-radius:999px; border:1px solid var(--border); background:rgba(255,255,255,.04); font-size:12px; }
+.dot { width:7px; height:7px; border-radius:50%; background:linear-gradient(135deg,var(--coral),var(--violet)); box-shadow:0 0 10px var(--glow); }
+
+.kpi { display:flex; gap:10px; flex-wrap:wrap; }
+.kpi .box { flex:1 1 110px; padding:14px; border-radius:14px; border:1px solid var(--border); background:rgba(0,0,0,.2); }
+.kpi .box b { display:block; font-size:11px; color:rgba(245,242,238,.45); margin-bottom:4px; text-transform:uppercase; letter-spacing:.04em; }
+.kpi .box span { font-size:18px; font-weight:800; font-family:var(--serif); }
+
+.matchCard { display:grid; grid-template-columns:88px 1fr; gap:14px; padding:14px; border-radius:18px; border:1px solid var(--border); background:rgba(0,0,0,.18); margin-bottom:12px; transition:.2s all; }
+.matchCard:hover { border-color:rgba(232,85,62,.22); background:rgba(232,85,62,.04); }
+.avatar { width:88px; height:88px; border-radius:16px; background:linear-gradient(135deg,rgba(232,85,62,.18) 0%,rgba(107,63,160,.15) 100%); border:1px solid var(--border); position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; font-size:28px; }
+.avatar .blur { position:absolute; inset:0; backdrop-filter:blur(8px); background:rgba(0,0,0,.2); }
+.avatar .emoji { position:relative; z-index:1; }
+.badges { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+.badge { padding:5px 9px; border-radius:999px; border:1px solid var(--border); background:rgba(255,255,255,.04); font-size:11px; display:inline-flex; gap:5px; align-items:center; }
+.badge .bDot { width:6px; height:6px; border-radius:50%; background:var(--sage); flex-shrink:0; }
+.badge.warn .bDot { background:var(--amber); }
+.actions { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+.iconBtn { padding:9px 14px; border-radius:12px; border:1px solid var(--border); background:rgba(255,255,255,.04); color:var(--off); cursor:none; font-weight:600; font-size:12px; font-family:var(--font); transition:.15s all; }
+.iconBtn:hover { background:rgba(255,255,255,.08); }
+.iconBtn.primary { background:rgba(232,85,62,.14); border-color:rgba(232,85,62,.35); color:#ffcece; }
+.iconBtn.violet { background:rgba(107,63,160,.14); border-color:rgba(107,63,160,.35); color:#ddd0ff; }
+
+.compat-wrap { margin:6px 0; }
+.compat-label { display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px; color:rgba(245,242,238,.45); }
+.compat-label strong { color:var(--sage); }
+.compat-track { height:4px; border-radius:4px; background:rgba(255,255,255,.08); overflow:hidden; }
+.compat-fill { height:100%; border-radius:4px; background:linear-gradient(90deg,var(--coral),var(--violet)); }
+
+.chips { display:flex; flex-wrap:wrap; gap:8px; }
+.chip { padding:9px 14px; border-radius:999px; border:1px solid var(--border); background:rgba(255,255,255,.04); font-size:12px; cursor:none; user-select:none; transition:.15s all; font-family:var(--font); color:rgba(245,242,238,.55); }
+.chip.active { border-color:rgba(232,85,62,.45); background:rgba(232,85,62,.12); color:var(--off); }
+.chip:hover:not(.active){ border-color:rgba(255,255,255,.2); color:var(--off); }
+
+.field label { display:block; font-size:12px; color:rgba(245,242,238,.45); margin:0 0 7px; text-transform:uppercase; letter-spacing:.04em; }
+.field input,.field select,.field textarea { width:100%; padding:12px 14px; border-radius:13px; border:1px solid var(--border); background:rgba(0,0,0,.25); color:var(--off); outline:none; font-family:var(--font); font-size:14px; transition:.15s border-color; -webkit-appearance:none; }
+.field input:focus,.field select:focus,.field textarea:focus { border-color:rgba(232,85,62,.45); }
+.field textarea { min-height:90px; resize:vertical; }
+.field input::placeholder,.field textarea::placeholder { color:rgba(245,242,238,.25); }
+
+/* Chat */
+.chatWrap { display:flex; flex-direction:column; height:58vh; min-height:400px; border-radius:20px; border:1px solid var(--border); background:rgba(0,0,0,.18); overflow:hidden; }
+.chatTop { padding:14px 16px; border-bottom:1px solid rgba(255,255,255,.07); display:flex; align-items:center; justify-content:space-between; }
+.chatBody { padding:16px; overflow:auto; display:flex; flex-direction:column; gap:10px; flex:1; }
+.bubble { max-width:76%; padding:11px 14px; border-radius:16px; border:1px solid var(--border); background:rgba(255,255,255,.05); font-size:14px; line-height:1.55; }
+.bubble.me { align-self:flex-end; border-color:rgba(232,85,62,.25); background:rgba(232,85,62,.10); border-radius:16px 16px 4px 16px; }
+.bubble:not(.me){ border-radius:16px 16px 16px 4px; }
+.bubble .ts { font-size:10px; color:rgba(245,242,238,.35); margin-top:5px; }
+.bubble.me .ts { text-align:right; }
+.chatBottom { padding:12px; border-top:1px solid rgba(255,255,255,.07); display:flex; gap:8px; align-items:center; }
+.chatBottom input { flex:1; padding:12px 14px; border-radius:13px; border:1px solid var(--border); background:rgba(0,0,0,.28); color:var(--off); outline:none; font-family:var(--font); font-size:14px; }
+.chatBottom input:focus { border-color:rgba(232,85,62,.4); }
+.safe-banner { margin:0 12px 10px; padding:10px 14px; border-radius:12px; background:rgba(138,171,140,.07); border:1px solid rgba(138,171,140,.2); font-size:12px; color:#a8d4aa; display:flex; gap:8px; align-items:center; }
+.chat-actions { padding:10px 12px 0; display:flex; gap:7px; flex-wrap:wrap; }
+.chat-act { padding:6px 12px; border-radius:8px; font-size:11px; font-weight:600; border:1px solid var(--border); background:transparent; cursor:none; color:rgba(245,242,238,.45); font-family:var(--font); transition:.15s all; }
+.chat-act:hover { color:var(--off); border-color:rgba(255,255,255,.2); }
+.chat-act.danger { color:rgba(232,85,62,.8); border-color:rgba(232,85,62,.22); }
+
+/* Safety */
+.safety-hero-inner { background:linear-gradient(160deg,rgba(232,85,62,.08),rgba(107,63,160,.06)); border:1px solid var(--border); border-radius:22px; padding:40px; margin-bottom:16px; }
+.rf-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+@media(max-width:700px){ .rf-grid{grid-template-columns:1fr;} }
+.rf-card { padding:20px; border-radius:18px; border:1px solid var(--border); background:rgba(0,0,0,.2); transition:.2s all; }
+.rf-card:hover { border-color:rgba(232,85,62,.22); transform:translateY(-2px); }
+.rf-icon { width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px; margin-bottom:14px; }
+.rf-card h3 { font-family:var(--serif); font-size:14px; font-weight:700; margin-bottom:8px; }
+.rf-card p { font-size:12px; line-height:1.65; color:rgba(245,242,238,.5); margin-bottom:12px; }
+.rf-act { font-size:11px; font-weight:600; color:var(--violet); background:rgba(107,63,160,.1); padding:8px 12px; border-radius:8px; border-left:2px solid var(--violet); display:block; }
+.checklist-wrap { background:rgba(0,0,0,.18); border-radius:18px; padding:20px; border:1px solid var(--border); }
+.cl-item { display:flex; gap:14px; align-items:flex-start; padding:12px 0; border-bottom:1px solid rgba(255,255,255,.06); font-size:13px; line-height:1.6; color:rgba(245,242,238,.55); }
+.cl-item:last-child{ border-bottom:none; }
+.cl-check { width:26px; height:26px; border-radius:8px; flex-shrink:0; background:rgba(138,171,140,.12); color:var(--sage); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:800; }
+.stat-bar { display:grid; grid-template-columns:repeat(4,1fr); background:rgba(0,0,0,.28); border-radius:16px; border:1px solid var(--border); overflow:hidden; margin-bottom:16px; }
+.stat-item { padding:18px 16px; text-align:center; border-right:1px solid rgba(255,255,255,.06); }
+.stat-item:last-child{ border-right:none; }
+.stat-num { font-family:var(--serif); font-size:24px; font-weight:800; color:var(--coral); display:block; }
+.stat-lbl { font-size:11px; color:rgba(245,242,238,.4); margin-top:2px; }
+
+/* Feedback */
+.feedback-grid { display:grid; grid-template-columns:1.2fr 1fr; gap:16px; align-items:start; }
+@media(max-width:700px){ .feedback-grid{grid-template-columns:1fr;} }
+.urg { flex:1; padding:9px 6px; border-radius:10px; font-size:12px; font-weight:700; border:1px solid var(--border); background:transparent; cursor:none; font-family:var(--font); color:rgba(245,242,238,.4); transition:.15s all; text-align:center; }
+.urg.on { border-color:rgba(107,63,160,.45); background:rgba(107,63,160,.12); color:#ddd0ff; }
+.urg.crit.on { border-color:rgba(232,85,62,.45); background:rgba(232,85,62,.12); color:#ffcece; }
+.star-row { display:flex; gap:6px; margin:12px 0 6px; }
+.star { font-size:28px; cursor:none; color:rgba(255,255,255,.15); transition:.15s all; }
+.star.lit { color:var(--amber); }
+.vote-item { display:flex; justify-content:space-between; align-items:center; padding:11px 14px; border-radius:12px; cursor:none; border:1px solid var(--border); margin-bottom:8px; font-size:13px; transition:.15s all; background:transparent; color:rgba(245,242,238,.5); }
+.vote-item:hover { border-color:rgba(107,63,160,.35); background:rgba(107,63,160,.07); color:var(--off); }
+.vote-item.voted { border-color:rgba(107,63,160,.4); background:rgba(107,63,160,.1); color:#ddd0ff; }
+.vote-ct { font-size:11px; font-weight:700; color:rgba(245,242,238,.35); }
+.vote-item.voted .vote-ct { color:var(--violet); }
+.contact-item { display:flex; gap:12px; align-items:flex-start; padding:12px 0; border-bottom:1px solid rgba(255,255,255,.06); }
+.contact-item:last-child{ border-bottom:none; }
+.contact-icon { width:34px; height:34px; border-radius:10px; background:rgba(255,255,255,.05); display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
+.contact-lbl { font-size:13px; font-weight:600; }
+.contact-sub { font-size:11px; color:rgba(245,242,238,.4); margin-top:2px; }
+#feedbackSuccess { display:none; margin-top:18px; padding:18px; border-radius:14px; background:rgba(138,171,140,.07); border:1px solid rgba(138,171,140,.22); text-align:center; }
+
+/* Premium */
+.plan-card { border-radius:18px; padding:22px; border:1px solid var(--border); background:rgba(0,0,0,.18); margin-bottom:12px; }
+.plan-card.highlight { border-color:rgba(232,85,62,.3); background:linear-gradient(160deg,rgba(232,85,62,.06),rgba(107,63,160,.05)); }
+.plan-card ul { margin:12px 0 0 16px; color:rgba(245,242,238,.5); font-size:13px; line-height:1.9; }
+.prog-wrap { margin:8px 0; }
+.prog-label { display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px; }
+.prog-track { height:5px; border-radius:4px; background:rgba(255,255,255,.08); overflow:hidden; }
+.prog-fill { height:100%; border-radius:4px; background:linear-gradient(90deg,var(--coral),var(--violet)); transition:.5s width; }
+
+/* ═══════════════════════════════════
+   LANDING PAGE STYLES
+═══════════════════════════════════ */
+#s_landing { padding-top:0 !important; }
+.lp-hero {
+  height:100vh; min-height:700px; padding-top:64px;
+  display:grid; grid-template-columns:1fr 1fr;
+  position:relative; overflow:hidden;
+}
+.lp-hero-left { position:relative; overflow:hidden; }
+.lp-hero-fade { position:absolute; inset:0; background:linear-gradient(to right,transparent 55%,var(--ink) 100%),linear-gradient(to bottom,transparent 65%,rgba(14,12,20,.65) 100%); z-index:1; }
+.lp-hero-photo {
+  position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse 80% 80% at 35% 50%,rgba(107,63,160,.35),transparent 60%),
+    radial-gradient(ellipse 60% 50% at 70% 60%,rgba(232,85,62,.2),transparent 55%),
+    linear-gradient(160deg,#1a0d2e 0%,#2d1040 40%,#1a1020 100%);
+  display:flex; align-items:center; justify-content:center;
+}
+.lp-hero-photo svg { width:80%; height:85%; }
+.lp-hero-right { display:flex; flex-direction:column; justify-content:center; padding:0 64px 0 40px; position:relative; z-index:2; }
+.lp-eyebrow { display:inline-flex; align-items:center; gap:10px; font-size:11px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--coral); margin-bottom:24px; }
+.lp-eyebrow-line { width:28px; height:1px; background:var(--coral); }
+.lp-title { font-family:var(--serif); font-size:clamp(36px,4vw,60px); font-weight:400; line-height:1.08; letter-spacing:-.02em; margin-bottom:22px; }
+.lp-title em { font-style:italic; color:var(--blush); }
+.lp-body { font-size:16px; line-height:1.75; color:rgba(245,242,238,.6); max-width:380px; margin-bottom:40px; }
+.lp-actions { display:flex; gap:12px; flex-wrap:wrap; }
+.lp-btn { padding:15px 32px; border-radius:100px; font-family:var(--font); font-size:14px; font-weight:600; border:none; cursor:none; transition:.25s all; }
+.lp-btn.solid { background:var(--off); color:var(--ink); }
+.lp-btn.solid:hover { background:var(--blush); transform:scale(1.02); }
+.lp-btn.outline { background:transparent; color:var(--off); border:1px solid var(--border); }
+.lp-btn.outline:hover { border-color:rgba(245,242,238,.4); background:rgba(245,242,238,.04); }
+.lp-stats { display:flex; gap:28px; margin-top:48px; padding-top:28px; border-top:1px solid rgba(255,255,255,.08); }
+.lp-stat-num { font-family:var(--serif); font-size:26px; font-weight:700; display:block; }
+.lp-stat-label { font-size:12px; color:rgba(245,242,238,.4); margin-top:2px; }
+.lp-scroll { position:absolute; bottom:28px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:8px; font-size:10px; letter-spacing:.1em; color:rgba(245,242,238,.25); text-transform:uppercase; z-index:10; animation:bounce 2s infinite; }
+.lp-scroll-line { width:1px; height:36px; background:linear-gradient(to bottom,rgba(245,242,238,.18),transparent); }
+@keyframes bounce { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(5px)} }
+
+.lp-manifesto { padding:100px 80px; display:grid; grid-template-columns:1fr 1fr; gap:72px; align-items:center; background:var(--warm); color:var(--ink); }
+.lp-manifesto-label { font-size:11px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:18px; }
+.lp-manifesto-title { font-family:var(--serif); font-size:clamp(28px,3vw,46px); line-height:1.12; font-weight:400; }
+.lp-manifesto-title em { font-style:italic; color:var(--violet); }
+.lp-mpoint { display:flex; gap:18px; align-items:flex-start; margin-bottom:24px; }
+.lp-mnum { font-family:var(--serif); font-size:13px; color:var(--muted); padding-top:3px; flex-shrink:0; min-width:22px; }
+.lp-mtext h4 { font-size:15px; font-weight:700; margin-bottom:6px; color:var(--ink); }
+.lp-mtext p { font-size:13px; line-height:1.65; color:var(--muted); }
+
+.lp-pillars { padding:100px 80px; background:var(--ink); }
+.lp-pillars-hdr { margin-bottom:56px; }
+.lp-section-eyebrow { font-size:11px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--coral); margin-bottom:14px; }
+.lp-pillars-hdr h2 { font-family:var(--serif); font-size:clamp(26px,3vw,40px); line-height:1.15; font-weight:400; }
+.lp-pillars-hdr h2 em { font-style:italic; color:rgba(245,242,238,.4); }
+.lp-pillars-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; }
+.lp-pillar { padding:40px 32px; border:1px solid rgba(255,255,255,.06); transition:background .3s; position:relative; overflow:hidden; }
+.lp-pillar::before { content:''; position:absolute; inset:0; background:linear-gradient(160deg,rgba(232,85,62,.04),transparent 60%); opacity:0; transition:opacity .3s; }
+.lp-pillar:hover::before { opacity:1; }
+.lp-pillar:hover { background:rgba(255,255,255,.025); }
+.lp-pillar-num { font-family:var(--serif); font-size:13px; font-style:italic; color:rgba(245,242,238,.2); margin-bottom:28px; }
+.lp-pillar-icon { font-size:26px; margin-bottom:16px; display:block; }
+.lp-pillar h3 { font-family:var(--serif); font-size:20px; font-weight:400; margin-bottom:12px; }
+.lp-pillar p { font-size:13px; line-height:1.7; color:rgba(245,242,238,.45); }
+
+.lp-wide-cta { position:relative; overflow:hidden; background:var(--violet); padding:90px 80px; display:grid; grid-template-columns:1fr auto; align-items:center; gap:40px; }
+.lp-wide-cta::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse 60% 80% at 10% 50%,rgba(232,85,62,.3),transparent 55%),radial-gradient(ellipse 50% 70% at 90% 30%,rgba(14,12,20,.4),transparent 50%); }
+.lp-wide-cta * { position:relative; z-index:1; }
+.lp-cta-eyebrow { font-size:11px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:rgba(255,255,255,.55); margin-bottom:16px; }
+.lp-wide-cta h2 { font-family:var(--serif); font-size:clamp(28px,3vw,48px); line-height:1.1; font-weight:400; max-width:520px; }
+.lp-wide-cta h2 em { font-style:italic; color:var(--blush); }
+.lp-cta-btns { display:flex; flex-direction:column; gap:10px; align-items:flex-end; }
+.lp-btn-white { padding:15px 32px; border-radius:100px; background:white; color:var(--ink); font-family:var(--font); font-size:14px; font-weight:700; border:none; cursor:none; transition:.25s all; white-space:nowrap; }
+.lp-btn-white:hover { background:var(--blush); transform:scale(1.02); }
+.lp-btn-woutline { padding:15px 32px; border-radius:100px; background:transparent; color:white; border:1px solid rgba(255,255,255,.3); font-family:var(--font); font-size:14px; font-weight:500; cursor:none; transition:.25s all; white-space:nowrap; }
+.lp-btn-woutline:hover { border-color:white; background:rgba(255,255,255,.08); }
+.lp-cta-note { font-size:12px; color:rgba(255,255,255,.4); text-align:right; }
+
+.lp-community { padding:100px 80px; background:var(--ink); border-top:1px solid rgba(255,255,255,.06); }
+.lp-community-inner { display:grid; grid-template-columns:1fr 1fr; gap:72px; align-items:center; }
+.lp-community-left h2 { font-family:var(--serif); font-size:clamp(26px,3vw,40px); line-height:1.12; font-weight:400; margin-bottom:18px; }
+.lp-community-left h2 em { font-style:italic; color:var(--blush); }
+.lp-community-left p { font-size:14px; line-height:1.75; color:rgba(245,242,238,.5); max-width:360px; }
+.lp-com-links { display:flex; flex-direction:column; gap:2px; margin-top:36px; }
+.lp-com-link { display:flex; justify-content:space-between; align-items:center; padding:16px 0; border-bottom:1px solid rgba(255,255,255,.07); text-decoration:none; color:var(--off); transition:padding-left .2s; }
+.lp-com-link:hover { padding-left:8px; }
+.lp-clink-name { font-size:15px; font-weight:500; }
+.lp-clink-sub { font-size:12px; color:rgba(245,242,238,.35); margin-top:1px; }
+.lp-clink-arrow { color:rgba(245,242,238,.25); transition:.2s; }
+.lp-com-link:hover .lp-clink-arrow { color:var(--coral); }
+.lp-quotes { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.lp-quote { padding:24px; border-radius:18px; background:rgba(255,255,255,.04); border:1px solid var(--border); }
+.lp-quote.large { grid-column:span 2; background:rgba(107,63,160,.12); border-color:rgba(107,63,160,.2); }
+.lp-quote-text { font-family:var(--serif); font-style:italic; font-size:14px; line-height:1.65; color:rgba(245,242,238,.8); margin-bottom:14px; }
+.lp-quote.large .lp-quote-text { font-size:17px; }
+.lp-quote-author { font-size:12px; color:rgba(245,242,238,.3); font-weight:500; }
+.lp-quote-tag { display:inline-block; margin-top:7px; padding:3px 10px; border-radius:100px; background:rgba(232,85,62,.12); color:var(--coral); font-size:11px; font-weight:600; }
+
+.lp-footer { padding:56px 80px 40px; border-top:1px solid rgba(255,255,255,.07); }
+.lp-footer-top { display:grid; grid-template-columns:1.5fr 1fr 1fr 1fr; gap:40px; margin-bottom:48px; }
+.lp-footer-brand { font-family:var(--serif); font-size:22px; font-weight:900; margin-bottom:10px; }
+.lp-footer-tagline { font-size:13px; color:rgba(245,242,238,.35); line-height:1.6; max-width:200px; }
+.lp-footer-col h4 { font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:rgba(245,242,238,.3); margin-bottom:14px; }
+.lp-footer-col a { display:block; font-size:13px; color:rgba(245,242,238,.45); text-decoration:none; margin-bottom:9px; transition:.2s; }
+.lp-footer-col a:hover { color:var(--off); }
+.lp-footer-bottom { display:flex; justify-content:space-between; align-items:center; padding-top:24px; border-top:1px solid rgba(255,255,255,.06); }
+.lp-footer-legal { font-size:12px; color:rgba(245,242,238,.22); }
+.lp-footer-badge { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:100px; border:1px solid var(--border); font-size:11px; color:rgba(245,242,238,.35); }
+.lp-footer-badge span { width:6px; height:6px; border-radius:50%; background:var(--sage); }
+
+/* Modal */
+.modal-overlay { position:fixed; inset:0; z-index:500; background:rgba(14,12,20,.88); backdrop-filter:blur(14px); display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:.3s; }
+.modal-overlay.open { opacity:1; pointer-events:all; }
+.modal { background:#191626; border:1px solid var(--border); border-radius:26px; padding:48px; max-width:480px; width:calc(100% - 32px); transform:translateY(14px); transition:.3s; position:relative; }
+.modal-overlay.open .modal { transform:translateY(0); }
+.modal-close { position:absolute; top:18px; right:18px; background:rgba(255,255,255,.06); border:none; color:rgba(245,242,238,.5); width:34px; height:34px; border-radius:50%; cursor:none; font-size:16px; display:flex; align-items:center; justify-content:center; transition:.2s; }
+.modal-close:hover { background:rgba(255,255,255,.1); color:var(--off); }
+.modal h2 { font-family:var(--serif); font-size:28px; font-weight:400; margin-bottom:8px; }
+.modal h2 em { font-style:italic; color:var(--blush); }
+.modal > p { font-size:14px; color:rgba(245,242,238,.5); line-height:1.65; margin-bottom:28px; }
+.modal-form { display:flex; flex-direction:column; gap:12px; }
+.modal-input { padding:13px 16px; border-radius:13px; border:1px solid var(--border); background:rgba(0,0,0,.3); color:var(--off); font-family:var(--font); font-size:14px; outline:none; transition:.2s; -webkit-appearance:none; }
+.modal-input:focus { border-color:rgba(232,85,62,.5); }
+.modal-input::placeholder { color:rgba(245,242,238,.22); }
+.modal-submit { padding:14px; border-radius:13px; background:linear-gradient(135deg,var(--coral),var(--violet)); color:white; font-family:var(--font); font-size:15px; font-weight:700; border:none; cursor:none; transition:.25s all; box-shadow:0 6px 24px var(--glow); }
+.modal-submit:hover { transform:translateY(-2px); box-shadow:0 10px 32px var(--glow); }
+.modal-legal { font-size:12px; color:rgba(245,242,238,.22); text-align:center; }
+.modal-success { display:none; text-align:center; padding:16px 0; }
+.modal-success .si { font-size:44px; margin-bottom:14px; }
+.modal-success h3 { font-family:var(--serif); font-size:22px; margin-bottom:8px; }
+.modal-success p { font-size:14px; color:rgba(245,242,238,.5); }
+
+/* Fade-reveal for landing sections */
+.lp-reveal { opacity:0; transform:translateY(22px); transition:opacity .7s ease,transform .7s ease; }
+.lp-reveal.visible { opacity:1; transform:translateY(0); }
+
+/* Responsive tweaks */
+@media(max-width:860px){
+  .lp-hero { grid-template-columns:1fr; }
+  .lp-hero-left { height:40vh; }
+  .lp-hero-right { padding:36px 24px; }
+  .lp-manifesto,.lp-community-inner { grid-template-columns:1fr; gap:40px; }
+  .lp-pillars-grid { grid-template-columns:1fr; }
+  .lp-wide-cta { grid-template-columns:1fr; }
+  .lp-cta-btns { align-items:flex-start; }
+  .lp-footer-top { grid-template-columns:1fr 1fr; }
+  .lp-manifesto,.lp-pillars,.lp-wide-cta,.lp-community,.lp-footer { padding-left:24px; padding-right:24px; }
+  .lp-quotes { grid-template-columns:1fr; }
+  .lp-quote.large { grid-column:span 1; }
+  .topbar { padding:12px 16px; }
+  .nav-links { display:none; }
+}
+</style>
+</head>
+<body class="on-landing">
+
+<!-- Custom cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- ── TOPBAR ─────────────────────── -->
+<div class="topbar" id="topbar">
+  <div class="brand" onclick="goScreen('s_landing')">
+    <div class="logo-mark">🌙</div>
+    <div>
+      <div class="brand-name">LUNARA</div>
+      <div class="brand-tag">Intentional. Verified. Private.</div>
+    </div>
+  </div>
+
+  <ul class="nav-links" id="topbarNav">
+    <li class="nav-item">
+      <a href="#" onclick="return false">The App</a>
+      <div class="nav-dropdown">
+        <a href="#" onclick="goScreen('s_discover');return false">Discover <span class="ddarrow">→</span></a>
+        <a href="#" onclick="goScreen('s_match');return false">Match <span class="ddarrow">→</span></a>
+        <a href="#" onclick="goScreen('s_chat');return false">Messages <span class="ddarrow">→</span></a>
+        <a href="#" onclick="goScreen('s_premium');return false">Premium <span class="ddarrow">→</span></a>
+        <a href="#" onclick="goScreen('s_trust');return false">Trust Center</a>
+      </div>
+    </li>
+    <li class="nav-item">
+      <a href="#" onclick="return false">About Lunara</a>
+      <div class="nav-dropdown">
+        <a href="#" onclick="goScreen('s_landing');window.scrollTo(0,0);return false">Our Purpose</a>
+        <a href="#" onclick="goScreen('s_landing');setTimeout(()=>document.querySelector('.lp-community')?.scrollIntoView({behavior:'smooth'}),100);return false">The Community</a>
+        <a href="#" onclick="alert('Newsroom coming soon');return false">Newsroom</a>
+      </div>
+    </li>
+    <li class="nav-item">
+      <a href="#" onclick="return false">Magazine</a>
+      <div class="nav-dropdown">
+        <a href="#" onclick="goScreen('s_safety');return false">Safety Guide <span class="ddarrow">→</span></a>
+        <a href="#" onclick="goScreen('s_feedback');return false">Feedback</a>
+        <a href="#" onclick="alert('Education section coming soon');return false">Education</a>
+        <a href="#" onclick="alert('Glossary coming soon');return false">Glossary <span class="ddarrow">→</span></a>
+      </div>
+    </li>
+    <li><a href="#" onclick="goScreen('s_safety');return false">Safety Guide</a></li>
+  </ul>
+
+  <div class="nav-right" id="navRight">
+    <button class="btn-nav ghost" id="navLoginBtn" onclick="goScreen('s_login')">Log in</button>
+    <button class="btn-nav solid" id="navJoinBtn" onclick="openModal()">Join Lunara</button>
+  </div>
+</div>
+
+<div id="allScreens">
+
+<!-- ══════════════════════════════════
+     LANDING PAGE
+══════════════════════════════════ -->
+<section class="screen active" id="s_landing">
+
+  <!-- Hero -->
+  <div class="lp-hero">
+    <div class="lp-hero-left">
+      <div class="lp-hero-photo">
+        <svg viewBox="0 0 500 600" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax meet">
+          <circle cx="250" cy="160" r="130" fill="rgba(107,63,160,0.14)"/>
+          <circle cx="250" cy="160" r="75"  fill="rgba(107,63,160,0.10)"/>
+          <ellipse cx="175" cy="520" rx="58" ry="78" fill="rgba(14,12,20,0.72)"/>
+          <ellipse cx="175" cy="385" rx="44" ry="62" fill="rgba(14,12,20,0.68)"/>
+          <ellipse cx="180" cy="305" rx="27" ry="29" fill="rgba(14,12,20,0.64)"/>
+          <ellipse cx="325" cy="530" rx="53" ry="72" fill="rgba(14,12,20,0.62)"/>
+          <ellipse cx="315" cy="398" rx="41" ry="58" fill="rgba(14,12,20,0.58)"/>
+          <ellipse cx="313" cy="322" rx="25" ry="27" fill="rgba(14,12,20,0.54)"/>
+          <ellipse cx="248" cy="355" rx="78" ry="38" fill="rgba(232,85,62,0.07)"/>
+          <text x="250" y="185" text-anchor="middle" font-family="Georgia,serif" font-style="italic" font-size="15" fill="rgba(245,242,238,0.22)" letter-spacing="1">where curiosity</text>
+          <text x="250" y="208" text-anchor="middle" font-family="Georgia,serif" font-style="italic" font-size="15" fill="rgba(245,242,238,0.22)" letter-spacing="1">becomes connection</text>
+        </svg>
+      </div>
+      <div class="lp-hero-fade"></div>
+    </div>
+    <div class="lp-hero-right">
+      <div class="lp-eyebrow"><span class="lp-eyebrow-line"></span>Ethical Non-Monogamy</div>
+      <h1 class="lp-title">An intentional<br>space for <em>open-<br>hearted</em> people.</h1>
+      <p class="lp-body">Lunara is built for people who love beyond convention — with real verification, consent-first design, and a community that understands your world.</p>
+      <div class="lp-actions">
+        <button class="lp-btn solid" onclick="openModal()">Join Lunara</button>
+        <button class="lp-btn outline" onclick="goScreen('s_discover')">Explore the app →</button>
+      </div>
+      <div class="lp-stats">
+        <div><span class="lp-stat-num">100%</span><div class="lp-stat-label">ID Verified</div></div>
+        <div><span class="lp-stat-num">&lt;24h</span><div class="lp-stat-label">Safety response</div></div>
+        <div><span class="lp-stat-num">0</span><div class="lp-stat-label">Data sold</div></div>
+      </div>
+    </div>
+    <div class="lp-scroll"><div class="lp-scroll-line"></div>Scroll</div>
+  </div>
+
+  <!-- Manifesto -->
+  <div class="lp-manifesto lp-reveal">
+    <div>
+      <div class="lp-manifesto-label">Our belief</div>
+      <h2 class="lp-manifesto-title">We actively build trust with practices that <em>evolve</em> alongside our community.</h2>
+    </div>
+    <div>
+      <div class="lp-mpoint"><span class="lp-mnum">01</span><div class="lp-mtext"><h4>Love our people</h4><p>Lunara was born from deep respect for the vastness of human connection. We never lose touch with the empathy foundational to this community.</p></div></div>
+      <div class="lp-mpoint"><span class="lp-mnum">02</span><div class="lp-mtext"><h4>Make intentional impact</h4><p>We're changing how people think about relationships. We move forward with care and purpose — there are many unknowns ahead.</p></div></div>
+      <div class="lp-mpoint"><span class="lp-mnum">03</span><div class="lp-mtext"><h4>Constantly evolve</h4><p>Just as our members are evolving, we remain open to feedback, step outside comfort zones, and stay attuned to what this community needs.</p></div></div>
+    </div>
+  </div>
+
+  <!-- Pillars -->
+  <div class="lp-pillars lp-reveal">
+    <div class="lp-pillars-hdr">
+      <div class="lp-section-eyebrow">Built different</div>
+      <h2>What makes Lunara <em>unlike anything else</em></h2>
+    </div>
+    <div class="lp-pillars-grid">
+      <div class="lp-pillar"><div class="lp-pillar-num">01</div><span class="lp-pillar-icon">🔐</span><h3>Identity Verified</h3><p>Every member verified via government ID or live selfie. No fake profiles. No catfishing. Real people only.</p></div>
+      <div class="lp-pillar"><div class="lp-pillar-num">02</div><span class="lp-pillar-icon">🧭</span><h3>Relationship Compass</h3><p>Solo poly, kitchen table, hierarchical — we speak your language. Filter for people whose actual structure aligns with yours.</p></div>
+      <div class="lp-pillar"><div class="lp-pillar-num">03</div><span class="lp-pillar-icon">🛡️</span><h3>Consent Architecture</h3><p>Built-in safe words. Media locked until both consent. Moderation that treats every report seriously.</p></div>
+      <div class="lp-pillar"><div class="lp-pillar-num">04</div><span class="lp-pillar-icon">🔒</span><h3>Privacy by Design</h3><p>No public profiles. No search indexing. Your data is encrypted and never sold — ever.</p></div>
+      <div class="lp-pillar"><div class="lp-pillar-num">05</div><span class="lp-pillar-icon">💬</span><h3>Safe by Default</h3><p>Encrypted messaging. You control access. Unmatching permanently removes all history.</p></div>
+      <div class="lp-pillar"><div class="lp-pillar-num">06</div><span class="lp-pillar-icon">🌍</span><h3>Real Community</h3><p>Education, community spaces, and guides for navigating ENM with confidence — connection beyond the swipe.</p></div>
+    </div>
+  </div>
+
+  <!-- Wide CTA -->
+  <div class="lp-wide-cta lp-reveal">
+    <div>
+      <div class="lp-cta-eyebrow">Early Access Now Open</div>
+      <h2>The private platform <em>built for you</em> is here.</h2>
+    </div>
+    <div class="lp-cta-btns">
+      <button class="lp-btn-white" onclick="openModal()">Join the Waitlist</button>
+      <button class="lp-btn-woutline" onclick="goScreen('s_discover')">Explore the app</button>
+      <div class="lp-cta-note">Founding members: 3 months premium free</div>
+    </div>
+  </div>
+
+  <!-- Community / Quotes -->
+  <div class="lp-community lp-reveal">
+    <div class="lp-community-inner">
+      <div class="lp-community-left">
+        <div class="lp-section-eyebrow">Real voices</div>
+        <h2>People who found their <em>people</em> here.</h2>
+        <p>We don't ask for testimonials. These are real words from real members willing to share their experience with our community.</p>
+        <div class="lp-com-links">
+          <a href="#" class="lp-com-link" onclick="goScreen('s_safety');return false;">
+            <div><div class="lp-clink-name">Safety Guide</div><div class="lp-clink-sub">Education for every member</div></div>
+            <span class="lp-clink-arrow">→</span>
+          </a>
+          <a href="#" class="lp-com-link" onclick="goScreen('s_feedback');return false;">
+            <div><div class="lp-clink-name">Feedback</div><div class="lp-clink-sub">Shape what Lunara becomes</div></div>
+            <span class="lp-clink-arrow">→</span>
+          </a>
+          <a href="#" class="lp-com-link" onclick="goScreen('s_discover');return false;">
+            <div><div class="lp-clink-name">Discover</div><div class="lp-clink-sub">Explore the app</div></div>
+            <span class="lp-clink-arrow">→</span>
+          </a>
+        </div>
+      </div>
+      <div class="lp-quotes">
+        <div class="lp-quote large">
+          <div class="lp-quote-text">"Finally a platform that doesn't treat my relationship structure as a fetish or a curiosity. It's just... normal here. That's everything."</div>
+          <div class="lp-quote-author">Taylor, 31 · London</div>
+          <span class="lp-quote-tag">Polyamorous</span>
+        </div>
+        <div class="lp-quote">
+          <div class="lp-quote-text">"The verification gave me genuine confidence. Every person I spoke to was real and accountable."</div>
+          <div class="lp-quote-author">Oona, 33 · Bristol</div>
+          <span class="lp-quote-tag">Open relationship</span>
+        </div>
+        <div class="lp-quote">
+          <div class="lp-quote-text">"The safety guide is genuinely useful. I reference it with every new connection."</div>
+          <div class="lp-quote-author">Dray, 29 · Cardiff</div>
+          <span class="lp-quote-tag">Relationship anarchy</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="lp-footer">
+    <div class="lp-footer-top">
+      <div>
+        <div class="lp-footer-brand">Lunara</div>
+        <div class="lp-footer-tagline">Intentional. Verified. Private. Built for people who love beyond convention.</div>
+      </div>
+      <div class="lp-footer-col">
+        <h4>The App</h4>
+        <a href="#" onclick="goScreen('s_discover');return false">Explore</a>
+        <a href="#" onclick="openModal();return false">Join Waitlist</a>
+        <a href="#" onclick="goScreen('s_premium');return false">Premium</a>
+        <a href="#" onclick="goScreen('s_trust');return false">Trust Center</a>
+      </div>
+      <div class="lp-footer-col">
+        <h4>Community</h4>
+        <a href="#" onclick="goScreen('s_safety');return false">Safety Guide</a>
+        <a href="#" onclick="goScreen('s_feedback');return false">Feedback</a>
+      </div>
+      <div class="lp-footer-col">
+        <h4>Company</h4>
+        <a href="#">Our Purpose</a>
+        <a href="#">Newsroom</a>
+        <a href="#">hello@lunara.app</a>
+      </div>
+    </div>
+    <div class="lp-footer-bottom">
+      <div class="lp-footer-legal">© 2025 Lunara · Privacy Policy · Terms</div>
+      <div class="lp-footer-badge"><span></span>Privacy-first platform</div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ══════════════════════════════════
+     APP SCREENS (inside .wrap)
+══════════════════════════════════ -->
+<div class="wrap" id="appWrap" style="display:none;">
+
+  <!-- SIGNUP -->
+  <section class="screen" id="s_signup">
+    <div class="card">
+      <div class="hd"><b>Create account</b><span class="small muted">Step 1 of 2</span></div>
+      <div class="bd grid">
+        <div>
+          <div class="field"><label>Email</label><input placeholder="you@example.com"/></div>
+          <div class="sp"></div>
+          <div class="field"><label>Password</label><input type="password" placeholder="••••••••"/></div>
+          <div class="sp"></div>
+          <div class="row">
+            <button class="btn primary" onclick="goScreen('s_onboarding')">Continue →</button>
+            <button class="btn" onclick="goScreen('s_landing')">Back</button>
+          </div>
+          <div class="sp"></div>
+          <div class="small muted">18+ only. Your data is encrypted and never sold.</div>
+        </div>
+        <div class="note">
+          <div class="h2">Why Lunara is different</div>
+          <div class="sp"></div>
+          <p class="muted small" style="line-height:1.7">ID verification is optional but rewarded with priority matching. Media locked until both consent. Every report handled within 24 hours.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LOGIN -->
+  <section class="screen" id="s_login">
+    <div class="card">
+      <div class="hd"><b>Welcome back</b><span class="small muted">Log in</span></div>
+      <div class="bd grid">
+        <div>
+          <div class="field"><label>Email</label><input placeholder="you@example.com"/></div>
+          <div class="sp"></div>
+          <div class="field"><label>Password</label><input type="password" placeholder="••••••••"/></div>
+          <div class="sp"></div>
+          <div class="row">
+            <button class="btn primary" onclick="goScreen('s_discover')">Log in</button>
+            <button class="btn" onclick="goScreen('s_landing')">Back</button>
+          </div>
+        </div>
+        <div class="note">
+          <div class="h2">Discreet by design</div>
+          <p class="muted small" style="line-height:1.7;margin-top:10px">Default profile blur. Approximate location only. You choose your visibility — always.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ONBOARDING -->
+  <section class="screen" id="s_onboarding">
+    <div class="card">
+      <div class="hd"><b>Set your intent & boundaries</b><span class="small muted">Step 2 of 2</span></div>
+      <div class="bd grid">
+        <div>
+          <div class="h2">1) Your relationship style</div><div class="sp"></div>
+          <div class="chips" id="intentChips">
+            <div class="chip active">Ethical Non-Monogamy</div>
+            <div class="chip">Open Relationship</div>
+            <div class="chip">Solo Poly</div>
+            <div class="chip">Kitchen Table Poly</div>
+            <div class="chip">Relationship Anarchy</div>
+            <div class="chip">Exploring / Curious</div>
+          </div>
+          <div class="hr"></div>
+          <div class="h2">2) Visibility & privacy</div><div class="sp"></div>
+          <div class="field"><label>Visibility mode</label>
+            <select><option>Discreet (blurred by default)</option><option>Standard</option><option>Open</option></select>
+          </div>
+          <div class="sp"></div>
+          <div class="field">
+            <label>Distance radius</label>
+            <input type="range" min="5" max="80" value="25" oninput="document.getElementById('rv').textContent=this.value+' miles'"/>
+            <div class="small muted">Current: <span id="rv">25 miles</span></div>
+          </div>
+          <div class="sp"></div>
+          <div class="row">
+            <button class="btn" onclick="goScreen('s_signup')">Back</button>
+            <button class="btn primary" onclick="goScreen('s_discover')">Finish setup →</button>
+          </div>
+        </div>
+        <div class="note">
+          <div class="h2">Safe word setup</div><div class="sp"></div>
+          <div class="field"><label>Your safe word</label><input placeholder='"pause" or "anchor"'/></div>
+          <p class="muted small" style="margin-top:8px;line-height:1.6">Type this in any chat to instantly pause the conversation and alert our safety team.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DISCOVER -->
+  <section class="screen" id="s_discover">
+    <div class="split" style="margin-bottom:16px">
+      <div>
+        <div class="h1" style="margin:8px 0 4px">Discover</div>
+        <div class="muted small">Daily curated picks — limited, high alignment.</div>
+      </div>
+      <div class="row">
+        <button class="btn sm" onclick="goScreen('s_premium')">⭐ Upgrade</button>
+        <button class="btn sm" onclick="goScreen('s_trust')">🛡️ Trust Center</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="hd"><b>Today's picks</b><span class="small muted">5 matches</span></div>
+      <div class="bd" id="matchList"></div>
+    </div>
+  </section>
+
+  <!-- MATCH DETAIL -->
+  <section class="screen" id="s_match">
+    <div class="card">
+      <div class="hd"><b>Connection</b><span class="pill"><span class="dot"></span>Mutual match</span></div>
+      <div class="bd grid">
+        <div>
+          <div class="matchCard" style="margin-bottom:0">
+            <div class="avatar"><div class="blur"></div><span class="emoji" id="matchEmoji">🌙</span></div>
+            <div>
+              <div class="split">
+                <b id="matchName">Taylor • 31</b>
+                <span class="badge"><span class="bDot"></span>Verified</span>
+              </div>
+              <div class="muted small" id="matchMeta">Intent: Ethical ENM · London</div>
+              <div class="badges">
+                <span class="badge"><span class="bDot"></span>Intent: <span id="matchAlign">94</span>%</span>
+                <span class="badge"><span class="bDot"></span>Boundaries: High</span>
+                <span class="badge warn"><span class="bDot"></span>Discreet</span>
+              </div>
+            </div>
+          </div>
+          <div class="hr"></div>
+          <div class="h2">Compatibility</div><div class="sp"></div>
+          <div class="prog-wrap">
+            <div class="prog-label"><span>Intent alignment</span><strong style="color:var(--sage)" id="matchAlignLbl">94%</strong></div>
+            <div class="prog-track"><div class="prog-fill" id="matchAlignBar" style="width:94%"></div></div>
+          </div>
+          <div class="prog-wrap" style="margin-top:10px">
+            <div class="prog-label"><span>Boundary match</span><strong style="color:var(--sage)">High</strong></div>
+            <div class="prog-track"><div class="prog-fill" style="width:88%"></div></div>
+          </div>
+          <div class="sp"></div>
+          <div class="row">
+            <button class="btn" onclick="goScreen('s_discover')">← Back</button>
+            <button class="btn primary" onclick="goScreen('s_chat')">Start chat →</button>
+          </div>
+        </div>
+        <div class="note">
+          <div class="h2">Consent controls</div>
+          <p class="muted small" style="line-height:1.7;margin:10px 0">Media locked until both users approve. Prevents harassment, builds trust before intimacy.</p>
+          <div class="hr"></div>
+          <button class="btn danger" onclick="alert('UI only: block/report.')">⚑ Report or Block</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHAT -->
+  <section class="screen" id="s_chat">
+    <div class="split" style="margin-bottom:14px">
+      <div>
+        <div class="h1" style="margin:8px 0 4px">Messages</div>
+        <div class="muted small">End-to-end encrypted · Consent-gated · Safe word active</div>
+      </div>
+      <div class="row">
+        <button class="btn sm" onclick="goScreen('s_match')">← Match</button>
+        <button class="btn sm danger">⚑ Report</button>
+      </div>
+    </div>
+    <div class="chatWrap">
+      <div class="chatTop">
+        <div>
+          <b id="chatName">Taylor · Verified</b>
+          <div class="small muted" id="chatMeta">Intent 94% · Discreet</div>
+        </div>
+        <button class="btn sm" onclick="toggleMedia()">🔓 Request media unlock</button>
+      </div>
+      <div class="chat-actions">
+        <button class="chat-act">📅 Suggest meet</button>
+        <button class="chat-act">🛡️ Safety check-in</button>
+        <button class="chat-act danger">⚑ Report</button>
+      </div>
+      <div class="chatBody" id="chatBody">
+        <div class="bubble">Hey — your profile resonated with me. Clear intent, clear boundaries. Exactly what I look for here.<div class="ts">10:14 AM</div></div>
+        <div class="bubble me">Appreciate that. Same energy — alignment first, everything else follows.<div class="ts">10:17 AM</div></div>
+        <div class="bubble">What does "discreet" look like for you practically?<div class="ts">10:20 AM</div></div>
+        <div class="bubble me">No social mentions, no shared location until both comfortable, neutral spots first. That work?<div class="ts">10:24 AM</div></div>
+        <div class="bubble">Perfectly. I like how direct you are.<div class="ts">10:26 AM</div></div>
+      </div>
+      <div class="safe-banner">🛡️ Safe word active — type it at any time to pause this conversation.</div>
+      <div class="chatBottom">
+        <input id="chatInput" placeholder="Message Taylor…" onkeydown="if(event.key==='Enter')sendMsg()"/>
+        <button class="btn primary" onclick="sendMsg()">→</button>
+      </div>
+    </div>
+    <div class="sp"></div>
+    <div class="note small muted" id="mediaNote" style="display:none">🔒 Media unlock requested. The other user must accept before photos can be exchanged.</div>
+  </section>
+
+  <!-- TRUST CENTER -->
+  <section class="screen" id="s_trust">
+    <div class="card">
+      <div class="hd"><b>Trust Center</b><span class="small muted">Safety & privacy controls</span></div>
+      <div class="bd grid">
+        <div>
+          <div class="kpi">
+            <div class="box"><b>Verification</b><span style="color:var(--sage)">Active</span></div>
+            <div class="box"><b>Visibility</b><span>Discreet</span></div>
+            <div class="box"><b>Reports</b><span style="color:var(--sage)">&lt;24h</span></div>
+          </div>
+          <div class="hr"></div>
+          <div class="field"><label>Privacy mode</label>
+            <select><option>Discreet (blur + limited discovery)</option><option>Standard</option><option>Incognito (Premium)</option></select>
+          </div>
+          <div class="sp"></div>
+          <div class="row">
+            <button class="btn">Export my data</button>
+            <button class="btn danger">Delete account</button>
+          </div>
+          <div class="sp"></div>
+          <button class="btn" onclick="goScreen('s_discover')">← Back to Discover</button>
+        </div>
+        <div class="note">
+          <div class="h2">Moderation</div>
+          <p class="muted small" style="line-height:1.7;margin:10px 0">Rate limiting, abuse detection, shadow banning, and a human moderation queue — all running behind the scenes.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SAFETY GUIDE -->
+  <section class="screen" id="s_safety">
+    <div class="safety-hero-inner">
+      <div class="pill" style="margin-bottom:14px"><span class="dot"></span>Your safety matters most</div>
+      <div class="h1" style="margin-bottom:10px">Spot the red flags. <span style="font-style:italic;color:var(--blush)">Stay safe.</span></div>
+      <p class="muted" style="font-size:15px;line-height:1.65;max-width:560px">Learn to identify suspicious behaviour and protect yourself. This guide is for every Lunara member.</p>
+    </div>
+    <div class="stat-bar">
+      <div class="stat-item"><span class="stat-num">100%</span><div class="stat-lbl">Members verified</div></div>
+      <div class="stat-item"><span class="stat-num">&lt;24h</span><div class="stat-lbl">Report response</div></div>
+      <div class="stat-item"><span class="stat-num">0</span><div class="stat-lbl">Data sold</div></div>
+      <div class="stat-item"><span class="stat-num">24/7</span><div class="stat-lbl">Safety team</div></div>
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="hd"><b>🚩 Red Flags — Warning Signs</b></div>
+      <div class="bd">
+        <div class="rf-grid">
+          <div class="rf-card"><div class="rf-icon" style="background:rgba(232,85,62,.12)">🚩</div><h3>Pushes past your limits</h3><p>Repeatedly ignoring stated boundaries is a serious warning sign. Ethical ENM practitioners understand consent deeply.</p><span class="rf-act">Use safe word → report → unmatch immediately.</span></div>
+          <div class="rf-card"><div class="rf-icon" style="background:rgba(255,190,85,.1)">📹</div><h3>Avoids video calls</h3><p>If someone always has a "broken camera" or avoids a quick video before meeting — never meet without a live call first.</p><span class="rf-act">Always video call before any in-person meeting.</span></div>
+          <div class="rf-card"><div class="rf-icon" style="background:rgba(232,85,62,.12)">💸</div><h3>Asks for money</h3><p>Any request for money, gift cards, or crypto — however framed — is an immediate red flag without exception.</p><span class="rf-act">Report immediately. Do not send any money.</span></div>
+          <div class="rf-card"><div class="rf-icon" style="background:rgba(107,63,160,.12)">🎭</div><h3>Inconsistent stories</h3><p>Inconsistencies in age, location, or history are warning signs. Real people don't need to keep adjusting their story.</p><span class="rf-act">Ask direct follow-up questions. Trust your gut.</span></div>
+          <div class="rf-card"><div class="rf-icon" style="background:rgba(232,85,62,.12)">⏩</div><h3>Moves unusually fast</h3><p>Love bombing and pushing to move off Lunara to WhatsApp is a manipulation tactic. Real connections develop naturally.</p><span class="rf-act">Slow down. A real person respects your pace.</span></div>
+          <div class="rf-card"><div class="rf-icon" style="background:rgba(138,171,140,.1)">🔕</div><h3>Dismisses your partners</h3><p>Anyone undermining your existing relationships is not aligned with ENM values. This is a clear values mismatch.</p><span class="rf-act">This is a values mismatch. Pass on this person.</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="hd"><b>✅ Before You Meet In Person</b></div>
+      <div class="bd">
+        <div class="checklist-wrap">
+          <div class="cl-item"><div class="cl-check">✓</div><div><strong>Video call first.</strong> At least one live video before any in-person meeting. No exceptions.</div></div>
+          <div class="cl-item"><div class="cl-check">✓</div><div><strong>Tell someone you trust.</strong> Share their profile, location, and expected return time.</div></div>
+          <div class="cl-item"><div class="cl-check">✓</div><div><strong>Public place first.</strong> Coffee, a walk, a busy venue. Never private on a first meeting.</div></div>
+          <div class="cl-item"><div class="cl-check">✓</div><div><strong>Arrange your own transport.</strong> Don't rely on them to get you home.</div></div>
+          <div class="cl-item"><div class="cl-check">✓</div><div><strong>Check in mid-meeting.</strong> A "all good 👍" text to a trusted person is standard practice.</div></div>
+          <div class="cl-item"><div class="cl-check">✓</div><div><strong>Trust your gut fully.</strong> If something feels off, you can always leave. No explanation needed.</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="row" style="justify-content:center;padding:8px 0">
+      <button class="btn primary" onclick="goScreen('s_feedback')">🛡️ Contact Safety Team</button>
+      <button class="btn" onclick="goScreen('s_discover')">← Back to Discover</button>
+    </div>
+  </section>
+
+  <!-- FEEDBACK -->
+  <section class="screen" id="s_feedback">
+    <div class="split" style="margin-bottom:20px">
+      <div>
+        <div class="h1" style="margin:8px 0 4px">Your feedback</div>
+        <div class="muted small">We read every submission. You shape what Lunara becomes.</div>
+      </div>
+    </div>
+    <div class="feedback-grid">
+      <div class="card">
+        <div class="hd"><b>Send feedback</b><span class="small muted">Anonymous by default</span></div>
+        <div class="bd">
+          <div class="field" style="margin-bottom:14px"><label>Type</label>
+            <div class="chips" id="fbTypeChips">
+              <div class="chip active" onclick="fbType(this)">💡 Suggestion</div>
+              <div class="chip" onclick="fbType(this)">🐛 Bug</div>
+              <div class="chip" onclick="fbType(this)">🛡️ Safety</div>
+              <div class="chip" onclick="fbType(this)">⭐ Compliment</div>
+              <div class="chip" onclick="fbType(this)">💬 General</div>
+            </div>
+          </div>
+          <div class="field"><label>Area</label>
+            <select><option>Matching & Discovery</option><option>Messaging</option><option>Verification</option><option>Safety features</option><option>Pricing</option><option>Other</option></select>
+          </div>
+          <div class="sp"></div>
+          <div class="field"><label>Your feedback</label><textarea placeholder="Be specific — the more detail, the more useful."></textarea></div>
+          <div class="sp"></div>
+          <label style="font-size:12px;color:rgba(245,242,238,.45);text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:8px">Urgency</label>
+          <div style="display:flex;gap:8px">
+            <button class="urg on" onclick="setUrg(this)">Low</button>
+            <button class="urg" onclick="setUrg(this)">Medium</button>
+            <button class="urg" onclick="setUrg(this)">High</button>
+            <button class="urg crit" onclick="setUrg(this)">🚨 Critical</button>
+          </div>
+          <div class="sp"></div>
+          <div class="field"><label>Name (optional)</label><input placeholder="Leave blank for anonymous"/></div>
+          <div class="sp"></div>
+          <div class="field"><label>Email (optional)</label><input type="email" placeholder="Only if you want a response"/></div>
+          <div class="sp"></div>
+          <button class="btn primary" style="width:100%" onclick="submitFeedback()">Send Feedback →</button>
+          <div id="feedbackSuccess"><div style="font-size:28px;margin-bottom:8px">✅</div><div style="font-weight:700;color:var(--sage)">Received — thank you!</div><div class="small muted" style="margin-top:4px">Our team reviews all feedback within 48 hours.</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:14px">
+          <div class="hd"><b>Rate your experience</b></div>
+          <div class="bd">
+            <div class="muted small">How would you rate Lunara overall?</div>
+            <div class="star-row" id="starRow">
+              <span class="star" onclick="rateStar(1)">★</span><span class="star" onclick="rateStar(2)">★</span><span class="star" onclick="rateStar(3)">★</span><span class="star" onclick="rateStar(4)">★</span><span class="star" onclick="rateStar(5)">★</span>
+            </div>
+            <div id="ratingLabel" class="small muted" style="min-height:18px"></div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:14px">
+          <div class="hd"><b>What should we build next?</b></div>
+          <div class="bd">
+            <div class="vote-item" onclick="vote(this)"><span>🗓️ Event & meetup spaces</span><span class="vote-ct">142 votes</span></div>
+            <div class="vote-item" onclick="vote(this)"><span>📞 In-app video calls</span><span class="vote-ct">98 votes</span></div>
+            <div class="vote-item" onclick="vote(this)"><span>👥 Community forums</span><span class="vote-ct">87 votes</span></div>
+            <div class="vote-item" onclick="vote(this)"><span>🤝 Partner introductions</span><span class="vote-ct">73 votes</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="hd"><b>Contact us</b></div>
+          <div class="bd">
+            <div class="contact-item"><div class="contact-icon">🛡️</div><div><div class="contact-lbl">Safety team</div><div class="contact-sub">Urgent — 2hr response</div></div></div>
+            <div class="contact-item"><div class="contact-icon">💌</div><div><div class="contact-lbl">hello@lunara.app</div><div class="contact-sub">General & partnerships</div></div></div>
+            <div class="contact-item"><div class="contact-icon">📖</div><div><div class="contact-lbl">Community Guidelines</div><div class="contact-sub">What keeps Lunara safe</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PREMIUM -->
+  <section class="screen" id="s_premium">
+    <div class="card">
+      <div class="hd"><b>Lunara Premium</b><span class="small muted">More control, not desperation</span></div>
+      <div class="bd grid">
+        <div>
+          <div class="h1" style="margin-bottom:16px">Upgrade your <span style="font-style:italic;color:var(--blush)">privacy & reach</span></div>
+          <div class="plan-card"><div class="h2">Free</div><ul><li>5 curated matches per day</li><li>Limited messaging</li><li>Standard filters</li></ul></div>
+          <div class="plan-card highlight">
+            <div class="h2">Premium <span style="font-size:13px;color:var(--coral);font-weight:400">£19.99/mo</span></div>
+            <ul><li>Unlimited messaging</li><li>Advanced filters</li><li>Incognito mode</li><li>Priority visibility (verified boost)</li><li>Event access</li></ul>
+            <div class="sp"></div>
+            <button class="btn primary" onclick="alert('UI only: Stripe checkout.')">Upgrade — £19.99/mo</button>
+          </div>
+          <button class="btn" style="margin-top:10px" onclick="goScreen('s_discover')">← Back</button>
+        </div>
+        <div class="note">
+          <div class="h2">Positioning</div>
+          <p class="muted small" style="line-height:1.7;margin-top:10px">Premium is about privacy and quality — not desperation. Frame it that way in all copy.</p>
+          <div class="hr"></div>
+          <p class="muted small">Founding members: first 3 months free. Use this to seed your initial user base.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /appWrap -->
+</div><!-- /allScreens -->
+
+<!-- Bottom nav (app only) -->
+<div class="bottom-nav" id="bottomNav" style="display:none">
+  <div class="tab" onclick="goScreen('s_discover',this)"><span class="ti">💫</span>Discover</div>
+  <div class="tab" onclick="goScreen('s_match',this)"><span class="ti">✨</span>Match</div>
+  <div class="tab" onclick="goScreen('s_chat',this)"><span class="ti">💬</span>Chat</div>
+  <div class="tab" onclick="goScreen('s_safety',this)"><span class="ti">🛡️</span>Safety</div>
+  <div class="tab" onclick="goScreen('s_feedback',this)"><span class="ti">⭐</span>Feedback</div>
+  <div class="tab" onclick="goScreen('s_premium',this)"><span class="ti">🔓</span>Premium</div>
+</div>
+
+<!-- Waitlist Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2>Join <em>Lunara</em></h2>
+    <p>Be among the first. Founding members get 3 months of Premium completely free — no card required.</p>
+    <div class="modal-form" id="modalForm">
+      <input class="modal-input" type="text" placeholder="Your display name">
+      <input class="modal-input" type="email" placeholder="Email address">
+      <select class="modal-input" style="-webkit-appearance:none;appearance:none;cursor:none">
+        <option value="" disabled selected>Your relationship style</option>
+        <option>Polyamorous</option><option>Solo poly</option><option>Kitchen table poly</option>
+        <option>Open relationship</option><option>Relationship anarchy</option><option>Exploring / Curious</option>
+      </select>
+      <button class="modal-submit" onclick="submitWaitlist()">Join the Waitlist →</button>
+      <div class="modal-legal">18+ only. Your data is encrypted and never shared.</div>
+    </div>
+    <div class="modal-success" id="modalSuccess">
+      <div class="si">🌙</div>
+      <h3>You're on the list.</h3>
+      <p>We'll be in touch soon. Welcome to Lunara.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Cursor ──────────────────────────
+const cur = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+(function animRing(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animRing);})();
+document.querySelectorAll('a,button,.chip,.tab,.vote-item,.lp-com-link,.matchCard').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cur.style.width='20px';cur.style.height='20px';ring.style.width='60px';ring.style.height='60px';});
+  el.addEventListener('mouseleave',()=>{cur.style.width='12px';cur.style.height='12px';ring.style.width='40px';ring.style.height='40px';});
+});
+
+// ── Screen management ───────────────
+const LANDING='s_landing';
+const APP_SCREENS=['s_signup','s_login','s_onboarding','s_discover','s_match','s_chat','s_trust','s_safety','s_feedback','s_premium'];
+const ALL_SCREENS=[LANDING,...APP_SCREENS];
+
+function goScreen(id,tabEl){
+  // Hide all screens
+  ALL_SCREENS.forEach(s=>{const el=document.getElementById(s);if(el)el.classList.remove('active');});
+  document.getElementById(id).classList.add('active');
+
+  const isLanding=(id===LANDING);
+
+  // Toggle body class (used for bottom nav only)
+  document.body.classList.toggle('on-landing',isLanding);
+
+  // Show/hide appWrap
+  document.getElementById('appWrap').style.display = isLanding?'none':'block';
+
+  // Show/hide bottom nav
+  document.getElementById('bottomNav').style.display = isLanding?'none':'flex';
+
+  // Nav right buttons — on landing show Log in + Join, in app show ← Home + Waitlist
+  const navLogin=document.getElementById('navLoginBtn');
+  const navJoin=document.getElementById('navJoinBtn');
+  if(isLanding){
+    navLogin.textContent='Log in';
+    navLogin.onclick=()=>goScreen('s_login');
+    navJoin.textContent='Join Lunara';
+    navJoin.onclick=()=>openModal();
+  } else {
+    navLogin.textContent='← Home';
+    navLogin.onclick=()=>goScreen(LANDING);
+    navJoin.textContent='Waitlist';
+    navJoin.onclick=()=>openModal();
+  }
+
+  // Update bottom nav tab highlight
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  if(tabEl) tabEl.classList.add('active');
+  else {
+    const map={s_discover:0,s_match:1,s_chat:2,s_safety:3,s_feedback:4,s_premium:5};
+    if(map[id]!==undefined) document.querySelectorAll('.tab')[map[id]]?.classList.add('active');
+  }
+
+  window.scrollTo(0,0);
+}
+
+// ── Sticky topbar ───────────────────
+window.addEventListener('scroll',()=>{
+  document.getElementById('topbar').classList.toggle('compact',window.scrollY>60);
+});
+
+// ── Intent chips ─────────────────
+document.getElementById('intentChips').addEventListener('click',e=>{
+  const c=e.target.closest('.chip');if(!c)return;
+  document.querySelectorAll('#intentChips .chip').forEach(x=>x.classList.remove('active'));
+  c.classList.add('active');
+});
+
+// ── Match data ──────────────────────
+const members=[
+  {name:'Taylor',age:31,city:'London',intent:'Ethical ENM',verified:true,align:94,boundary:'High',vis:'Discreet',emoji:'🌙'},
+  {name:'Oona',age:33,city:'Bristol',intent:'Kitchen Table Poly',verified:true,align:88,boundary:'High',vis:'Standard',emoji:'✨'},
+  {name:'Dray',age:29,city:'Cardiff',intent:'Relationship Anarchy',verified:false,align:85,boundary:'Medium',vis:'Discreet',emoji:'🌿'},
+  {name:'Ozzi',age:35,city:'Birmingham',intent:'Open Relationship',verified:true,align:79,boundary:'Medium',vis:'Standard',emoji:'🔥'},
+  {name:'Kate',age:28,city:'Manchester',intent:'Exploring / Curious',verified:false,align:76,boundary:'Medium',vis:'Discreet',emoji:'🦋'},
+];
+
+function renderMatches(){
+  const el=document.getElementById('matchList');el.innerHTML='';
+  members.forEach((m,i)=>{
+    const d=document.createElement('div');d.className='matchCard';
+    d.innerHTML=`
+      <div class="avatar"><div class="blur"></div><span class="emoji">${m.emoji}</span></div>
+      <div>
+        <div class="split"><b>${m.name} • ${m.age}</b><span class="badge ${m.verified?'':'warn'}"><span class="bDot"></span>${m.verified?'Verified':'Unverified'}</span></div>
+        <div class="muted small">Intent: ${m.intent} · ${m.city}</div>
+        <div class="badges">
+          <span class="badge"><span class="bDot"></span>${m.align}%</span>
+          <span class="badge ${m.boundary==='High'?'':'warn'}"><span class="bDot"></span>Boundary: ${m.boundary}</span>
+          <span class="badge warn"><span class="bDot"></span>${m.vis}</span>
+        </div>
+        <div class="compat-wrap" style="margin-top:8px"><div class="compat-track"><div class="compat-fill" style="width:${m.align}%"></div></div></div>
+        <div class="actions">
+          <button class="iconBtn" onclick="event.stopPropagation();alert('Passed')">Pass</button>
+          <button class="iconBtn primary" onclick="event.stopPropagation();openMatch(${i})">Connect</button>
+          <button class="iconBtn violet" onclick="event.stopPropagation();alert('Saved')">Save</button>
+        </div>
+      </div>`;
+    el.appendChild(d);
+  });
+}
+
+function openMatch(i){
+  const m=members[i];
+  document.getElementById('matchName').textContent=`${m.name} • ${m.age}`;
+  document.getElementById('matchMeta').textContent=`Intent: ${m.intent} · ${m.city}`;
+  document.getElementById('matchEmoji').textContent=m.emoji;
+  document.getElementById('matchAlign').textContent=m.align;
+  document.getElementById('matchAlignLbl').textContent=m.align+'%';
+  document.getElementById('matchAlignBar').style.width=m.align+'%';
+  document.getElementById('chatName').textContent=`${m.name} · ${m.verified?'Verified':'Unverified'}`;
+  document.getElementById('chatMeta').textContent=`Intent ${m.align}% · ${m.vis}`;
+  document.getElementById('chatInput').placeholder=`Message ${m.name}…`;
+  goScreen('s_match');
+}
+
+// ── Chat ────────────────────────────
+function sendMsg(){
+  const inp=document.getElementById('chatInput');
+  const txt=inp.value.trim();if(!txt)return;
+  const body=document.getElementById('chatBody');
+  const b=document.createElement('div');b.className='bubble me';
+  b.innerHTML=txt+`<div class="ts">${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>`;
+  body.appendChild(b);inp.value='';body.scrollTop=body.scrollHeight;
+}
+function toggleMedia(){
+  const n=document.getElementById('mediaNote');
+  n.style.display=n.style.display==='none'?'block':'none';
+}
+
+// ── Modal ────────────────────────────
+function openModal(){document.getElementById('modalOverlay').classList.add('open');}
+function closeModal(e){if(!e||e.target===document.getElementById('modalOverlay'))document.getElementById('modalOverlay').classList.remove('open');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+function submitWaitlist(){
+  document.getElementById('modalForm').style.display='none';
+  document.getElementById('modalSuccess').style.display='block';
+}
+
+// ── Feedback ────────────────────────
+function fbType(el){document.querySelectorAll('#fbTypeChips .chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');}
+function setUrg(el){document.querySelectorAll('.urg').forEach(b=>b.classList.remove('on'));el.classList.add('on');}
+function rateStar(n){
+  document.querySelectorAll('.star').forEach((s,i)=>s.classList.toggle('lit',i<n));
+  const l=['','Needs work','Getting there','Pretty good','Really good','Love it! ❤️'];
+  document.getElementById('ratingLabel').textContent=l[n];
+}
+function vote(el){
+  el.classList.toggle('voted');
+  const ct=el.querySelector('.vote-ct');
+  const n=parseInt(ct.textContent);
+  ct.textContent=(el.classList.contains('voted')?n+1:n-1)+' votes';
+}
+function submitFeedback(){
+  document.getElementById('feedbackSuccess').style.display='block';
+  document.querySelector('.btn.primary[onclick="submitFeedback()"]').style.display='none';
+}
+
+// ── Scroll reveal for landing ───────
+const revealObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');revealObs.unobserve(e.target);}});
+},{threshold:0.1});
+document.querySelectorAll('.lp-reveal,.lp-pillar,.lp-quote,.lp-mpoint').forEach(el=>{
+  el.style.transition='opacity .7s ease, transform .7s ease';
+  revealObs.observe(el);
+});
+
+// ── Init ────────────────────────────
+renderMatches();
+</script>
+</body>
+</html>
