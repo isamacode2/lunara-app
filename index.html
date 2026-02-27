@@ -1026,20 +1026,21 @@ body.on-landing .bottom-nav { display:none !important; }
     <h2>Join <em>Lunara</em></h2>
     <p>Be among the first. Founding members get 3 months of Premium completely free — no card required.</p>
     <div class="modal-form" id="modalForm">
-      <input class="modal-input" type="text" placeholder="Your display name">
-      <input class="modal-input" type="email" placeholder="Email address">
-      <select class="modal-input" style="-webkit-appearance:none;appearance:none;cursor:pointer">
+      <input class="modal-input" id="wl_name" type="text" placeholder="Your display name">
+      <input class="modal-input" id="wl_email" type="email" placeholder="Email address">
+      <select class="modal-input" id="wl_style" style="-webkit-appearance:none;appearance:none;cursor:pointer">
         <option value="" disabled selected>Your relationship style</option>
         <option>Polyamorous</option><option>Solo poly</option><option>Kitchen table poly</option>
         <option>Open relationship</option><option>Relationship anarchy</option><option>Exploring / Curious</option>
       </select>
-      <button class="modal-submit" onclick="submitWaitlist()">Join the Waitlist →</button>
+      <div id="wl_error" style="display:none;color:#ff8080;font-size:13px;padding:4px 0;"></div>
+      <button class="modal-submit" id="wl_btn" onclick="submitWaitlist()">Join the Waitlist →</button>
       <div class="modal-legal">18+ only. Your data is encrypted and never shared.</div>
     </div>
     <div class="modal-success" id="modalSuccess">
       <div class="si">🌙</div>
       <h3>You're on the list.</h3>
-      <p>We'll be in touch soon. Welcome to Lunara.</p>
+      <p>We'll be in touch soon. Welcome to Lunara — you're exactly who this was built for.</p>
     </div>
   </div>
 </div>
@@ -1170,9 +1171,70 @@ function toggleMedia(){
 function openModal(){document.getElementById('modalOverlay').classList.add('open');}
 function closeModal(e){if(!e||e.target===document.getElementById('modalOverlay'))document.getElementById('modalOverlay').classList.remove('open');}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
-function submitWaitlist(){
-  document.getElementById('modalForm').style.display='none';
-  document.getElementById('modalSuccess').style.display='block';
+// ── Supabase Config ─────────────────
+// REPLACE these two values with your own from Supabase → Settings → API
+const SUPABASE_URL = 'https://evctyqajzoviaiawnvky.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Y3R5cWFqem92aWFpYXdudmt5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMzQ1NTUsImV4cCI6MjA4NzgxMDU1NX0.xxbS_uAO9UVuq6tSzTL2F7OKICjFvmoPQH1ZLcHgbrY';
+
+async function submitWaitlist(){
+  const name  = document.getElementById('wl_name').value.trim();
+  const email = document.getElementById('wl_email').value.trim();
+  const style = document.getElementById('wl_style').value;
+  const errEl = document.getElementById('wl_error');
+  const btn   = document.getElementById('wl_btn');
+
+  // Basic validation
+  errEl.style.display='none';
+  if(!name){ errEl.textContent='Please enter a display name.'; errEl.style.display='block'; return; }
+  if(!email || !email.includes('@')){ errEl.textContent='Please enter a valid email address.'; errEl.style.display='block'; return; }
+  if(!style){ errEl.textContent='Please select your relationship style.'; errEl.style.display='block'; return; }
+
+  // Loading state
+  btn.textContent='Joining...';
+  btn.disabled=true;
+  btn.style.opacity='0.7';
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/waitlist`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({
+        display_name: name,
+        email: email,
+        relationship_style: style,
+        source: 'landing_page',
+        referrer: document.referrer || 'direct'
+      })
+    });
+
+    if(res.status === 201 || res.status === 200){
+      // Success
+      document.getElementById('modalForm').style.display='none';
+      document.getElementById('modalSuccess').style.display='block';
+    } else if(res.status === 409){
+      // Duplicate email
+      errEl.textContent="You're already on the list! We'll be in touch soon.";
+      errEl.style.display='block';
+      errEl.style.color='#8aab8c';
+      btn.textContent='Join the Waitlist →';
+      btn.disabled=false;
+      btn.style.opacity='1';
+    } else {
+      throw new Error('Unexpected response: ' + res.status);
+    }
+  } catch(err) {
+    errEl.textContent='Something went wrong. Please try again.';
+    errEl.style.display='block';
+    btn.textContent='Join the Waitlist →';
+    btn.disabled=false;
+    btn.style.opacity='1';
+    console.error('Waitlist error:', err);
+  }
 }
 
 // ── Feedback ────────────────────────
