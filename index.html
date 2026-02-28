@@ -398,9 +398,13 @@ body.on-landing .bottom-nav { display:none !important; }
 
 /* Responsive tweaks */
 @media(max-width:860px){
-  .lp-hero { grid-template-columns:1fr; }
-  .lp-hero-left { height:40vh; }
-  .lp-hero-right { padding:36px 24px; }
+  .lp-hero { grid-template-columns:1fr; grid-template-rows:auto; }
+  .lp-hero { height:auto !important; min-height:auto !important; overflow:visible !important; background:var(--ink); padding-top:80px; padding-bottom:48px; }
+  .lp-hero-left { display:none !important; height:0 !important; overflow:hidden !important; }
+  .lp-hero-right { padding:16px 24px; }
+  .lp-stats { margin-top:20px; padding-top:16px; gap:16px; }
+  .lp-actions { margin-top:16px; }
+  .lp-scroll { display:none; }
   .lp-manifesto,.lp-community-inner { grid-template-columns:1fr; gap:40px; }
   .lp-pillars-grid { grid-template-columns:1fr; }
   .lp-wide-cta { grid-template-columns:1fr; }
