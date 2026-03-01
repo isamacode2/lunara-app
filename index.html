@@ -65,17 +65,21 @@ body { font-family:var(--font); background:var(--ink); color:var(--off); overflo
 .nav-links > li > a:hover { color:var(--off); background:rgba(255,255,255,0.05); }
 
 .nav-dropdown {
-  position:absolute; top:calc(100% + 10px); left:50%;
-  transform:translateX(-50%) translateY(6px);
+  position:absolute; top:100%; left:50%;
+  transform:translateX(-50%) translateY(0);
   background:rgba(18,15,26,0.98); backdrop-filter:blur(24px);
-  border:1px solid var(--border); border-radius:16px; padding:6px;
+  border:1px solid var(--border); border-radius:16px;
   min-width:210px; opacity:0; visibility:hidden; pointer-events:none;
   transition:.22s all; z-index:300;
+  padding-top:12px; /* invisible bridge gap */
 }
-.nav-item:hover .nav-dropdown { opacity:1; visibility:visible; pointer-events:all; transform:translateX(-50%) translateY(0); }
+.nav-dropdown > a:first-child { border-radius:12px 12px 0 0; }
+.nav-dropdown > a:last-child { border-radius:0 0 12px 12px; }
+.nav-dropdown::before { content:''; position:absolute; top:-10px; left:0; right:0; height:12px; } /* hover bridge */
+.nav-item:hover .nav-dropdown { opacity:1; visibility:visible; pointer-events:all; }
 .nav-dropdown a {
   display:flex; justify-content:space-between; align-items:center;
-  padding:10px 14px; border-radius:10px; font-size:13px;
+  padding:12px 16px; border-radius:10px; font-size:13px;
   color:rgba(245,242,238,0.7) !important; background:transparent !important;
   text-decoration:none; cursor:pointer; transition:.15s all;
 }
@@ -413,6 +417,7 @@ body.on-landing .bottom-nav { display:none !important; }
 /* Fade-reveal for landing sections */
 .lp-reveal { opacity:0; transform:translateY(22px); transition:opacity .7s ease,transform .7s ease; }
 .lp-reveal.visible { opacity:1; transform:translateY(0); }
+@media(prefers-reduced-motion:reduce){ .lp-reveal { opacity:1; transform:none; } }
 
 /* Responsive tweaks */
 @media(max-width:860px){
@@ -432,6 +437,7 @@ body.on-landing .bottom-nav { display:none !important; }
   .lp-quotes { grid-template-columns:1fr; }
   .lp-quote.large { grid-column:span 1; }
   .lp-founding-perks { grid-template-columns:1fr; }
+  .lp-filter { grid-template-columns:1fr !important; gap:40px !important; padding:60px 24px !important; }
   .topbar { padding:12px 16px; }
   .nav-links { display:none; }
   .brand-tag { display:none; }
@@ -515,11 +521,10 @@ body.on-landing .bottom-nav { display:none !important; }
     </div>
     <div class="lp-hero-right">
       <div class="lp-eyebrow"><span class="lp-eyebrow-line"></span>Open Relationships · Polyamory · ENM</div>
-      <h1 class="lp-title">Privacy-First ENM.<br>Built With <em>100 Founders.</em></h1>
-      <p class="lp-body">Consent-gated visibility. Verified adults. No chaos. Lunara is the digital home for open and non-monogamous relationships — and we're building it with our first 100 founding members.</p>
+      <h1 class="lp-title">A Private ENM Platform.<br>Built With <em>100 Founders</em> — Not the Masses.</h1>
+      <p class="lp-body">Profiles only visible when mutually unlocked. No public browsing. No data selling. Ever. Lunara is the digital home for open and non-monogamous relationships — and we're building it with our first 100 founding members.</p>
       <div class="lp-actions">
         <button class="lp-btn solid" onclick="openModal()">Apply for Founding Access</button>
-        <button class="lp-btn outline" onclick="goScreen('s_discover')">Explore the app →</button>
       </div>
       <div class="lp-stats">
         <div><span class="lp-stat-num">100%</span><div class="lp-stat-label">ID Verified</div></div>
@@ -536,7 +541,27 @@ body.on-landing .bottom-nav { display:none !important; }
     <span class="scarcity-num" id="spotsLeft">—</span>
     <span class="scarcity-text">founding spots remaining</span>
     <span class="scarcity-sep"></span>
-    <span class="scarcity-text">🔒 Private spots · No public launch until full</span>
+    <span class="scarcity-text">🔒 No public launch until all 100 seats are filled</span>
+  </div>
+
+  <!-- Filter Section -->
+  <div class="lp-filter lp-reveal" style="padding:80px 80px;background:var(--warm);color:var(--ink);display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start;">
+    <div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--coral);margin-bottom:16px;">This is NOT for you if</div>
+      <div style="font-family:var(--serif);font-size:clamp(20px,2.2vw,28px);line-height:1.4;font-weight:400;">
+        <p style="margin:0 0 12px;display:flex;gap:10px;align-items:baseline;"><span style="color:var(--coral);font-weight:700;">×</span> You want swipe chaos</p>
+        <p style="margin:0 0 12px;display:flex;gap:10px;align-items:baseline;"><span style="color:var(--coral);font-weight:700;">×</span> You're looking for casual hookups</p>
+        <p style="margin:0;display:flex;gap:10px;align-items:baseline;"><span style="color:var(--coral);font-weight:700;">×</span> You treat ENM as disposable</p>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--sage);margin-bottom:16px;">This IS for you if</div>
+      <div style="font-family:var(--serif);font-size:clamp(20px,2.2vw,28px);line-height:1.4;font-weight:400;">
+        <p style="margin:0 0 12px;display:flex;gap:10px;align-items:baseline;"><span style="color:var(--sage);font-weight:700;">✓</span> Privacy matters deeply</p>
+        <p style="margin:0 0 12px;display:flex;gap:10px;align-items:baseline;"><span style="color:var(--sage);font-weight:700;">✓</span> Consent is non-negotiable</p>
+        <p style="margin:0;display:flex;gap:10px;align-items:baseline;"><span style="color:var(--sage);font-weight:700;">✓</span> You want quality over volume</p>
+      </div>
+    </div>
   </div>
 
   <!-- Manifesto -->
@@ -577,7 +602,7 @@ body.on-landing .bottom-nav { display:none !important; }
         <p class="lp-founding-desc">This platform will not be built for the masses. It will be built with intention. If you value privacy, consent, and quality — apply now.</p>
         <div class="lp-founding-perks">
           <div class="lp-fperk"><span>🚀</span> Early access before public launch</div>
-          <div class="lp-fperk"><span>⭐</span> 3 months premium at launch</div>
+          <div class="lp-fperk"><span>⭐</span> 3 months Premium at launch + locked pricing</div>
           <div class="lp-fperk"><span>🔒</span> Locked preferred rate forever</div>
           <div class="lp-fperk"><span>🗳️</span> Direct influence on features</div>
           <div class="lp-fperk"><span>🏅</span> Founding badge inside Lunara</div>
@@ -586,7 +611,6 @@ body.on-landing .bottom-nav { display:none !important; }
       </div>
       <div class="lp-cta-right">
         <button class="lp-btn-white" onclick="openModal()">Secure Your Founding Spot</button>
-        <button class="lp-btn-woutline" onclick="goScreen('s_discover')">Explore the app</button>
         <div class="lp-cta-note">Founding seats are limited. Once 100 is reached, access closes.</div>
       </div>
     </div>
@@ -625,6 +649,11 @@ body.on-landing .bottom-nav { display:none !important; }
     </div>
   </div>
 
+  <!-- Micro Social Proof -->
+  <div class="lp-reveal" style="padding:40px 80px;background:var(--ink);text-align:center;border-top:1px solid rgba(255,255,255,.06);">
+    <p style="font-size:13px;color:rgba(245,242,238,.4);font-style:italic;max-width:480px;margin:0 auto;line-height:1.7;">Early founders include privacy-conscious solo women and established couples shaping the safety framework together.</p>
+  </div>
+
   <!-- Footer -->
   <div class="lp-footer">
     <div class="lp-footer-top">
@@ -648,7 +677,7 @@ body.on-landing .bottom-nav { display:none !important; }
         <h4>Company</h4>
         <a href="#">Our Purpose</a>
         <a href="#">Newsroom</a>
-        <a href="mailto:hello@lunara.dating">hello@lunara.dating</a>
+        <a href="/cdn-cgi/l/email-protection#7018151c1c1f301c051e1102115e141104191e17"><span class="__cf_email__" data-cfemail="b1d9d4dddddef1ddc4dfd0c3d09fd5d0c5d8dfd6">[email&#160;protected]</span></a>
       </div>
     </div>
     <div class="lp-footer-bottom">
@@ -912,7 +941,7 @@ body.on-landing .bottom-nav { display:none !important; }
         </div></div>
         <div class="card"><div class="hd"><b>Contact us</b></div><div class="bd">
           <div class="contact-item"><div class="contact-icon">🛡️</div><div><div class="contact-lbl">Safety team</div><div class="contact-sub">Urgent — 2hr response</div></div></div>
-          <div class="contact-item"><div class="contact-icon">💌</div><div><div class="contact-lbl">hello@lunara.dating</div><div class="contact-sub">General & partnerships</div></div></div>
+          <div class="contact-item"><div class="contact-icon">💌</div><div><div class="contact-lbl"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2149444d4d4e614d544f4053400f454055484f46">[email&#160;protected]</a></div><div class="contact-sub">General & partnerships</div></div></div>
           <div class="contact-item"><div class="contact-icon">📖</div><div><div class="contact-lbl">Community Guidelines</div><div class="contact-sub">What keeps Lunara safe</div></div></div>
         </div></div>
       </div>
@@ -966,7 +995,7 @@ body.on-landing .bottom-nav { display:none !important; }
     <button class="modal-close" onclick="closeModal()">✕</button>
     <h2>Apply for <em>Founding Access</em></h2>
     <div class="modal-scarcity"><div class="scarcity-dot"></div> <span id="modalSpots">—</span> of 100 spots remaining</div>
-    <p>Founding members get 3 months Premium free, locked preferred rate, and direct influence on features. No card required.</p>
+    <p>Founders receive 3 months Premium at launch and lock preferred pricing before public release. No card required.</p>
     <div class="modal-form" id="modalForm">
       <input class="modal-input" id="wl_name" type="text" placeholder="Your display name">
       <input class="modal-input" id="wl_email" type="email" placeholder="Email address">
@@ -987,7 +1016,7 @@ body.on-landing .bottom-nav { display:none !important; }
   </div>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ── Supabase Config (REAL CREDENTIALS) ──
 const SUPABASE_URL = 'https://evctyqajzoviaiawnvky.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Y3R5cWFqem92aWFpYXdudmt5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMzQ1NTUsImV4cCI6MjA4NzgxMDU1NX0.xxbS_uAO9UVuq6tSzTL2F7OKICjFvmoPQH1ZLcHgbrY';
@@ -1199,11 +1228,13 @@ function submitFeedback(){
 // ── Scroll reveal ───────────────────
 const revealObs=new IntersectionObserver(entries=>{
   entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');revealObs.unobserve(e.target);}});
-},{threshold:0.1});
+},{threshold:0.05, rootMargin:'0px 0px 50px 0px'});
 document.querySelectorAll('.lp-reveal,.lp-pillar,.lp-quote,.lp-mpoint').forEach(el=>{
   el.style.transition='opacity .7s ease, transform .7s ease';
   revealObs.observe(el);
 });
+// Fallback: force all reveals visible after 3s
+setTimeout(()=>{document.querySelectorAll('.lp-reveal,.lp-pillar,.lp-quote,.lp-mpoint').forEach(el=>el.classList.add('visible'));},3000);
 
 // ── Init ────────────────────────────
 renderMatches();
