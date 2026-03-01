@@ -93,6 +93,7 @@ body { font-family:var(--font); background:var(--ink); color:var(--off); overflo
 .btn-nav.solid { background:var(--off); color:var(--ink); }
 .btn-nav.solid:hover { background:var(--blush); transform:scale(1.02); }
 
+/* Bottom nav hidden on landing, shown in app */
 body.on-landing .bottom-nav { display:none !important; }
 
 /* ── SCREENS ─────────────────────── */
@@ -300,17 +301,6 @@ body.on-landing .bottom-nav { display:none !important; }
 .lp-scroll-line { width:1px; height:36px; background:linear-gradient(to bottom,rgba(245,242,238,.18),transparent); }
 @keyframes bounce { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(5px)} }
 
-/* ── SCARCITY STRIP ── */
-.lp-scarcity {
-  background:rgba(232,85,62,.06); border-top:1px solid rgba(232,85,62,.15); border-bottom:1px solid rgba(232,85,62,.15);
-  padding:16px 40px; display:flex; align-items:center; justify-content:center; gap:24px; flex-wrap:wrap;
-}
-.scarcity-dot { width:8px; height:8px; border-radius:50%; background:var(--coral); animation:sDot 1.5s ease-in-out infinite; flex-shrink:0; }
-@keyframes sDot { 0%,100%{box-shadow:0 0 0 0 rgba(232,85,62,.5)} 50%{box-shadow:0 0 0 6px rgba(232,85,62,0)} }
-.scarcity-num { font-family:var(--serif); font-size:20px; font-weight:800; color:var(--coral); }
-.scarcity-text { font-size:13px; color:rgba(245,242,238,.5); }
-.scarcity-sep { width:1px; height:20px; background:rgba(245,242,238,.1); }
-
 .lp-manifesto { padding:100px 80px; display:grid; grid-template-columns:1fr 1fr; gap:72px; align-items:center; background:var(--warm); color:var(--ink); }
 .lp-manifesto-label { font-size:11px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:18px; }
 .lp-manifesto-title { font-family:var(--serif); font-size:clamp(28px,3vw,46px); line-height:1.12; font-weight:400; }
@@ -335,24 +325,18 @@ body.on-landing .bottom-nav { display:none !important; }
 .lp-pillar h3 { font-family:var(--serif); font-size:20px; font-weight:400; margin-bottom:12px; }
 .lp-pillar p { font-size:13px; line-height:1.7; color:rgba(245,242,238,.45); }
 
-/* ── FOUNDING CTA ── */
-.lp-founding-cta { position:relative; overflow:hidden; background:var(--violet); padding:90px 80px; }
-.lp-founding-cta::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse 60% 80% at 10% 50%,rgba(232,85,62,.3),transparent 55%),radial-gradient(ellipse 50% 70% at 90% 30%,rgba(14,12,20,.4),transparent 50%); }
-.lp-founding-cta * { position:relative; z-index:1; }
-.lp-founding-inner { display:grid; grid-template-columns:1.2fr .8fr; gap:48px; align-items:center; }
+.lp-wide-cta { position:relative; overflow:hidden; background:var(--violet); padding:90px 80px; display:grid; grid-template-columns:1fr auto; align-items:center; gap:40px; }
+.lp-wide-cta::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse 60% 80% at 10% 50%,rgba(232,85,62,.3),transparent 55%),radial-gradient(ellipse 50% 70% at 90% 30%,rgba(14,12,20,.4),transparent 50%); }
+.lp-wide-cta * { position:relative; z-index:1; }
 .lp-cta-eyebrow { font-size:11px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:rgba(255,255,255,.55); margin-bottom:16px; }
-.lp-founding-cta h2 { font-family:var(--serif); font-size:clamp(28px,3vw,48px); line-height:1.1; font-weight:400; max-width:520px; }
-.lp-founding-cta h2 em { font-style:italic; color:var(--blush); }
-.lp-founding-desc { font-size:14px; line-height:1.7; color:rgba(255,255,255,.55); margin:18px 0 28px; max-width:460px; }
-.lp-founding-perks { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-.lp-fperk { display:flex; align-items:center; gap:10px; padding:12px 14px; border-radius:12px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08); font-size:13px; color:rgba(255,255,255,.75); }
-.lp-fperk span { font-size:16px; flex-shrink:0; }
-.lp-cta-right { display:flex; flex-direction:column; gap:12px; align-items:flex-start; }
+.lp-wide-cta h2 { font-family:var(--serif); font-size:clamp(28px,3vw,48px); line-height:1.1; font-weight:400; max-width:520px; }
+.lp-wide-cta h2 em { font-style:italic; color:var(--blush); }
+.lp-cta-btns { display:flex; flex-direction:column; gap:10px; align-items:flex-end; }
 .lp-btn-white { padding:15px 32px; border-radius:100px; background:white; color:var(--ink); font-family:var(--font); font-size:14px; font-weight:700; border:none; cursor:pointer; transition:.25s all; white-space:nowrap; }
 .lp-btn-white:hover { background:var(--blush); transform:scale(1.02); }
 .lp-btn-woutline { padding:15px 32px; border-radius:100px; background:transparent; color:white; border:1px solid rgba(255,255,255,.3); font-family:var(--font); font-size:14px; font-weight:500; cursor:pointer; transition:.25s all; white-space:nowrap; }
 .lp-btn-woutline:hover { border-color:white; background:rgba(255,255,255,.08); }
-.lp-cta-note { font-size:12px; color:rgba(255,255,255,.35); margin-top:4px; }
+.lp-cta-note { font-size:12px; color:rgba(255,255,255,.4); text-align:right; }
 
 .lp-community { padding:100px 80px; background:var(--ink); border-top:1px solid rgba(255,255,255,.06); }
 .lp-community-inner { display:grid; grid-template-columns:1fr 1fr; gap:72px; align-items:center; }
@@ -396,14 +380,12 @@ body.on-landing .bottom-nav { display:none !important; }
 .modal h2 { font-family:var(--serif); font-size:28px; font-weight:400; margin-bottom:8px; }
 .modal h2 em { font-style:italic; color:var(--blush); }
 .modal > p { font-size:14px; color:rgba(245,242,238,.5); line-height:1.65; margin-bottom:28px; }
-.modal-scarcity { display:inline-flex; align-items:center; gap:8px; padding:7px 14px; border-radius:100px; background:rgba(232,85,62,.1); border:1px solid rgba(232,85,62,.2); font-size:12px; font-weight:600; color:var(--coral); margin-bottom:20px; }
 .modal-form { display:flex; flex-direction:column; gap:12px; }
 .modal-input { padding:13px 16px; border-radius:13px; border:1px solid var(--border); background:rgba(0,0,0,.3); color:var(--off); font-family:var(--font); font-size:14px; outline:none; transition:.2s; -webkit-appearance:none; }
 .modal-input:focus { border-color:rgba(232,85,62,.5); }
 .modal-input::placeholder { color:rgba(245,242,238,.22); }
 .modal-submit { padding:14px; border-radius:13px; background:linear-gradient(135deg,var(--coral),var(--violet)); color:white; font-family:var(--font); font-size:15px; font-weight:700; border:none; cursor:pointer; transition:.25s all; box-shadow:0 6px 24px var(--glow); }
 .modal-submit:hover { transform:translateY(-2px); box-shadow:0 10px 32px var(--glow); }
-.modal-submit:disabled { opacity:.6; cursor:not-allowed; transform:none; }
 .modal-legal { font-size:12px; color:rgba(245,242,238,.22); text-align:center; }
 .modal-success { display:none; text-align:center; padding:16px 0; }
 .modal-success .si { font-size:44px; margin-bottom:14px; }
@@ -425,21 +407,21 @@ body.on-landing .bottom-nav { display:none !important; }
   .lp-scroll { display:none; }
   .lp-manifesto,.lp-community-inner { grid-template-columns:1fr; gap:40px; }
   .lp-pillars-grid { grid-template-columns:1fr; }
-  .lp-founding-inner { grid-template-columns:1fr; }
-  .lp-cta-right { align-items:flex-start; }
+  .lp-wide-cta { grid-template-columns:1fr; }
+  .lp-cta-btns { align-items:flex-start; }
   .lp-footer-top { grid-template-columns:1fr 1fr; }
-  .lp-manifesto,.lp-pillars,.lp-founding-cta,.lp-community,.lp-footer { padding-left:24px; padding-right:24px; }
+  .lp-manifesto,.lp-pillars,.lp-wide-cta,.lp-community,.lp-footer { padding-left:24px; padding-right:24px; }
   .lp-quotes { grid-template-columns:1fr; }
   .lp-quote.large { grid-column:span 1; }
-  .lp-founding-perks { grid-template-columns:1fr; }
   .topbar { padding:12px 16px; }
   .nav-links { display:none; }
   .brand-tag { display:none; }
-  .lp-scarcity { padding:14px 24px; gap:12px; }
 }
 </style>
 </head>
 <body class="on-landing">
+
+
 
 <!-- ── TOPBAR ─────────────────────── -->
 <div class="topbar" id="topbar">
@@ -450,6 +432,7 @@ body.on-landing .bottom-nav { display:none !important; }
       <div class="brand-tag">Intentional. Verified. Private.</div>
     </div>
   </div>
+
   <ul class="nav-links" id="topbarNav">
     <li class="nav-item">
       <a href="#" onclick="return false">The App</a>
@@ -480,6 +463,7 @@ body.on-landing .bottom-nav { display:none !important; }
     </li>
     <li><a href="#" onclick="goScreen('s_safety');return false">Safety Guide</a></li>
   </ul>
+
   <div class="nav-right" id="navRight">
     <button class="btn-nav ghost" id="navLoginBtn" onclick="goScreen('s_login')">Log in</button>
     <button class="btn-nav solid" id="navJoinBtn" onclick="openModal()">Join Lunara</button>
@@ -489,7 +473,7 @@ body.on-landing .bottom-nav { display:none !important; }
 <div id="allScreens">
 
 <!-- ══════════════════════════════════
-     LANDING PAGE — PHASE 2 SCARCITY
+     LANDING PAGE
 ══════════════════════════════════ -->
 <section class="screen active" id="s_landing">
 
@@ -515,15 +499,15 @@ body.on-landing .bottom-nav { display:none !important; }
     </div>
     <div class="lp-hero-right">
       <div class="lp-eyebrow"><span class="lp-eyebrow-line"></span>Open Relationships · Polyamory · ENM</div>
-      <h1 class="lp-title">Privacy-First ENM.<br>Built With <em>100 Founders.</em></h1>
-      <p class="lp-body">Consent-gated visibility. Verified adults. No chaos. Lunara is the digital home for open and non-monogamous relationships — and we're building it with our first 100 founding members.</p>
+      <h1 class="lp-title">Not just to match.<br>But to <em>belong.</em></h1>
+      <p class="lp-body">Lunara is the digital home for open and non-monogamous relationships. Connect with your community, find meaningful connections, and live your relationship style — without explanation.</p>
       <div class="lp-actions">
         <button class="lp-btn solid" onclick="openModal()">Apply for Founding Access</button>
         <button class="lp-btn outline" onclick="goScreen('s_discover')">Explore the app →</button>
       </div>
       <div class="lp-stats">
+        <div><span class="lp-stat-num" style="color:var(--coral)">100</span><div class="lp-stat-label">Founding spots only</div></div>
         <div><span class="lp-stat-num">100%</span><div class="lp-stat-label">ID Verified</div></div>
-        <div><span class="lp-stat-num">&lt;24h</span><div class="lp-stat-label">Safety response</div></div>
         <div><span class="lp-stat-num">0</span><div class="lp-stat-label">Data sold</div></div>
       </div>
     </div>
@@ -532,11 +516,9 @@ body.on-landing .bottom-nav { display:none !important; }
 
   <!-- Scarcity Strip -->
   <div class="lp-scarcity">
-    <div class="scarcity-dot"></div>
-    <span class="scarcity-num" id="spotsLeft">—</span>
-    <span class="scarcity-text">founding spots remaining</span>
-    <span class="scarcity-sep"></span>
-    <span class="scarcity-text">🔒 Private spots · No public launch until full</span>
+    <div class="lp-scarcity-dot"></div>
+    <span><strong>100 Founding Spots</strong> — Consent-gated visibility · Verified adults · No swipe chaos · Women-first safety</span>
+    <div class="lp-scarcity-dot"></div>
   </div>
 
   <!-- Manifesto -->
@@ -568,27 +550,16 @@ body.on-landing .bottom-nav { display:none !important; }
     </div>
   </div>
 
-  <!-- Founding CTA -->
-  <div class="lp-founding-cta lp-reveal">
-    <div class="lp-founding-inner">
-      <div>
-        <div class="lp-cta-eyebrow">Founding Member Access</div>
-        <h2>We are opening <em>100 founding seats.</em></h2>
-        <p class="lp-founding-desc">This platform will not be built for the masses. It will be built with intention. If you value privacy, consent, and quality — apply now.</p>
-        <div class="lp-founding-perks">
-          <div class="lp-fperk"><span>🚀</span> Early access before public launch</div>
-          <div class="lp-fperk"><span>⭐</span> 3 months premium at launch</div>
-          <div class="lp-fperk"><span>🔒</span> Locked preferred rate forever</div>
-          <div class="lp-fperk"><span>🗳️</span> Direct influence on features</div>
-          <div class="lp-fperk"><span>🏅</span> Founding badge inside Lunara</div>
-          <div class="lp-fperk"><span>🔬</span> Private Founding Lab access</div>
-        </div>
-      </div>
-      <div class="lp-cta-right">
-        <button class="lp-btn-white" onclick="openModal()">Secure Your Founding Spot</button>
-        <button class="lp-btn-woutline" onclick="goScreen('s_discover')">Explore the app</button>
-        <div class="lp-cta-note">Founding seats are limited. Once 100 is reached, access closes.</div>
-      </div>
+  <!-- Wide CTA -->
+  <div class="lp-wide-cta lp-reveal">
+    <div>
+      <div class="lp-cta-eyebrow">100 Founding Spots — Now Open</div>
+      <h2>Privacy-First ENM. <em>Built With 100 Founders.</em></h2>
+    </div>
+    <div class="lp-cta-btns">
+      <button class="lp-btn-white" onclick="openModal()">Secure Your Founding Spot</button>
+      <button class="lp-btn-woutline" onclick="goScreen('s_discover')">Explore the app</button>
+      <div class="lp-cta-note">Founding members: 3 months premium free · Direct product influence · Founding badge</div>
     </div>
   </div>
 
@@ -600,9 +571,18 @@ body.on-landing .bottom-nav { display:none !important; }
         <h2>People who found their <em>people</em> here.</h2>
         <p>We don't ask for testimonials. These are real words from real members willing to share their experience with our community.</p>
         <div class="lp-com-links">
-          <a href="#" class="lp-com-link" onclick="goScreen('s_safety');return false;"><div><div class="lp-clink-name">Safety Guide</div><div class="lp-clink-sub">Education for every member</div></div><span class="lp-clink-arrow">→</span></a>
-          <a href="#" class="lp-com-link" onclick="goScreen('s_feedback');return false;"><div><div class="lp-clink-name">Feedback</div><div class="lp-clink-sub">Shape what Lunara becomes</div></div><span class="lp-clink-arrow">→</span></a>
-          <a href="#" class="lp-com-link" onclick="goScreen('s_discover');return false;"><div><div class="lp-clink-name">Discover</div><div class="lp-clink-sub">Explore the app</div></div><span class="lp-clink-arrow">→</span></a>
+          <a href="#" class="lp-com-link" onclick="goScreen('s_safety');return false;">
+            <div><div class="lp-clink-name">Safety Guide</div><div class="lp-clink-sub">Education for every member</div></div>
+            <span class="lp-clink-arrow">→</span>
+          </a>
+          <a href="#" class="lp-com-link" onclick="goScreen('s_feedback');return false;">
+            <div><div class="lp-clink-name">Feedback</div><div class="lp-clink-sub">Shape what Lunara becomes</div></div>
+            <span class="lp-clink-arrow">→</span>
+          </a>
+          <a href="#" class="lp-com-link" onclick="goScreen('s_discover');return false;">
+            <div><div class="lp-clink-name">Discover</div><div class="lp-clink-sub">Explore the app</div></div>
+            <span class="lp-clink-arrow">→</span>
+          </a>
         </div>
       </div>
       <div class="lp-quotes">
@@ -648,7 +628,7 @@ body.on-landing .bottom-nav { display:none !important; }
         <h4>Company</h4>
         <a href="#">Our Purpose</a>
         <a href="#">Newsroom</a>
-        <a href="mailto:hello@lunara.dating">hello@lunara.dating</a>
+        <a href="#"><span class="__cf_email__" data-cfemail="6109040d0d0e210d140f0013004f001111">[email&#160;protected]</span></a>
       </div>
     </div>
     <div class="lp-footer-bottom">
@@ -660,7 +640,7 @@ body.on-landing .bottom-nav { display:none !important; }
 </section>
 
 <!-- ══════════════════════════════════
-     APP SCREENS
+     APP SCREENS (inside .wrap)
 ══════════════════════════════════ -->
 <div class="wrap" id="appWrap" style="display:none;">
 
@@ -682,7 +662,8 @@ body.on-landing .bottom-nav { display:none !important; }
           <div class="small muted">18+ only. Your data is encrypted and never sold.</div>
         </div>
         <div class="note">
-          <div class="h2">Why Lunara is different</div><div class="sp"></div>
+          <div class="h2">Why Lunara is different</div>
+          <div class="sp"></div>
           <p class="muted small" style="line-height:1.7">ID verification is optional but rewarded with priority matching. Media locked until both consent. Every report handled within 24 hours.</p>
         </div>
       </div>
@@ -720,15 +701,29 @@ body.on-landing .bottom-nav { display:none !important; }
         <div>
           <div class="h2">1) Your relationship style</div><div class="sp"></div>
           <div class="chips" id="intentChips">
-            <div class="chip active">Ethical Non-Monogamy</div><div class="chip">Open Relationship</div><div class="chip">Solo Poly</div><div class="chip">Kitchen Table Poly</div><div class="chip">Relationship Anarchy</div><div class="chip">Exploring / Curious</div>
+            <div class="chip active">Ethical Non-Monogamy</div>
+            <div class="chip">Open Relationship</div>
+            <div class="chip">Solo Poly</div>
+            <div class="chip">Kitchen Table Poly</div>
+            <div class="chip">Relationship Anarchy</div>
+            <div class="chip">Exploring / Curious</div>
           </div>
           <div class="hr"></div>
           <div class="h2">2) Visibility & privacy</div><div class="sp"></div>
-          <div class="field"><label>Visibility mode</label><select><option>Discreet (blurred by default)</option><option>Standard</option><option>Open</option></select></div>
+          <div class="field"><label>Visibility mode</label>
+            <select><option>Discreet (blurred by default)</option><option>Standard</option><option>Open</option></select>
+          </div>
           <div class="sp"></div>
-          <div class="field"><label>Distance radius</label><input type="range" min="5" max="80" value="25" oninput="document.getElementById('rv').textContent=this.value+' miles'"/><div class="small muted">Current: <span id="rv">25 miles</span></div></div>
+          <div class="field">
+            <label>Distance radius</label>
+            <input type="range" min="5" max="80" value="25" oninput="document.getElementById('rv').textContent=this.value+' miles'"/>
+            <div class="small muted">Current: <span id="rv">25 miles</span></div>
+          </div>
           <div class="sp"></div>
-          <div class="row"><button class="btn" onclick="goScreen('s_signup')">Back</button><button class="btn primary" onclick="goScreen('s_discover')">Finish setup →</button></div>
+          <div class="row">
+            <button class="btn" onclick="goScreen('s_signup')">Back</button>
+            <button class="btn primary" onclick="goScreen('s_discover')">Finish setup →</button>
+          </div>
         </div>
         <div class="note">
           <div class="h2">Safe word setup</div><div class="sp"></div>
@@ -742,8 +737,14 @@ body.on-landing .bottom-nav { display:none !important; }
   <!-- DISCOVER -->
   <section class="screen" id="s_discover">
     <div class="split" style="margin-bottom:16px">
-      <div><div class="h1" style="margin:8px 0 4px">Discover</div><div class="muted small">Daily curated picks — limited, high alignment.</div></div>
-      <div class="row"><button class="btn sm" onclick="goScreen('s_premium')">⭐ Upgrade</button><button class="btn sm" onclick="goScreen('s_trust')">🛡️ Trust Center</button></div>
+      <div>
+        <div class="h1" style="margin:8px 0 4px">Discover</div>
+        <div class="muted small">Daily curated picks — limited, high alignment.</div>
+      </div>
+      <div class="row">
+        <button class="btn sm" onclick="goScreen('s_premium')">⭐ Upgrade</button>
+        <button class="btn sm" onclick="goScreen('s_trust')">🛡️ Trust Center</button>
+      </div>
     </div>
     <div class="card">
       <div class="hd"><b>Today's picks</b><span class="small muted">5 matches</span></div>
@@ -760,7 +761,10 @@ body.on-landing .bottom-nav { display:none !important; }
           <div class="matchCard" style="margin-bottom:0">
             <div class="avatar"><div class="blur"></div><span class="emoji" id="matchEmoji">🌙</span></div>
             <div>
-              <div class="split"><b id="matchName">Taylor • 31</b><span class="badge"><span class="bDot"></span>Verified</span></div>
+              <div class="split">
+                <b id="matchName">Taylor • 31</b>
+                <span class="badge"><span class="bDot"></span>Verified</span>
+              </div>
               <div class="muted small" id="matchMeta">Intent: Ethical ENM · London</div>
               <div class="badges">
                 <span class="badge"><span class="bDot"></span>Intent: <span id="matchAlign">94</span>%</span>
@@ -771,10 +775,19 @@ body.on-landing .bottom-nav { display:none !important; }
           </div>
           <div class="hr"></div>
           <div class="h2">Compatibility</div><div class="sp"></div>
-          <div class="prog-wrap"><div class="prog-label"><span>Intent alignment</span><strong style="color:var(--sage)" id="matchAlignLbl">94%</strong></div><div class="prog-track"><div class="prog-fill" id="matchAlignBar" style="width:94%"></div></div></div>
-          <div class="prog-wrap" style="margin-top:10px"><div class="prog-label"><span>Boundary match</span><strong style="color:var(--sage)">High</strong></div><div class="prog-track"><div class="prog-fill" style="width:88%"></div></div></div>
+          <div class="prog-wrap">
+            <div class="prog-label"><span>Intent alignment</span><strong style="color:var(--sage)" id="matchAlignLbl">94%</strong></div>
+            <div class="prog-track"><div class="prog-fill" id="matchAlignBar" style="width:94%"></div></div>
+          </div>
+          <div class="prog-wrap" style="margin-top:10px">
+            <div class="prog-label"><span>Boundary match</span><strong style="color:var(--sage)">High</strong></div>
+            <div class="prog-track"><div class="prog-fill" style="width:88%"></div></div>
+          </div>
           <div class="sp"></div>
-          <div class="row"><button class="btn" onclick="goScreen('s_discover')">← Back</button><button class="btn primary" onclick="goScreen('s_chat')">Start chat →</button></div>
+          <div class="row">
+            <button class="btn" onclick="goScreen('s_discover')">← Back</button>
+            <button class="btn primary" onclick="goScreen('s_chat')">Start chat →</button>
+          </div>
         </div>
         <div class="note">
           <div class="h2">Consent controls</div>
@@ -789,12 +802,28 @@ body.on-landing .bottom-nav { display:none !important; }
   <!-- CHAT -->
   <section class="screen" id="s_chat">
     <div class="split" style="margin-bottom:14px">
-      <div><div class="h1" style="margin:8px 0 4px">Messages</div><div class="muted small">End-to-end encrypted · Consent-gated · Safe word active</div></div>
-      <div class="row"><button class="btn sm" onclick="goScreen('s_match')">← Match</button><button class="btn sm danger">⚑ Report</button></div>
+      <div>
+        <div class="h1" style="margin:8px 0 4px">Messages</div>
+        <div class="muted small">End-to-end encrypted · Consent-gated · Safe word active</div>
+      </div>
+      <div class="row">
+        <button class="btn sm" onclick="goScreen('s_match')">← Match</button>
+        <button class="btn sm danger">⚑ Report</button>
+      </div>
     </div>
     <div class="chatWrap">
-      <div class="chatTop"><div><b id="chatName">Taylor · Verified</b><div class="small muted" id="chatMeta">Intent 94% · Discreet</div></div><button class="btn sm" onclick="toggleMedia()">🔓 Request media unlock</button></div>
-      <div class="chat-actions"><button class="chat-act">📅 Suggest meet</button><button class="chat-act">🛡️ Safety check-in</button><button class="chat-act danger">⚑ Report</button></div>
+      <div class="chatTop">
+        <div>
+          <b id="chatName">Taylor · Verified</b>
+          <div class="small muted" id="chatMeta">Intent 94% · Discreet</div>
+        </div>
+        <button class="btn sm" onclick="toggleMedia()">🔓 Request media unlock</button>
+      </div>
+      <div class="chat-actions">
+        <button class="chat-act">📅 Suggest meet</button>
+        <button class="chat-act">🛡️ Safety check-in</button>
+        <button class="chat-act danger">⚑ Report</button>
+      </div>
       <div class="chatBody" id="chatBody">
         <div class="bubble">Hey — your profile resonated with me. Clear intent, clear boundaries. Exactly what I look for here.<div class="ts">10:14 AM</div></div>
         <div class="bubble me">Appreciate that. Same energy — alignment first, everything else follows.<div class="ts">10:17 AM</div></div>
@@ -803,7 +832,10 @@ body.on-landing .bottom-nav { display:none !important; }
         <div class="bubble">Perfectly. I like how direct you are.<div class="ts">10:26 AM</div></div>
       </div>
       <div class="safe-banner">🛡️ Safe word active — type it at any time to pause this conversation.</div>
-      <div class="chatBottom"><input id="chatInput" placeholder="Message Taylor…" onkeydown="if(event.key==='Enter')sendMsg()"/><button class="btn primary" onclick="sendMsg()">→</button></div>
+      <div class="chatBottom">
+        <input id="chatInput" placeholder="Message Taylor…" onkeydown="if(event.key==='Enter')sendMsg()"/>
+        <button class="btn primary" onclick="sendMsg()">→</button>
+      </div>
     </div>
     <div class="sp"></div>
     <div class="note small muted" id="mediaNote" style="display:none">🔒 Media unlock requested. The other user must accept before photos can be exchanged.</div>
@@ -815,15 +847,27 @@ body.on-landing .bottom-nav { display:none !important; }
       <div class="hd"><b>Trust Center</b><span class="small muted">Safety & privacy controls</span></div>
       <div class="bd grid">
         <div>
-          <div class="kpi"><div class="box"><b>Verification</b><span style="color:var(--sage)">Active</span></div><div class="box"><b>Visibility</b><span>Discreet</span></div><div class="box"><b>Reports</b><span style="color:var(--sage)">&lt;24h</span></div></div>
+          <div class="kpi">
+            <div class="box"><b>Verification</b><span style="color:var(--sage)">Active</span></div>
+            <div class="box"><b>Visibility</b><span>Discreet</span></div>
+            <div class="box"><b>Reports</b><span style="color:var(--sage)">&lt;24h</span></div>
+          </div>
           <div class="hr"></div>
-          <div class="field"><label>Privacy mode</label><select><option>Discreet (blur + limited discovery)</option><option>Standard</option><option>Incognito (Premium)</option></select></div>
+          <div class="field"><label>Privacy mode</label>
+            <select><option>Discreet (blur + limited discovery)</option><option>Standard</option><option>Incognito (Premium)</option></select>
+          </div>
           <div class="sp"></div>
-          <div class="row"><button class="btn">Export my data</button><button class="btn danger">Delete account</button></div>
+          <div class="row">
+            <button class="btn">Export my data</button>
+            <button class="btn danger">Delete account</button>
+          </div>
           <div class="sp"></div>
           <button class="btn" onclick="goScreen('s_discover')">← Back to Discover</button>
         </div>
-        <div class="note"><div class="h2">Moderation</div><p class="muted small" style="line-height:1.7;margin:10px 0">Rate limiting, abuse detection, shadow banning, and a human moderation queue — all running behind the scenes.</p></div>
+        <div class="note">
+          <div class="h2">Moderation</div>
+          <p class="muted small" style="line-height:1.7;margin:10px 0">Rate limiting, abuse detection, shadow banning, and a human moderation queue — all running behind the scenes.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -875,23 +919,37 @@ body.on-landing .bottom-nav { display:none !important; }
 
   <!-- FEEDBACK -->
   <section class="screen" id="s_feedback">
-    <div class="split" style="margin-bottom:20px"><div><div class="h1" style="margin:8px 0 4px">Your feedback</div><div class="muted small">We read every submission. You shape what Lunara becomes.</div></div></div>
+    <div class="split" style="margin-bottom:20px">
+      <div>
+        <div class="h1" style="margin:8px 0 4px">Your feedback</div>
+        <div class="muted small">We read every submission. You shape what Lunara becomes.</div>
+      </div>
+    </div>
     <div class="feedback-grid">
       <div class="card">
         <div class="hd"><b>Send feedback</b><span class="small muted">Anonymous by default</span></div>
         <div class="bd">
           <div class="field" style="margin-bottom:14px"><label>Type</label>
             <div class="chips" id="fbTypeChips">
-              <div class="chip active" onclick="fbType(this)">💡 Suggestion</div><div class="chip" onclick="fbType(this)">🐛 Bug</div><div class="chip" onclick="fbType(this)">🛡️ Safety</div><div class="chip" onclick="fbType(this)">⭐ Compliment</div><div class="chip" onclick="fbType(this)">💬 General</div>
+              <div class="chip active" onclick="fbType(this)">💡 Suggestion</div>
+              <div class="chip" onclick="fbType(this)">🐛 Bug</div>
+              <div class="chip" onclick="fbType(this)">🛡️ Safety</div>
+              <div class="chip" onclick="fbType(this)">⭐ Compliment</div>
+              <div class="chip" onclick="fbType(this)">💬 General</div>
             </div>
           </div>
-          <div class="field"><label>Area</label><select><option>Matching & Discovery</option><option>Messaging</option><option>Verification</option><option>Safety features</option><option>Pricing</option><option>Other</option></select></div>
+          <div class="field"><label>Area</label>
+            <select><option>Matching & Discovery</option><option>Messaging</option><option>Verification</option><option>Safety features</option><option>Pricing</option><option>Other</option></select>
+          </div>
           <div class="sp"></div>
           <div class="field"><label>Your feedback</label><textarea placeholder="Be specific — the more detail, the more useful."></textarea></div>
           <div class="sp"></div>
           <label style="font-size:12px;color:rgba(245,242,238,.45);text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:8px">Urgency</label>
           <div style="display:flex;gap:8px">
-            <button class="urg on" onclick="setUrg(this)">Low</button><button class="urg" onclick="setUrg(this)">Medium</button><button class="urg" onclick="setUrg(this)">High</button><button class="urg crit" onclick="setUrg(this)">🚨 Critical</button>
+            <button class="urg on" onclick="setUrg(this)">Low</button>
+            <button class="urg" onclick="setUrg(this)">Medium</button>
+            <button class="urg" onclick="setUrg(this)">High</button>
+            <button class="urg crit" onclick="setUrg(this)">🚨 Critical</button>
           </div>
           <div class="sp"></div>
           <div class="field"><label>Name (optional)</label><input placeholder="Leave blank for anonymous"/></div>
@@ -903,18 +961,33 @@ body.on-landing .bottom-nav { display:none !important; }
         </div>
       </div>
       <div>
-        <div class="card" style="margin-bottom:14px"><div class="hd"><b>Rate your experience</b></div><div class="bd"><div class="muted small">How would you rate Lunara overall?</div><div class="star-row" id="starRow"><span class="star" onclick="rateStar(1)">★</span><span class="star" onclick="rateStar(2)">★</span><span class="star" onclick="rateStar(3)">★</span><span class="star" onclick="rateStar(4)">★</span><span class="star" onclick="rateStar(5)">★</span></div><div id="ratingLabel" class="small muted" style="min-height:18px"></div></div></div>
-        <div class="card" style="margin-bottom:14px"><div class="hd"><b>What should we build next?</b></div><div class="bd">
-          <div class="vote-item" onclick="vote(this)"><span>🗓️ Event & meetup spaces</span><span class="vote-ct">142 votes</span></div>
-          <div class="vote-item" onclick="vote(this)"><span>📞 In-app video calls</span><span class="vote-ct">98 votes</span></div>
-          <div class="vote-item" onclick="vote(this)"><span>👥 Community forums</span><span class="vote-ct">87 votes</span></div>
-          <div class="vote-item" onclick="vote(this)"><span>🤝 Partner introductions</span><span class="vote-ct">73 votes</span></div>
-        </div></div>
-        <div class="card"><div class="hd"><b>Contact us</b></div><div class="bd">
-          <div class="contact-item"><div class="contact-icon">🛡️</div><div><div class="contact-lbl">Safety team</div><div class="contact-sub">Urgent — 2hr response</div></div></div>
-          <div class="contact-item"><div class="contact-icon">💌</div><div><div class="contact-lbl">hello@lunara.dating</div><div class="contact-sub">General & partnerships</div></div></div>
-          <div class="contact-item"><div class="contact-icon">📖</div><div><div class="contact-lbl">Community Guidelines</div><div class="contact-sub">What keeps Lunara safe</div></div></div>
-        </div></div>
+        <div class="card" style="margin-bottom:14px">
+          <div class="hd"><b>Rate your experience</b></div>
+          <div class="bd">
+            <div class="muted small">How would you rate Lunara overall?</div>
+            <div class="star-row" id="starRow">
+              <span class="star" onclick="rateStar(1)">★</span><span class="star" onclick="rateStar(2)">★</span><span class="star" onclick="rateStar(3)">★</span><span class="star" onclick="rateStar(4)">★</span><span class="star" onclick="rateStar(5)">★</span>
+            </div>
+            <div id="ratingLabel" class="small muted" style="min-height:18px"></div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:14px">
+          <div class="hd"><b>What should we build next?</b></div>
+          <div class="bd">
+            <div class="vote-item" onclick="vote(this)"><span>🗓️ Event & meetup spaces</span><span class="vote-ct">142 votes</span></div>
+            <div class="vote-item" onclick="vote(this)"><span>📞 In-app video calls</span><span class="vote-ct">98 votes</span></div>
+            <div class="vote-item" onclick="vote(this)"><span>👥 Community forums</span><span class="vote-ct">87 votes</span></div>
+            <div class="vote-item" onclick="vote(this)"><span>🤝 Partner introductions</span><span class="vote-ct">73 votes</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="hd"><b>Contact us</b></div>
+          <div class="bd">
+            <div class="contact-item"><div class="contact-icon">🛡️</div><div><div class="contact-lbl">Safety team</div><div class="contact-sub">Urgent — 2hr response</div></div></div>
+            <div class="contact-item"><div class="contact-icon">💌</div><div><div class="contact-lbl"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="8be3eee7e7e4cbe7fee5eaf9eaa5eafbfb">[email&#160;protected]</a></div><div class="contact-sub">General & partnerships</div></div></div>
+            <div class="contact-item"><div class="contact-icon">📖</div><div><div class="contact-lbl">Community Guidelines</div><div class="contact-sub">What keeps Lunara safe</div></div></div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -948,7 +1021,7 @@ body.on-landing .bottom-nav { display:none !important; }
 </div><!-- /appWrap -->
 </div><!-- /allScreens -->
 
-<!-- Bottom nav -->
+<!-- Bottom nav (app only) -->
 <div class="bottom-nav" id="bottomNav" style="display:none">
   <div class="tab" onclick="goScreen('s_discover',this)"><span class="ti">💫</span>Discover</div>
   <div class="tab" onclick="goScreen('s_match',this)"><span class="ti">✨</span>Match</div>
@@ -958,15 +1031,12 @@ body.on-landing .bottom-nav { display:none !important; }
   <div class="tab" onclick="goScreen('s_premium',this)"><span class="ti">🔓</span>Premium</div>
 </div>
 
-<!-- ══════════════════════════════════
-     WAITLIST MODAL — PHASE 2
-══════════════════════════════════ -->
+<!-- Waitlist Modal -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
   <div class="modal">
     <button class="modal-close" onclick="closeModal()">✕</button>
-    <h2>Apply for <em>Founding Access</em></h2>
-    <div class="modal-scarcity"><div class="scarcity-dot"></div> <span id="modalSpots">—</span> of 100 spots remaining</div>
-    <p>Founding members get 3 months Premium free, locked preferred rate, and direct influence on features. No card required.</p>
+    <h2>Join <em>Lunara</em></h2>
+    <p>Be among the first. Founding members get 3 months of Premium completely free — no card required.</p>
     <div class="modal-form" id="modalForm">
       <input class="modal-input" id="wl_name" type="text" placeholder="Your display name">
       <input class="modal-input" id="wl_email" type="email" placeholder="Email address">
@@ -976,52 +1046,69 @@ body.on-landing .bottom-nav { display:none !important; }
         <option>Open relationship</option><option>Relationship anarchy</option><option>Exploring / Curious</option>
       </select>
       <div id="wl_error" style="display:none;color:#ff8080;font-size:13px;padding:4px 0;"></div>
-      <button class="modal-submit" id="wl_btn" onclick="submitWaitlist()">Secure Your Founding Spot →</button>
+      <button class="modal-submit" id="wl_btn" onclick="submitWaitlist()">Join the Waitlist →</button>
       <div class="modal-legal">18+ only. Your data is encrypted and never shared.</div>
     </div>
     <div class="modal-success" id="modalSuccess">
       <div class="si">🌙</div>
       <h3>You're on the list.</h3>
-      <p>We'll be in touch soon. Founding invites are sent in waves.<br><br>Welcome to Lunara — you're exactly who this was built for.</p>
+      <p>We'll be in touch soon. Welcome to Lunara — you're exactly who this was built for.</p>
     </div>
   </div>
 </div>
 
-<script>
-// ── Supabase Config (REAL CREDENTIALS) ──
-const SUPABASE_URL = 'https://evctyqajzoviaiawnvky.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Y3R5cWFqem92aWFpYXdudmt5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMzQ1NTUsImV4cCI6MjA4NzgxMDU1NX0.xxbS_uAO9UVuq6tSzTL2F7OKICjFvmoPQH1ZLcHgbrY';
-const TOTAL_SPOTS = 100;
-
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ── Screen management ───────────────
 const LANDING='s_landing';
 const APP_SCREENS=['s_signup','s_login','s_onboarding','s_discover','s_match','s_chat','s_trust','s_safety','s_feedback','s_premium'];
 const ALL_SCREENS=[LANDING,...APP_SCREENS];
 
 function goScreen(id,tabEl){
+  // Hide all screens
   ALL_SCREENS.forEach(s=>{const el=document.getElementById(s);if(el)el.classList.remove('active');});
   document.getElementById(id).classList.add('active');
+
   const isLanding=(id===LANDING);
+
+  // Toggle body class (used for bottom nav only)
   document.body.classList.toggle('on-landing',isLanding);
+
+  // Show/hide appWrap
   document.getElementById('appWrap').style.display = isLanding?'none':'block';
+
+  // Show/hide bottom nav
   document.getElementById('bottomNav').style.display = isLanding?'none':'flex';
+
+  // Nav right buttons — on landing show Log in + Join, in app show ← Home + Waitlist
   const navLogin=document.getElementById('navLoginBtn');
   const navJoin=document.getElementById('navJoinBtn');
   if(isLanding){
-    navLogin.textContent='Log in'; navLogin.onclick=()=>goScreen('s_login');
-    navJoin.textContent='Join Lunara'; navJoin.onclick=()=>openModal();
+    navLogin.textContent='Log in';
+    navLogin.onclick=()=>goScreen('s_login');
+    navJoin.textContent='Join Lunara';
+    navJoin.onclick=()=>openModal();
   } else {
-    navLogin.textContent='← Home'; navLogin.onclick=()=>goScreen(LANDING);
-    navJoin.textContent='Waitlist'; navJoin.onclick=()=>openModal();
+    navLogin.textContent='← Home';
+    navLogin.onclick=()=>goScreen(LANDING);
+    navJoin.textContent='Waitlist';
+    navJoin.onclick=()=>openModal();
   }
+
+  // Update bottom nav tab highlight
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   if(tabEl) tabEl.classList.add('active');
-  else { const map={s_discover:0,s_match:1,s_chat:2,s_safety:3,s_feedback:4,s_premium:5}; if(map[id]!==undefined) document.querySelectorAll('.tab')[map[id]]?.classList.add('active'); }
+  else {
+    const map={s_discover:0,s_match:1,s_chat:2,s_safety:3,s_feedback:4,s_premium:5};
+    if(map[id]!==undefined) document.querySelectorAll('.tab')[map[id]]?.classList.add('active');
+  }
+
   window.scrollTo(0,0);
 }
 
 // ── Sticky topbar ───────────────────
-window.addEventListener('scroll',()=>{ document.getElementById('topbar').classList.toggle('compact',window.scrollY>60); });
+window.addEventListener('scroll',()=>{
+  document.getElementById('topbar').classList.toggle('compact',window.scrollY>60);
+});
 
 // ── Intent chips ─────────────────
 document.getElementById('intentChips').addEventListener('click',e=>{
@@ -1080,56 +1167,27 @@ function openMatch(i){
 
 // ── Chat ────────────────────────────
 function sendMsg(){
-  const inp=document.getElementById('chatInput');const txt=inp.value.trim();if(!txt)return;
+  const inp=document.getElementById('chatInput');
+  const txt=inp.value.trim();if(!txt)return;
   const body=document.getElementById('chatBody');
   const b=document.createElement('div');b.className='bubble me';
   b.innerHTML=txt+`<div class="ts">${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>`;
   body.appendChild(b);inp.value='';body.scrollTop=body.scrollHeight;
 }
-function toggleMedia(){ const n=document.getElementById('mediaNote'); n.style.display=n.style.display==='none'?'block':'none'; }
-
-// ── Live Spot Counter ───────────────
-async function updateSpotCounter(){
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/waitlist?select=id`,{
-      headers:{'apikey':SUPABASE_ANON_KEY,'Authorization':`Bearer ${SUPABASE_ANON_KEY}`}
-    });
-    if(res.ok){
-      const data = await res.json();
-      const taken = Math.min(data.length, TOTAL_SPOTS);
-      const remaining = Math.max(TOTAL_SPOTS - taken, 0);
-      document.getElementById('spotsLeft').textContent = remaining;
-      document.getElementById('modalSpots').textContent = remaining;
-    }
-  } catch(e){ console.log('Counter fetch skipped'); }
+function toggleMedia(){
+  const n=document.getElementById('mediaNote');
+  n.style.display=n.style.display==='none'?'block':'none';
 }
-updateSpotCounter();
 
 // ── Modal ────────────────────────────
-function openModal(){
-  document.getElementById('modalOverlay').classList.add('open');
-  updateSpotCounter();
-}
-function closeModal(e){
-  if(!e||e.target===document.getElementById('modalOverlay'))
-    document.getElementById('modalOverlay').classList.remove('open');
-  // Reset form after close
-  setTimeout(()=>{
-    document.getElementById('modalForm').style.display='';
-    document.getElementById('modalSuccess').style.display='none';
-    document.getElementById('wl_name').value='';
-    document.getElementById('wl_email').value='';
-    document.getElementById('wl_style').selectedIndex=0;
-    document.getElementById('wl_error').style.display='none';
-    const btn=document.getElementById('wl_btn');
-    btn.textContent='Secure Your Founding Spot →';
-    btn.disabled=false;
-    btn.style.opacity='1';
-  },300);
-}
+function openModal(){document.getElementById('modalOverlay').classList.add('open');}
+function closeModal(e){if(!e||e.target===document.getElementById('modalOverlay'))document.getElementById('modalOverlay').classList.remove('open');}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+// ── Supabase Config ─────────────────
+// REPLACE these two values with your own from Supabase → Settings → API
+const SUPABASE_URL = 'https://evctyqajzoviaiawnvky.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Y3R5cWFqem92aWFpYXdudmt5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMzQ1NTUsImV4cCI6MjA4NzgxMDU1NX0.xxbS_uAO9UVuq6tSzTL2F7OKICjFvmoPQH1ZLcHgbrY';
 
-// ── Waitlist Submit ─────────────────
 async function submitWaitlist(){
   const name  = document.getElementById('wl_name').value.trim();
   const email = document.getElementById('wl_email').value.trim();
@@ -1137,44 +1195,57 @@ async function submitWaitlist(){
   const errEl = document.getElementById('wl_error');
   const btn   = document.getElementById('wl_btn');
 
-  errEl.style.display='none'; errEl.style.color='#ff8080';
+  // Basic validation
+  errEl.style.display='none';
   if(!name){ errEl.textContent='Please enter a display name.'; errEl.style.display='block'; return; }
   if(!email || !email.includes('@')){ errEl.textContent='Please enter a valid email address.'; errEl.style.display='block'; return; }
   if(!style){ errEl.textContent='Please select your relationship style.'; errEl.style.display='block'; return; }
 
-  btn.textContent='Securing your spot...'; btn.disabled=true; btn.style.opacity='0.7';
+  // Loading state
+  btn.textContent='Joining...';
+  btn.disabled=true;
+  btn.style.opacity='0.7';
 
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/waitlist`, {
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'apikey':SUPABASE_ANON_KEY,
-        'Authorization':`Bearer ${SUPABASE_ANON_KEY}`,
-        'Prefer':'return=minimal'
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Prefer': 'return=minimal'
       },
-      body:JSON.stringify({
-        display_name:name, email:email, relationship_style:style,
-        source:'website_founding', referrer:document.referrer||'direct'
+      body: JSON.stringify({
+        display_name: name,
+        email: email,
+        relationship_style: style,
+        source: 'landing_page',
+        referrer: document.referrer || 'direct'
       })
     });
 
-    if(res.status===201||res.status===200){
+    if(res.status === 201 || res.status === 200){
+      // Success
       document.getElementById('modalForm').style.display='none';
       document.getElementById('modalSuccess').style.display='block';
-      updateSpotCounter();
-    } else if(res.status===409){
+    } else if(res.status === 409){
+      // Duplicate email
       errEl.textContent="You're already on the list! We'll be in touch soon.";
-      errEl.style.display='block'; errEl.style.color='#8aab8c';
-      btn.textContent='Secure Your Founding Spot →'; btn.disabled=false; btn.style.opacity='1';
+      errEl.style.display='block';
+      errEl.style.color='#8aab8c';
+      btn.textContent='Join the Waitlist →';
+      btn.disabled=false;
+      btn.style.opacity='1';
     } else {
-      throw new Error('Unexpected: '+res.status);
+      throw new Error('Unexpected response: ' + res.status);
     }
-  } catch(err){
+  } catch(err) {
     errEl.textContent='Something went wrong. Please try again.';
     errEl.style.display='block';
-    btn.textContent='Secure Your Founding Spot →'; btn.disabled=false; btn.style.opacity='1';
-    console.error('Waitlist error:',err);
+    btn.textContent='Join the Waitlist →';
+    btn.disabled=false;
+    btn.style.opacity='1';
+    console.error('Waitlist error:', err);
   }
 }
 
@@ -1188,7 +1259,8 @@ function rateStar(n){
 }
 function vote(el){
   el.classList.toggle('voted');
-  const ct=el.querySelector('.vote-ct');const n=parseInt(ct.textContent);
+  const ct=el.querySelector('.vote-ct');
+  const n=parseInt(ct.textContent);
   ct.textContent=(el.classList.contains('voted')?n+1:n-1)+' votes';
 }
 function submitFeedback(){
@@ -1196,17 +1268,8 @@ function submitFeedback(){
   document.querySelector('.btn.primary[onclick="submitFeedback()"]').style.display='none';
 }
 
-// ── Scroll reveal ───────────────────
+// ── Scroll reveal for landing ───────
 const revealObs=new IntersectionObserver(entries=>{
   entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');revealObs.unobserve(e.target);}});
 },{threshold:0.1});
-document.querySelectorAll('.lp-reveal,.lp-pillar,.lp-quote,.lp-mpoint').forEach(el=>{
-  el.style.transition='opacity .7s ease, transform .7s ease';
-  revealObs.observe(el);
-});
-
-// ── Init ────────────────────────────
-renderMatches();
-</script>
-</body>
-</html>
+docu
