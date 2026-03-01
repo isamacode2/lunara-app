@@ -502,23 +502,16 @@ body.on-landing .bottom-nav { display:none !important; }
       <h1 class="lp-title">Not just to match.<br>But to <em>belong.</em></h1>
       <p class="lp-body">Lunara is the digital home for open and non-monogamous relationships. Connect with your community, find meaningful connections, and live your relationship style — without explanation.</p>
       <div class="lp-actions">
-        <button class="lp-btn solid" onclick="openModal()">Apply for Founding Access</button>
+        <button class="lp-btn solid" onclick="openModal()">Join Lunara</button>
         <button class="lp-btn outline" onclick="goScreen('s_discover')">Explore the app →</button>
       </div>
       <div class="lp-stats">
-        <div><span class="lp-stat-num" style="color:var(--coral)">100</span><div class="lp-stat-label">Founding spots only</div></div>
         <div><span class="lp-stat-num">100%</span><div class="lp-stat-label">ID Verified</div></div>
+        <div><span class="lp-stat-num">&lt;24h</span><div class="lp-stat-label">Safety response</div></div>
         <div><span class="lp-stat-num">0</span><div class="lp-stat-label">Data sold</div></div>
       </div>
     </div>
     <div class="lp-scroll"><div class="lp-scroll-line"></div>Scroll</div>
-  </div>
-
-  <!-- Scarcity Strip -->
-  <div class="lp-scarcity">
-    <div class="lp-scarcity-dot"></div>
-    <span><strong>100 Founding Spots</strong> — Consent-gated visibility · Verified adults · No swipe chaos · Women-first safety</span>
-    <div class="lp-scarcity-dot"></div>
   </div>
 
   <!-- Manifesto -->
@@ -553,13 +546,13 @@ body.on-landing .bottom-nav { display:none !important; }
   <!-- Wide CTA -->
   <div class="lp-wide-cta lp-reveal">
     <div>
-      <div class="lp-cta-eyebrow">100 Founding Spots — Now Open</div>
-      <h2>Privacy-First ENM. <em>Built With 100 Founders.</em></h2>
+      <div class="lp-cta-eyebrow">Early Access Now Open</div>
+      <h2>The private platform <em>built for you</em> is here.</h2>
     </div>
     <div class="lp-cta-btns">
-      <button class="lp-btn-white" onclick="openModal()">Secure Your Founding Spot</button>
+      <button class="lp-btn-white" onclick="openModal()">Join the Waitlist</button>
       <button class="lp-btn-woutline" onclick="goScreen('s_discover')">Explore the app</button>
-      <div class="lp-cta-note">Founding members: 3 months premium free · Direct product influence · Founding badge</div>
+      <div class="lp-cta-note">Founding members: 3 months premium free</div>
     </div>
   </div>
 
@@ -628,7 +621,7 @@ body.on-landing .bottom-nav { display:none !important; }
         <h4>Company</h4>
         <a href="#">Our Purpose</a>
         <a href="#">Newsroom</a>
-        <a href="#"><span class="__cf_email__" data-cfemail="6109040d0d0e210d140f0013004f001111">[email&#160;protected]</span></a>
+        <a href="#">hello@lunara.app</a>
       </div>
     </div>
     <div class="lp-footer-bottom">
@@ -984,7 +977,7 @@ body.on-landing .bottom-nav { display:none !important; }
           <div class="hd"><b>Contact us</b></div>
           <div class="bd">
             <div class="contact-item"><div class="contact-icon">🛡️</div><div><div class="contact-lbl">Safety team</div><div class="contact-sub">Urgent — 2hr response</div></div></div>
-            <div class="contact-item"><div class="contact-icon">💌</div><div><div class="contact-lbl"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="8be3eee7e7e4cbe7fee5eaf9eaa5eafbfb">[email&#160;protected]</a></div><div class="contact-sub">General & partnerships</div></div></div>
+            <div class="contact-item"><div class="contact-icon">💌</div><div><div class="contact-lbl">hello@lunara.app</div><div class="contact-sub">General & partnerships</div></div></div>
             <div class="contact-item"><div class="contact-icon">📖</div><div><div class="contact-lbl">Community Guidelines</div><div class="contact-sub">What keeps Lunara safe</div></div></div>
           </div>
         </div>
@@ -1046,7 +1039,7 @@ body.on-landing .bottom-nav { display:none !important; }
         <option>Open relationship</option><option>Relationship anarchy</option><option>Exploring / Curious</option>
       </select>
       <div id="wl_error" style="display:none;color:#ff8080;font-size:13px;padding:4px 0;"></div>
-      <button class="modal-submit" id="wl_btn" onclick="submitWaitlist()">Secure Your Founding Spot →</button>
+      <button class="modal-submit" id="wl_btn" onclick="submitWaitlist()">Join the Waitlist →</button>
       <div class="modal-legal">18+ only. Your data is encrypted and never shared.</div>
     </div>
     <div class="modal-success" id="modalSuccess">
@@ -1057,7 +1050,7 @@ body.on-landing .bottom-nav { display:none !important; }
   </div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 // ── Screen management ───────────────
 const LANDING='s_landing';
 const APP_SCREENS=['s_signup','s_login','s_onboarding','s_discover','s_match','s_chat','s_trust','s_safety','s_feedback','s_premium'];
@@ -1233,7 +1226,7 @@ async function submitWaitlist(){
       errEl.textContent="You're already on the list! We'll be in touch soon.";
       errEl.style.display='block';
       errEl.style.color='#8aab8c';
-      btn.textContent='Secure Your Founding Spot →';
+      btn.textContent='Join the Waitlist →';
       btn.disabled=false;
       btn.style.opacity='1';
     } else {
@@ -1242,7 +1235,7 @@ async function submitWaitlist(){
   } catch(err) {
     errEl.textContent='Something went wrong. Please try again.';
     errEl.style.display='block';
-    btn.textContent='Secure Your Founding Spot →';
+    btn.textContent='Join the Waitlist →';
     btn.disabled=false;
     btn.style.opacity='1';
     console.error('Waitlist error:', err);
@@ -1272,4 +1265,13 @@ function submitFeedback(){
 const revealObs=new IntersectionObserver(entries=>{
   entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');revealObs.unobserve(e.target);}});
 },{threshold:0.1});
-docu
+document.querySelectorAll('.lp-reveal,.lp-pillar,.lp-quote,.lp-mpoint').forEach(el=>{
+  el.style.transition='opacity .7s ease, transform .7s ease';
+  revealObs.observe(el);
+});
+
+// ── Init ────────────────────────────
+renderMatches();
+</script>
+</body>
+</html>
