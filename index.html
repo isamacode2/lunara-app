@@ -402,7 +402,7 @@ body.on-landing .bottom-nav { display:none !important; }
 .modal > p { font-size:14px; color:rgba(245,242,238,.5); line-height:1.65; margin-bottom:28px; }
 .modal-scarcity { display:inline-flex; align-items:center; gap:8px; padding:7px 14px; border-radius:100px; background:rgba(232,85,62,.1); border:1px solid rgba(232,85,62,.2); font-size:12px; font-weight:600; color:var(--coral); margin-bottom:20px; }
 .modal-form { display:flex; flex-direction:column; gap:12px; }
-.modal-input { width:100%; box-sizing:border-box; padding:13px 16px; border-radius:13px; border:1px solid var(--border); background:rgba(0,0,0,.3); color:var(--off); font-family:var(--font); font-size:14px; outline:none; transition:.2s; -webkit-appearance:none; }
+.modal-input { padding:13px 16px; border-radius:13px; border:1px solid var(--border); background:rgba(0,0,0,.3); color:var(--off); font-family:var(--font); font-size:14px; outline:none; transition:.2s; -webkit-appearance:none; }
 .modal-input:focus { border-color:rgba(232,85,62,.5); }
 .modal-input::placeholder { color:rgba(245,242,238,.22); }
 .modal-submit { padding:14px; border-radius:13px; background:linear-gradient(135deg,var(--coral),var(--violet)); color:white; font-family:var(--font); font-size:15px; font-weight:700; border:none; cursor:pointer; transition:.25s all; box-shadow:0 6px 24px var(--glow); }
@@ -736,8 +736,6 @@ body.on-landing .bottom-nav { display:none !important; }
       <div class="hd"><b>Create account</b><span class="small muted">Step 1 of 2</span></div>
       <div class="bd grid">
         <div>
-          <div class="field"><label>Display name</label><input placeholder="How you'd like to be known"/></div>
-          <div class="sp"></div>
           <div class="field"><label>Email</label><input placeholder="you@example.com"/></div>
           <div class="sp"></div>
           <div class="field"><label>Password</label><input type="password" placeholder="••••••••"/></div>
@@ -1036,9 +1034,9 @@ body.on-landing .bottom-nav { display:none !important; }
     <div class="modal-scarcity"><div class="scarcity-dot"></div> <span id="modalSpots">—</span> of 100 spots remaining</div>
     <p>Founders receive 3 months Premium at launch and lock preferred pricing before public release. No card required.</p>
     <div class="modal-form" id="modalForm">
-      <input class="modal-input" id="wl_name" type="text" placeholder="Your display name" autocomplete="name">
-      <input class="modal-input" id="wl_email" type="email" placeholder="Email address" autocomplete="email">
-      <select class="modal-input" id="wl_style" style="-webkit-appearance:none;appearance:none;cursor:pointer" autocomplete="off">
+      <input class="modal-input" id="wl_name" type="text" placeholder="Your display name">
+      <input class="modal-input" id="wl_email" type="email" placeholder="Email address">
+      <select class="modal-input" id="wl_style" style="-webkit-appearance:none;appearance:none;cursor:pointer">
         <option value="" disabled selected>Your relationship style</option>
         <option>Polyamorous</option><option>Solo poly</option><option>Kitchen table poly</option>
         <option>Open relationship</option><option>Relationship anarchy</option><option>Exploring / Curious</option>
@@ -1198,29 +1196,17 @@ function closeModal(e){
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 
 // ── Waitlist Submit ─────────────────
-function showWlError(msg, color) {
-  const errEl = document.getElementById('wl_error');
-  errEl.textContent = msg;
-  errEl.style.color = color || '#ff8080';
-  errEl.style.display = 'block';
-}
-function clearWlError() {
-  document.getElementById('wl_error').style.display = 'none';
-}
-// Clear errors as user types
-document.getElementById('wl_name')?.addEventListener('input', clearWlError);
-document.getElementById('wl_email')?.addEventListener('input', clearWlError);
-document.getElementById('wl_style')?.addEventListener('change', clearWlError);
-
 async function submitWaitlist(){
   const name  = document.getElementById('wl_name').value.trim();
   const email = document.getElementById('wl_email').value.trim();
   const style = document.getElementById('wl_style').value;
+  const errEl = document.getElementById('wl_error');
   const btn   = document.getElementById('wl_btn');
 
-  if(!name){ showWlError('Please enter a display name.'); return; }
-  if(!email || !email.includes('@')){ showWlError('Please enter a valid email address.'); return; }
-  if(!style){ showWlError('Please select your relationship style.'); return; }
+  errEl.style.display='none'; errEl.style.color='#ff8080';
+  if(!name){ errEl.textContent='Please enter a display name.'; errEl.style.display='block'; return; }
+  if(!email || !email.includes('@')){ errEl.textContent='Please enter a valid email address.'; errEl.style.display='block'; return; }
+  if(!style){ errEl.textContent='Please select your relationship style.'; errEl.style.display='block'; return; }
 
   btn.textContent='Securing your spot...'; btn.disabled=true; btn.style.opacity='0.7';
 
@@ -1244,13 +1230,15 @@ async function submitWaitlist(){
       document.getElementById('modalSuccess').style.display='block';
       updateSpotCounter();
     } else if(res.status===409){
-      showWlError("You're already on the list! We'll be in touch soon.", '#8aab8c');
+      errEl.textContent="You're already on the list! We'll be in touch soon.";
+      errEl.style.display='block'; errEl.style.color='#8aab8c';
       btn.textContent='Secure Your Founding Spot →'; btn.disabled=false; btn.style.opacity='1';
     } else {
       throw new Error('Unexpected: '+res.status);
     }
   } catch(err){
-    showWlError('Something went wrong. Please try again.');
+    errEl.textContent='Something went wrong. Please try again.';
+    errEl.style.display='block';
     btn.textContent='Secure Your Founding Spot →'; btn.disabled=false; btn.style.opacity='1';
     console.error('Waitlist error:',err);
   }
