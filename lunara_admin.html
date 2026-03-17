@@ -42,6 +42,17 @@ body{font-family:var(--font);background:var(--ink);color:var(--off);min-height:1
 .btn-sm:hover{color:var(--off);border-color:rgba(255,255,255,.25);}
 .btn-sm.danger{border-color:rgba(232,85,62,.3);color:rgba(232,85,62,.8);}
 
+/* Tab nav */
+.tab-nav{display:flex;gap:4px;padding:0 32px;border-bottom:1px solid var(--border);background:rgba(14,12,20,.7);}
+.tab-btn{padding:14px 20px;font-family:var(--font);font-size:13px;font-weight:600;color:rgba(245,242,238,.4);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:8px;}
+.tab-btn:hover{color:rgba(245,242,238,.7);}
+.tab-btn.active{color:var(--off);border-bottom-color:var(--coral);}
+.tab-badge{background:var(--amber);color:#0e0c14;font-size:10px;font-weight:800;padding:2px 7px;border-radius:999px;min-width:18px;text-align:center;}
+.tab-badge.urgent{background:var(--coral);}
+
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
 .main{max-width:1100px;margin:0 auto;padding:32px 24px;}
 
 /* KPI cards */
@@ -77,6 +88,9 @@ tr:last-child td{border-bottom:none;}
 tr:hover td{background:rgba(255,255,255,.02);}
 .badge-style{padding:4px 10px;border-radius:999px;font-size:11px;font-weight:600;background:rgba(107,63,160,.12);color:#c5b3f0;border:1px solid rgba(107,63,160,.2);}
 .badge-new{padding:4px 10px;border-radius:999px;font-size:11px;font-weight:600;background:rgba(138,171,140,.1);color:var(--sage);border:1px solid rgba(138,171,140,.2);}
+.badge-pending{padding:4px 10px;border-radius:999px;font-size:11px;font-weight:600;background:rgba(255,190,85,.1);color:var(--amber);border:1px solid rgba(255,190,85,.25);}
+.badge-verified{padding:4px 10px;border-radius:999px;font-size:11px;font-weight:600;background:rgba(138,171,140,.12);color:var(--sage);border:1px solid rgba(138,171,140,.25);}
+.badge-rejected{padding:4px 10px;border-radius:999px;font-size:11px;font-weight:600;background:rgba(232,85,62,.1);color:var(--coral);border:1px solid rgba(232,85,62,.2);}
 .del-btn{padding:5px 10px;border-radius:8px;border:1px solid rgba(232,85,62,.2);background:transparent;color:rgba(232,85,62,.6);font-size:11px;cursor:pointer;font-family:var(--font);transition:.15s;}
 .del-btn:hover{background:rgba(232,85,62,.08);color:var(--coral);}
 .empty-state{text-align:center;padding:60px 20px;color:rgba(245,242,238,.3);}
@@ -87,6 +101,47 @@ tr:hover td{background:rgba(255,255,255,.02);}
 .btn-export:hover{background:rgba(138,171,140,.18);}
 
 .loading{text-align:center;padding:40px;color:rgba(245,242,238,.3);font-size:14px;}
+
+/* ── Verification panel ── */
+.verif-filter-row{display:flex;gap:8px;padding:18px 22px;border-bottom:1px solid rgba(255,255,255,.06);flex-wrap:wrap;}
+.filter-pill{padding:7px 16px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid var(--border);background:transparent;color:rgba(245,242,238,.5);cursor:pointer;font-family:var(--font);transition:.15s;}
+.filter-pill:hover{color:var(--off);border-color:rgba(255,255,255,.2);}
+.filter-pill.active{background:rgba(107,63,160,.15);border-color:rgba(107,63,160,.4);color:#c5b3f0;}
+
+.verif-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;padding:22px;}
+.verif-card{background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:.2s;}
+.verif-card:hover{border-color:rgba(255,255,255,.12);}
+.verif-card.pending{border-color:rgba(255,190,85,.2);}
+.verif-card-head{display:flex;align-items:center;gap:14px;padding:16px;}
+.verif-avatar{width:48px;height:48px;border-radius:50%;object-fit:cover;background:rgba(107,63,160,.2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.verif-avatar img{width:48px;height:48px;border-radius:50%;object-fit:cover;}
+.verif-name{font-size:15px;font-weight:700;}
+.verif-email{font-size:12px;color:rgba(245,242,238,.4);margin-top:2px;}
+.verif-meta{font-size:11px;color:rgba(245,242,238,.3);margin-top:3px;}
+.verif-photo-wrap{padding:0 16px 16px;}
+.verif-photo-label{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:rgba(245,242,238,.3);margin-bottom:8px;}
+.verif-photo{width:100%;border-radius:10px;object-fit:cover;max-height:180px;background:rgba(255,255,255,.04);cursor:pointer;transition:.15s;}
+.verif-photo:hover{opacity:.85;}
+.verif-no-photo{width:100%;height:100px;border-radius:10px;background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:rgba(245,242,238,.25);font-size:13px;}
+.verif-actions{display:flex;gap:8px;padding:0 16px 16px;}
+.btn-approve{flex:1;padding:10px;border-radius:10px;background:rgba(138,171,140,.12);border:1px solid rgba(138,171,140,.3);color:var(--sage);font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;transition:.15s;}
+.btn-approve:hover{background:rgba(138,171,140,.22);}
+.btn-reject{flex:1;padding:10px;border-radius:10px;background:rgba(232,85,62,.08);border:1px solid rgba(232,85,62,.25);color:var(--coral);font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;transition:.15s;}
+.btn-reject:hover{background:rgba(232,85,62,.15);}
+.btn-undo{flex:1;padding:10px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid var(--border);color:rgba(245,242,238,.5);font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;transition:.15s;}
+.btn-undo:hover{color:var(--off);}
+.verif-done-badge{display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;font-size:13px;font-weight:600;border-radius:10px;}
+.verif-done-badge.approved{background:rgba(138,171,140,.08);color:var(--sage);}
+.verif-done-badge.rejected{background:rgba(232,85,62,.08);color:var(--coral);}
+
+/* Lightbox */
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:1000;align-items:center;justify-content:center;cursor:pointer;}
+.lightbox.open{display:flex;}
+.lightbox img{max-width:90vw;max-height:90vh;border-radius:12px;object-fit:contain;}
+
+/* Verif KPI row */
+.verif-kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+@media(max-width:700px){.verif-kpi-row{grid-template-columns:1fr 1fr;}}
 </style>
 </head>
 <body>
@@ -132,63 +187,131 @@ tr:hover td{background:rgba(255,255,255,.02);}
     </div>
   </div>
 
-  <div class="main">
-    <!-- KPIs -->
-    <div class="kpi-row">
-      <div class="kpi-card accent">
-        <div class="kpi-label">Total signups</div>
-        <div class="kpi-val" id="kpi_total">—</div>
-        <div class="kpi-sub">All time</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Last 24 hours</div>
-        <div class="kpi-val" id="kpi_24h" style="color:var(--sage)">—</div>
-        <div class="kpi-sub">New signups</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">This week</div>
-        <div class="kpi-val" id="kpi_7d" style="color:var(--violet)">—</div>
-        <div class="kpi-sub">Last 7 days</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Top style</div>
-        <div class="kpi-val" id="kpi_top" style="font-size:18px;padding-top:4px">—</div>
-        <div class="kpi-sub">Most common</div>
-      </div>
-    </div>
+  <!-- Tab nav -->
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('waitlist',this)">📋 Waitlist</button>
+    <button class="tab-btn" onclick="switchTab('verification',this)" id="verifTabBtn">
+      🔒 Verification
+      <span class="tab-badge urgent" id="pendingBadge" style="display:none">0</span>
+    </button>
+  </div>
 
-    <!-- Charts -->
-    <div class="chart-row">
-      <div class="panel">
-        <div class="panel-title">📊 By relationship style</div>
-        <div id="styleChart"><div class="loading">Loading...</div></div>
-      </div>
-      <div class="panel">
-        <div class="panel-title">📅 Recent signups</div>
-        <div id="recentList"><div class="loading">Loading...</div></div>
-      </div>
-    </div>
-
-    <!-- Table -->
-    <div class="table-panel">
-      <div class="table-top">
-        <div class="table-title">All Waitlist Entries</div>
-        <div style="display:flex;gap:10px;align-items:center;">
-          <input class="search-input" id="searchInput" placeholder="Search name or email..." oninput="filterTable()"/>
-          <button class="btn-export" onclick="exportCSV()">⬇ Export CSV</button>
+  <!-- ── WAITLIST TAB ── -->
+  <div class="tab-panel active" id="tab-waitlist">
+    <div class="main">
+      <!-- KPIs -->
+      <div class="kpi-row">
+        <div class="kpi-card accent">
+          <div class="kpi-label">Total signups</div>
+          <div class="kpi-val" id="kpi_total">—</div>
+          <div class="kpi-sub">All time</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Last 24 hours</div>
+          <div class="kpi-val" id="kpi_24h" style="color:var(--sage)">—</div>
+          <div class="kpi-sub">New signups</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">This week</div>
+          <div class="kpi-val" id="kpi_7d" style="color:var(--violet)">—</div>
+          <div class="kpi-sub">Last 7 days</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Top style</div>
+          <div class="kpi-val" id="kpi_top" style="font-size:18px;padding-top:4px">—</div>
+          <div class="kpi-sub">Most common</div>
         </div>
       </div>
-      <div id="tableWrap"><div class="loading">Loading entries...</div></div>
+
+      <!-- Charts -->
+      <div class="chart-row">
+        <div class="panel">
+          <div class="panel-title">📊 By relationship style</div>
+          <div id="styleChart"><div class="loading">Loading...</div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">📅 Recent signups</div>
+          <div id="recentList"><div class="loading">Loading...</div></div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-panel">
+        <div class="table-top">
+          <div class="table-title">All Waitlist Entries</div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <input class="search-input" id="searchInput" placeholder="Search name or email..." oninput="filterTable()"/>
+            <button class="btn-export" onclick="exportCSV()">⬇ Export CSV</button>
+          </div>
+        </div>
+        <div id="tableWrap"><div class="loading">Loading entries...</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── VERIFICATION TAB ── -->
+  <div class="tab-panel" id="tab-verification">
+    <div class="main">
+      <!-- Verif KPIs -->
+      <div class="verif-kpi-row">
+        <div class="kpi-card accent">
+          <div class="kpi-label">Pending review</div>
+          <div class="kpi-val" id="vkpi_pending" style="color:var(--amber)">—</div>
+          <div class="kpi-sub">Awaiting decision</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Verified</div>
+          <div class="kpi-val" id="vkpi_verified" style="color:var(--sage)">—</div>
+          <div class="kpi-sub">All time approved</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Rejected</div>
+          <div class="kpi-val" id="vkpi_rejected" style="color:var(--coral)">—</div>
+          <div class="kpi-sub">All time rejected</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Unverified</div>
+          <div class="kpi-val" id="vkpi_none" style="color:rgba(245,242,238,.4)">—</div>
+          <div class="kpi-sub">No request yet</div>
+        </div>
+      </div>
+
+      <!-- Filter pills -->
+      <div class="table-panel">
+        <div class="verif-filter-row">
+          <button class="filter-pill active" onclick="filterVerif('pending',this)">⏳ Pending</button>
+          <button class="filter-pill" onclick="filterVerif('verified',this)">✅ Approved</button>
+          <button class="filter-pill" onclick="filterVerif('rejected',this)">❌ Rejected</button>
+          <button class="filter-pill" onclick="filterVerif('all',this)">All users</button>
+        </div>
+        <div id="verifGrid" class="verif-grid"><div class="loading">Loading...</div></div>
+      </div>
     </div>
   </div>
 </div>
 
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <img id="lightboxImg" src="" alt="Verification photo"/>
+</div>
+
 <script>
 // ── Config ───────────────────────────
-const ADMIN_PASSWORD = 'lunara2025'; // CHANGE THIS to your own password
+const ADMIN_PASSWORD = 'lunara2025';
 let SUPA_URL = '';
 let SUPA_KEY = '';
 let allData  = [];
+let verifData = [];
+let verifFilter = 'pending';
+
+// ── Tab switching ────────────────────
+function switchTab(name, btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name === 'verification') loadVerifData();
+}
 
 // ── Login ────────────────────────────
 function adminLogin(){
@@ -214,7 +337,6 @@ function logout(){
   location.reload();
 }
 
-// Auto-restore session
 const saved = sessionStorage.getItem('lunara_admin');
 if(saved){
   try {
@@ -225,14 +347,11 @@ if(saved){
   } catch(e){ sessionStorage.removeItem('lunara_admin'); }
 }
 
-// ── Load data ────────────────────────
+// ── Waitlist data ────────────────────
 async function loadData(){
   try {
     const res = await fetch(`${SUPA_URL}/rest/v1/waitlist?select=*&order=created_at.desc`, {
-      headers:{
-        'apikey': SUPA_KEY,
-        'Authorization': `Bearer ${SUPA_KEY}`
-      }
+      headers:{'apikey':SUPA_KEY,'Authorization':`Bearer ${SUPA_KEY}`}
     });
     if(!res.ok) throw new Error(await res.text());
     allData = await res.json();
@@ -240,27 +359,186 @@ async function loadData(){
   } catch(e){
     document.getElementById('tableWrap').innerHTML=`<div class="loading" style="color:#ff8080">Error loading data: ${e.message}</div>`;
   }
+  // Also refresh pending badge
+  loadVerifBadge();
 }
 
+async function loadVerifBadge(){
+  try {
+    const res = await fetch(`${SUPA_URL}/rest/v1/profiles?select=id,verification_status&verification_status=eq.pending`, {
+      headers:{'apikey':SUPA_KEY,'Authorization':`Bearer ${SUPA_KEY}`,'Prefer':'count=exact'}
+    });
+    const count = parseInt(res.headers.get('content-range')?.split('/')[1] || '0');
+    const badge = document.getElementById('pendingBadge');
+    if(count > 0){ badge.textContent = count; badge.style.display='inline-block'; }
+    else { badge.style.display='none'; }
+  } catch(e){}
+}
+
+// ── Verification data ────────────────
+async function loadVerifData(){
+  document.getElementById('verifGrid').innerHTML='<div class="loading">Loading profiles...</div>';
+  try {
+    const res = await fetch(
+      `${SUPA_URL}/rest/v1/profiles?select=id,display_name,avatar_url,verification_status,verification_photo_url,created_at,relationship_style&order=created_at.desc`,
+      {headers:{'apikey':SUPA_KEY,'Authorization':`Bearer ${SUPA_KEY}`}}
+    );
+    if(!res.ok) throw new Error(await res.text());
+    verifData = await res.json();
+    renderVerifKpis();
+    renderVerifGrid();
+  } catch(e){
+    document.getElementById('verifGrid').innerHTML=`<div class="loading" style="color:#ff8080">Error: ${e.message}</div>`;
+  }
+}
+
+function renderVerifKpis(){
+  const pending  = verifData.filter(r=>r.verification_status==='pending').length;
+  const verified = verifData.filter(r=>r.verification_status==='verified').length;
+  const rejected = verifData.filter(r=>r.verification_status==='rejected').length;
+  const none     = verifData.filter(r=>!r.verification_status || r.verification_status==='unverified').length;
+  document.getElementById('vkpi_pending').textContent  = pending;
+  document.getElementById('vkpi_verified').textContent = verified;
+  document.getElementById('vkpi_rejected').textContent = rejected;
+  document.getElementById('vkpi_none').textContent     = none;
+  const badge = document.getElementById('pendingBadge');
+  if(pending > 0){ badge.textContent=pending; badge.style.display='inline-block'; }
+  else { badge.style.display='none'; }
+}
+
+function filterVerif(status, btn){
+  verifFilter = status;
+  document.querySelectorAll('.filter-pill').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  renderVerifGrid();
+}
+
+function renderVerifGrid(){
+  const filtered = verifFilter === 'all'
+    ? verifData
+    : verifData.filter(r => {
+        if(verifFilter === 'pending')  return r.verification_status === 'pending';
+        if(verifFilter === 'verified') return r.verification_status === 'verified';
+        if(verifFilter === 'rejected') return r.verification_status === 'rejected';
+        return true;
+      });
+
+  if(!filtered.length){
+    document.getElementById('verifGrid').innerHTML=`
+      <div class="empty-state" style="grid-column:1/-1">
+        <div class="empty-icon">✅</div>
+        <div>No ${verifFilter === 'all' ? '' : verifFilter} verification requests</div>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('verifGrid').innerHTML = filtered.map(r => {
+    const isPending  = r.verification_status === 'pending';
+    const isVerified = r.verification_status === 'verified';
+    const isRejected = r.verification_status === 'rejected';
+
+    const avatarHtml = r.avatar_url
+      ? `<img src="${escHtml(r.avatar_url)}" alt="avatar"/>`
+      : `<span>👤</span>`;
+
+    const photoHtml = r.verification_photo_url
+      ? `<img class="verif-photo" src="${escHtml(r.verification_photo_url)}" alt="ID photo" onclick="openLightbox('${escHtml(r.verification_photo_url)}')" title="Click to enlarge"/>`
+      : `<div class="verif-no-photo">No photo submitted</div>`;
+
+    const statusBadge = isPending
+      ? `<span class="badge-pending">⏳ Pending</span>`
+      : isVerified
+      ? `<span class="badge-verified">✅ Verified</span>`
+      : isRejected
+      ? `<span class="badge-rejected">❌ Rejected</span>`
+      : `<span style="font-size:11px;color:rgba(245,242,238,.3)">No request</span>`;
+
+    const actionsHtml = isPending ? `
+      <div class="verif-actions">
+        <button class="btn-approve" onclick="updateVerif('${r.id}','verified')">✓ Approve</button>
+        <button class="btn-reject"  onclick="updateVerif('${r.id}','rejected')">✗ Reject</button>
+      </div>` : `
+      <div class="verif-actions">
+        <div class="verif-done-badge ${isVerified?'approved':'rejected'}">
+          ${isVerified ? '✅ Approved' : isRejected ? '❌ Rejected' : '—'}
+        </div>
+        <button class="btn-undo" onclick="updateVerif('${r.id}','pending')">↩ Undo</button>
+      </div>`;
+
+    return `
+      <div class="verif-card ${isPending?'pending':''}" id="vcard-${r.id}">
+        <div class="verif-card-head">
+          <div class="verif-avatar">${avatarHtml}</div>
+          <div>
+            <div class="verif-name">${escHtml(r.display_name||'Unnamed')}</div>
+            <div class="verif-email">${escHtml(r.relationship_style||'')}</div>
+            <div class="verif-meta">Joined ${timeAgo(r.created_at)} · ${statusBadge}</div>
+          </div>
+        </div>
+        <div class="verif-photo-wrap">
+          <div class="verif-photo-label">Submitted ID / selfie</div>
+          ${photoHtml}
+        </div>
+        ${actionsHtml}
+      </div>`;
+  }).join('');
+}
+
+async function updateVerif(userId, status){
+  const card = document.getElementById('vcard-'+userId);
+  if(card) card.style.opacity='0.5';
+
+  try {
+    const res = await fetch(`${SUPA_URL}/rest/v1/profiles?id=eq.${userId}`, {
+      method:'PATCH',
+      headers:{
+        'apikey':SUPA_KEY,
+        'Authorization':`Bearer ${SUPA_KEY}`,
+        'Content-Type':'application/json',
+        'Prefer':'return=minimal'
+      },
+      body: JSON.stringify({
+        verification_status: status,
+        verification_reviewed_at: new Date().toISOString()
+      })
+    });
+    if(!res.ok) throw new Error(await res.text());
+
+    // Update local data
+    const idx = verifData.findIndex(r=>r.id===userId);
+    if(idx !== -1) verifData[idx].verification_status = status;
+    renderVerifKpis();
+    renderVerifGrid();
+  } catch(e){
+    alert('Error updating: '+e.message);
+    if(card) card.style.opacity='1';
+  }
+}
+
+// ── Lightbox ─────────────────────────
+function openLightbox(url){
+  document.getElementById('lightboxImg').src = url;
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox(){
+  document.getElementById('lightbox').classList.remove('open');
+}
+
+// ── Waitlist render ──────────────────
 function renderDash(){
   const data = allData;
   const now  = new Date();
-
-  // KPIs
   const last24 = data.filter(r => (now - new Date(r.created_at)) < 86400000).length;
   const last7d  = data.filter(r => (now - new Date(r.created_at)) < 604800000).length;
-
   document.getElementById('kpi_total').textContent = data.length;
   document.getElementById('kpi_24h').textContent   = last24;
   document.getElementById('kpi_7d').textContent    = last7d;
 
-  // Style breakdown
   const styleCounts = {};
   data.forEach(r => { styleCounts[r.relationship_style] = (styleCounts[r.relationship_style]||0)+1; });
   const sortedStyles = Object.entries(styleCounts).sort((a,b)=>b[1]-a[1]);
   document.getElementById('kpi_top').textContent = sortedStyles[0]?.[0] || '—';
 
-  // Style chart
   const maxCount = sortedStyles[0]?.[1] || 1;
   document.getElementById('styleChart').innerHTML = sortedStyles.length ? sortedStyles.map(([style, count]) => `
     <div class="bar-item">
@@ -268,7 +546,6 @@ function renderDash(){
       <div class="bar-track"><div class="bar-fill" style="width:${(count/maxCount*100).toFixed(1)}%"></div></div>
     </div>`).join('') : '<div style="color:rgba(245,242,238,.3);font-size:13px">No data yet</div>';
 
-  // Recent 5
   const recent = data.slice(0,5);
   document.getElementById('recentList').innerHTML = recent.length ? recent.map(r => `
     <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05);">
@@ -282,14 +559,13 @@ function renderDash(){
       </div>
     </div>`).join('') : '<div style="color:rgba(245,242,238,.3);font-size:13px">No signups yet</div>';
 
-  // Table
   renderTable(data);
 }
 
 function renderTable(data){
   if(!data.length){
     document.getElementById('tableWrap').innerHTML=`
-      <div class="empty-state"><div class="empty-icon">🌙</div><div>No waitlist entries yet.</div><div style="margin-top:6px;font-size:12px">Share your landing page to start collecting signups.</div></div>`;
+      <div class="empty-state"><div class="empty-icon">🌙</div><div>No waitlist entries yet.</div></div>`;
     return;
   }
   document.getElementById('tableWrap').innerHTML=`
@@ -356,7 +632,6 @@ function timeAgo(s){
   return Math.floor(d/86400)+'d ago';
 }
 
-// Auto-load if already logged in
 if(SUPA_URL) loadData();
 </script>
 </body>
