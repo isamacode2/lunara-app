@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Safety Standards | Lunara</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0c14; --surface: #16131f; --purple: #3B2070;
+    --purple-light: #b47cff; --lavender: #F3F0F5;
+    --text: #e8e4f0; --muted: rgba(232,228,240,0.55);
+    --border: rgba(180,124,255,0.15);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-weight: 300; line-height: 1.7; min-height: 100vh; }
+  body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: radial-gradient(600px 600px at 0% 0%, rgba(59,32,112,0.3) 0%, transparent 70%), radial-gradient(500px 500px at 100% 100%, rgba(180,124,255,0.1) 0%, transparent 70%); pointer-events: none; z-index: 0; }
+  header { position: sticky; top: 0; z-index: 100; background: rgba(14,12,20,0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 20px 40px; display: flex; align-items: center; gap: 12px; }
+  .logo { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; letter-spacing: 4px; text-transform: uppercase; color: var(--lavender); text-decoration: none; }
+  .logo span { color: var(--purple-light); }
+  main { position: relative; z-index: 1; max-width: 780px; margin: 0 auto; padding: 60px 40px 100px; }
+  .page-tag { display: inline-block; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--purple-light); border: 1px solid var(--border); padding: 6px 14px; border-radius: 20px; margin-bottom: 24px; }
+  h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(36px, 5vw, 54px); font-weight: 400; line-height: 1.15; color: var(--lavender); margin-bottom: 16px; letter-spacing: 1px; }
+  .subtitle { font-size: 17px; color: var(--muted); margin-bottom: 60px; max-width: 580px; line-height: 1.6; }
+  .divider { height: 1px; background: linear-gradient(to right, transparent, var(--border), transparent); margin: 48px 0; }
+  section { margin-bottom: 48px; }
+  h2 { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 500; color: var(--lavender); margin-bottom: 16px; }
+  h3 { font-size: 15px; font-weight: 500; color: var(--purple-light); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; margin-top: 28px; }
+  p { color: var(--muted); font-size: 15px; margin-bottom: 14px; }
+  ul { list-style: none; padding: 0; }
+  ul li { color: var(--muted); font-size: 15px; padding: 8px 0 8px 24px; position: relative; border-bottom: 1px solid rgba(180,124,255,0.06); }
+  ul li::before { content: '◈'; position: absolute; left: 0; color: var(--purple-light); font-size: 10px; top: 10px; }
+  .highlight-box { background: rgba(59,32,112,0.15); border: 1px solid var(--border); border-left: 3px solid var(--purple-light); border-radius: 8px; padding: 20px 24px; margin: 24px 0; }
+  .highlight-box p { margin: 0; color: var(--text); }
+  .contact-box { background: rgba(22,19,31,0.8); border: 1px solid var(--border); border-radius: 12px; padding: 32px; margin-top: 48px; text-align: center; }
+  .contact-link { display: inline-block; background: var(--purple); color: var(--lavender); text-decoration: none; padding: 12px 28px; border-radius: 40px; font-size: 14px; letter-spacing: 1px; transition: background 0.2s; }
+  .last-updated { font-size: 12px; color: rgba(232,228,240,0.3); letter-spacing: 1px; margin-top: 60px; text-align: center; }
+  @media (max-width: 600px) { header { padding: 16px 20px; } main { padding: 40px 20px 80px; } }
+</style>
+</head>
+<body>
+<header><span>🌙</span><a href="https://lunara.dating" class="logo">Lunar<span>a</span></a></header>
+<main>
+  <div class="page-tag">Child Safety Standards</div>
+  <h1>Our Commitment to Safety</h1>
+  <p class="subtitle">Lunara is an adult platform for the ethically non-monogamous community. Protecting minors and maintaining a safe environment is our highest priority.</p>
+  <div class="divider"></div>
+  <section>
+    <h2>Standards Against Child Sexual Abuse and Exploitation</h2>
+    <p>Lunara has a zero-tolerance policy for any content or behaviour that sexualises, exploits, or endangers minors. We are committed to full compliance with all applicable laws regarding child safety, including the reporting of child sexual abuse material (CSAM) to the appropriate authorities.</p>
+    <div class="highlight-box"><p>Lunara strictly prohibits any content, communication, or behaviour that involves the sexual exploitation or abuse of minors. Violations result in immediate account termination and reporting to law enforcement.</p></div>
+  </section>
+  <section>
+    <h2>Age Verification and Access Controls</h2>
+    <h3>Minimum Age Requirements</h3>
+    <ul>
+      <li>Users must be 18 years or older to create an account on Lunara</li>
+      <li>Identity verification is required for all users before full access is granted</li>
+      <li>Age is declared at signup and verified through our identity verification process</li>
+      <li>App Store age restrictions enforced — rated 17+/18+ on both iOS and Android</li>
+    </ul>
+    <h3>Technical Safeguards</h3>
+    <ul>
+      <li>Email confirmation required for all new accounts</li>
+      <li>Photo verification with liveness detection to confirm user identity</li>
+      <li>AI-powered safety monitoring of conversation patterns</li>
+      <li>Admin review of all verification submissions before approval</li>
+    </ul>
+  </section>
+  <section>
+    <h2>Reporting Mechanisms</h2>
+    <p>Every user on Lunara has access to in-app reporting and blocking tools. Reports are reviewed promptly by our moderation team.</p>
+    <h3>How to Report</h3>
+    <ul>
+      <li>Tap any profile or message and select "Report" to flag inappropriate content</li>
+      <li>Use the Safety screen in the app to submit detailed safety concerns</li>
+      <li>Email us directly at hello@lunara.dating for urgent safety matters</li>
+      <li>All reports are reviewed within 24 hours</li>
+    </ul>
+    <h3>Reporting to Authorities</h3>
+    <ul>
+      <li>Any CSAM discovered is immediately reported to NCMEC and relevant UK authorities</li>
+      <li>We cooperate fully with law enforcement investigations</li>
+      <li>Accounts involved in CSAM are permanently banned and reported</li>
+    </ul>
+  </section>
+  <section>
+    <h2>Prevention Practices</h2>
+    <ul>
+      <li>Mandatory identity verification before accessing the platform</li>
+      <li>AI Safety Agent monitors conversations for grooming patterns</li>
+      <li>Photo moderation to detect and remove inappropriate imagery</li>
+      <li>User blocking and reporting available on every profile and conversation</li>
+      <li>Regular security audits of platform infrastructure</li>
+    </ul>
+  </section>
+  <section>
+    <h2>Compliance</h2>
+    <p>Lunara complies with all applicable child safety legislation including the UK Online Safety Act, the US PROTECT Act, and EU regulations on child sexual abuse material.</p>
+  </section>
+  <div class="contact-box">
+    <h2>Designated Safety Contact</h2>
+    <p>Our designated point of contact for child safety matters is available to speak with authorities and regulators about our CSAM prevention practices.</p>
+    <a href="mailto:hello@lunara.dating" class="contact-link">hello@lunara.dating</a>
+  </div>
+  <p class="last-updated">Last updated: March 2026 · Lunara Dating Ltd</p>
+</main>
+</body>
+</html>

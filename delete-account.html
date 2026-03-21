@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delete Account | Lunara</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #0e0c14; --surface: #16131f; --purple: #3B2070; --purple-light: #b47cff; --lavender: #F3F0F5; --text: #e8e4f0; --muted: rgba(232,228,240,0.55); --border: rgba(180,124,255,0.15); --danger: #c0392b; --danger-soft: rgba(192,57,43,0.1); }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-weight: 300; line-height: 1.7; min-height: 100vh; }
+  body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: radial-gradient(600px 600px at 100% 0%, rgba(59,32,112,0.2) 0%, transparent 70%), radial-gradient(500px 500px at 0% 100%, rgba(180,124,255,0.08) 0%, transparent 70%); pointer-events: none; z-index: 0; }
+  header { position: sticky; top: 0; z-index: 100; background: rgba(14,12,20,0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 20px 40px; display: flex; align-items: center; gap: 12px; }
+  .logo { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; letter-spacing: 4px; text-transform: uppercase; color: var(--lavender); text-decoration: none; }
+  .logo span { color: var(--purple-light); }
+  main { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; padding: 60px 40px 100px; }
+  .page-tag { display: inline-block; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--purple-light); border: 1px solid var(--border); padding: 6px 14px; border-radius: 20px; margin-bottom: 24px; }
+  h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(32px, 5vw, 48px); font-weight: 400; color: var(--lavender); margin-bottom: 16px; letter-spacing: 1px; line-height: 1.2; }
+  .subtitle { font-size: 16px; color: var(--muted); margin-bottom: 50px; line-height: 1.6; }
+  .divider { height: 1px; background: linear-gradient(to right, transparent, var(--border), transparent); margin: 40px 0; }
+  .option-card { background: rgba(22,19,31,0.7); border: 1px solid var(--border); border-radius: 14px; padding: 28px 32px; margin-bottom: 20px; }
+  .option-number { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--purple-light); margin-bottom: 10px; }
+  h2 { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 500; color: var(--lavender); margin-bottom: 10px; }
+  p { color: var(--muted); font-size: 15px; margin-bottom: 14px; }
+  p:last-child { margin-bottom: 0; }
+  .steps { list-style: none; counter-reset: steps; margin: 16px 0 0; }
+  .steps li { counter-increment: steps; padding: 10px 0 10px 36px; position: relative; color: var(--muted); font-size: 15px; border-bottom: 1px solid rgba(180,124,255,0.06); }
+  .steps li:last-child { border-bottom: none; }
+  .steps li::before { content: counter(steps); position: absolute; left: 0; top: 10px; width: 22px; height: 22px; background: rgba(59,32,112,0.4); border: 1px solid var(--border); border-radius: 50%; font-size: 11px; display: flex; align-items: center; justify-content: center; color: var(--purple-light); font-weight: 500; }
+  .email-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--purple); color: var(--lavender); text-decoration: none; padding: 12px 24px; border-radius: 40px; font-size: 14px; letter-spacing: 0.5px; margin-top: 16px; transition: background 0.2s; }
+  .email-btn:hover { background: #4d2b8f; }
+  .data-table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 14px; }
+  .data-table th { text-align: left; padding: 10px 14px; background: rgba(59,32,112,0.15); color: var(--purple-light); font-weight: 500; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+  .data-table td { padding: 10px 14px; color: var(--muted); border-bottom: 1px solid rgba(180,124,255,0.05); }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+  .badge.deleted { background: rgba(192,57,43,0.15); color: #e88880; }
+  .badge.retained { background: rgba(59,32,112,0.2); color: var(--purple-light); }
+  .warning-box { background: rgba(192,57,43,0.1); border: 1px solid rgba(192,57,43,0.2); border-radius: 10px; padding: 16px 20px; margin: 16px 0 0; }
+  .warning-box p { color: #e88880; font-size: 14px; margin: 0; }
+  .last-updated { font-size: 12px; color: rgba(232,228,240,0.3); letter-spacing: 1px; margin-top: 60px; text-align: center; }
+  @media (max-width: 600px) { header { padding: 16px 20px; } main { padding: 40px 20px 80px; } .option-card { padding: 20px; } }
+</style>
+</head>
+<body>
+<header><span>🌙</span><a href="https://lunara.dating" class="logo">Lunar<span>a</span></a></header>
+<main>
+  <div class="page-tag">Account Management</div>
+  <h1>Delete Your Account</h1>
+  <p class="subtitle">You have full control over your data. You can delete your account at any time, or request deletion of specific data without closing your account.</p>
+  <div class="divider"></div>
+  <div class="option-card">
+    <div class="option-number">Option 1 — Recommended</div>
+    <h2>Delete via the App</h2>
+    <p>The quickest way to delete your account is directly through the Lunara app. Your account and data will be permanently deleted within 30 days.</p>
+    <ol class="steps">
+      <li>Open the Lunara app and go to your <strong>Profile</strong> tab</li>
+      <li>Tap <strong>Settings</strong> (top right)</li>
+      <li>Scroll down and tap <strong>"Delete Account"</strong></li>
+      <li>Confirm your decision — you'll receive a confirmation email</li>
+    </ol>
+  </div>
+  <div class="option-card">
+    <div class="option-number">Option 2</div>
+    <h2>Request via Email</h2>
+    <p>If you can't access the app, email us and we'll process your deletion request within 30 days. Please include your registered email address.</p>
+    <a href="mailto:hello@lunara.dating?subject=Account Deletion Request&body=Please delete my Lunara account. My registered email address is: [your email here]" class="email-btn">📧 Email Deletion Request</a>
+  </div>
+  <div class="option-card">
+    <div class="option-number">Option 3 — Partial Data</div>
+    <h2>Delete Specific Data Only</h2>
+    <p>You can request deletion of specific data without closing your account. Email us specifying what you'd like removed — photos, voice intro, message history, etc.</p>
+    <a href="mailto:hello@lunara.dating?subject=Data Deletion Request" class="email-btn">📧 Request Data Removal</a>
+  </div>
+  <div class="divider"></div>
+  <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 26px; margin-bottom: 16px;">What Gets Deleted</h2>
+  <p>When you delete your account, here is what happens to your data:</p>
+  <table class="data-table">
+    <thead><tr><th>Data Type</th><th>Status</th><th>Timeframe</th></tr></thead>
+    <tbody>
+      <tr><td>Profile &amp; bio</td><td><span class="badge deleted">Deleted</span></td><td>Within 30 days</td></tr>
+      <tr><td>Photos &amp; voice intros</td><td><span class="badge deleted">Deleted</span></td><td>Within 30 days</td></tr>
+      <tr><td>Messages &amp; conversations</td><td><span class="badge deleted">Deleted</span></td><td>Within 30 days</td></tr>
+      <tr><td>Connections &amp; matches</td><td><span class="badge deleted">Deleted</span></td><td>Immediately</td></tr>
+      <tr><td>Email address</td><td><span class="badge retained">Retained 90 days</span></td><td>Fraud prevention</td></tr>
+      <tr><td>Transaction records</td><td><span class="badge retained">Retained 7 years</span></td><td>Legal requirement</td></tr>
+    </tbody>
+  </table>
+  <div class="warning-box"><p>⚠️ Account deletion is permanent and cannot be undone. Cancel any active subscriptions before deleting your account.</p></div>
+  <p class="last-updated">Last updated: March 2026 · Lunara Dating Ltd · hello@lunara.dating</p>
+</main>
+</body>
+</html>
