@@ -333,6 +333,7 @@ export default function Profile() {
   const [selectedDuration, setSelectedDuration] = useState({});
   const [lightboxPhoto, setLightboxPhoto] = useState(null);
   const [editForm, setEditForm] = useState({ ...EMPTY_FORM });
+  const [verificationStatus, setVerificationStatus] = useState(null); // 'pending' | 'approved' | 'rejected' | null
 
   useEffect(() => { if (user?.id) loadData(); }, [user?.id]);
 
@@ -364,6 +365,11 @@ export default function Profile() {
       const { data: connectionsData } = await supabase.from('connections').select('id').eq('user_id', user.id).eq('status', 'accepted');
       const { data: viewsData } = await supabase.from('profile_views').select('id').eq('viewed_user_id', user.id);
       setStats({ connections: connectionsData?.length || 0, profileViews: viewsData?.length || 0 });
+      // Check verification status
+      try {
+        const { data: verData } = await supabase.from('verification_requests').select('status').eq('user_id', user.id).single();
+        if (verData?.status) setVerificationStatus(verData.status);
+      } catch {}
     } catch (err) { console.error(err); setError('Failed to load profile data'); }
     finally { setLoading(false); }
   }
@@ -489,10 +495,15 @@ export default function Profile() {
           {profile?.pronouns && <p style={{ fontSize: '13px', color: 'var(--text2)', margin: '4px 0 0' }}>{profile.pronouns}</p>}
           {profile?.relationship_style && <div style={{ marginTop: '8px' }}><span className="tag tag-purple">{profile.relationship_style}</span></div>}
           {/* Verification badge / button */}
-          {profile?.is_verified ? (
+          {profile?.is_verified || verificationStatus === 'approved' ? (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '10px', color: 'var(--gold)' }}>
               <BadgeCheck size={18} />
               <span style={{ fontSize: '13px', fontWeight: '600' }}>Verified Member</span>
+            </div>
+          ) : verificationStatus === 'pending' ? (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '10px', padding: '8px 16px', background: 'rgba(196, 164, 74, 0.1)', border: '1px solid rgba(196, 164, 74, 0.25)', borderRadius: '20px' }}>
+              <Loader size={14} style={{ animation: 'spin 3s linear infinite', color: 'var(--gold)' }} />
+              <span style={{ fontSize: '13px', fontWeight: '600', color: 'var(--gold)' }}>Verification Under Review</span>
             </div>
           ) : (
             <button onClick={() => navigate('/verify')}

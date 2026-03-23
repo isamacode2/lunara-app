@@ -12,15 +12,36 @@ const GOLD_BORDER = 'rgba(196, 164, 74, 0.3)';
 const STEPS = ['intro', 'code', 'selfie', 'submitted'];
 
 export default function Verification() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [verificationCode, setVerificationCode] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [checkingStatus, setCheckingStatus] = useState(true);
+  const [existingStatus, setExistingStatus] = useState(null); // 'pending' | 'approved' | 'rejected' | null
   const [error, setError] = useState(null);
   const [consent, setConsent] = useState(false);
+
+  // Check for existing verification request on load
+  useEffect(() => {
+    async function checkExisting() {
+      if (!user?.id) { setCheckingStatus(false); return; }
+      // If already verified via profile, skip
+      if (profile?.is_verified) { setExistingStatus('approved'); setCheckingStatus(false); return; }
+      try {
+        const { data } = await supabase
+          .from('verification_requests')
+          .select('status')
+          .eq('user_id', user.id)
+          .single();
+        if (data?.status) setExistingStatus(data.status);
+      } catch {}
+      setCheckingStatus(false);
+    }
+    checkExisting();
+  }, [user?.id, profile?.is_verified]);
 
   useEffect(() => {
     const code = String(Math.floor(1000 + Math.random() * 9000));
@@ -141,8 +162,53 @@ export default function Verification() {
       <div style={{ flex: 1, overflowY: 'auto', paddingBottom: '40px' }}>
         <div style={{ padding: '20px', maxWidth: '500px', margin: '0 auto' }}>
 
+          {/* Loading check */}
+          {checkingStatus && (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', padding: '60px 0' }}>
+              <Loader size={32} style={{ animation: 'spin 1s linear infinite', color: GOLD }} />
+              <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px' }}>Checking verification status...</p>
+            </div>
+          )}
+
+          {/* Already verified */}
+          {!checkingStatus && existingStatus === 'approved' && (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', textAlign: 'center', padding: '40px 0' }}>
+              <div style={{ width: '96px', height: '96px', borderRadius: '50%', background: GOLD_DIM, border: `2px solid ${GOLD}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Check size={44} color={GOLD} strokeWidth={3} />
+              </div>
+              <h2 style={{ fontSize: '28px', fontWeight: '700', color: '#fff', fontFamily: "'Playfair Display', serif", margin: 0 }}>You're Verified!</h2>
+              <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.6)', lineHeight: '1.6', margin: 0, maxWidth: '300px' }}>
+                Your identity has been confirmed. You have a gold verification badge on your profile.
+              </p>
+              <button onClick={() => navigate('/profile')} style={{ padding: '16px 32px', background: `linear-gradient(135deg, ${GOLD}, #E8C060)`, color: '#000', border: 'none', borderRadius: '14px', fontSize: '16px', fontWeight: '700', cursor: 'pointer', width: '100%', maxWidth: '300px' }}>
+                Back to Profile
+              </button>
+            </div>
+          )}
+
+          {/* Pending review */}
+          {!checkingStatus && existingStatus === 'pending' && (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', textAlign: 'center', padding: '40px 0' }}>
+              <div style={{ width: '96px', height: '96px', borderRadius: '50%', background: 'rgba(255,200,60,0.1)', border: '2px solid rgba(255,200,60,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Loader size={40} color={GOLD} style={{ animation: 'spin 3s linear infinite' }} />
+              </div>
+              <h2 style={{ fontSize: '28px', fontWeight: '700', color: '#fff', fontFamily: "'Playfair Display', serif", margin: 0 }}>Under Review</h2>
+              <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.6)', lineHeight: '1.6', margin: 0, maxWidth: '320px' }}>
+                Your verification is being reviewed. We'll notify you when it's approved — usually within 24 hours.
+              </p>
+              <div style={{ background: GOLD_DIM, border: `1px solid ${GOLD_BORDER}`, borderRadius: '12px', padding: '16px', width: '100%', maxWidth: '300px' }}>
+                <p style={{ fontSize: '13px', color: GOLD, margin: 0 }}>
+                  Verified profiles receive a gold badge and are shown more often in Discover.
+                </p>
+              </div>
+              <button onClick={() => navigate('/profile')} style={{ padding: '16px 32px', background: `linear-gradient(135deg, ${GOLD}, #E8C060)`, color: '#000', border: 'none', borderRadius: '14px', fontSize: '16px', fontWeight: '700', cursor: 'pointer', width: '100%', maxWidth: '300px' }}>
+                Back to Profile
+              </button>
+            </div>
+          )}
+
           {/* Step 0: Intro */}
-          {step === 0 && (
+          {!checkingStatus && (existingStatus === null || existingStatus === 'rejected') && step === 0 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               <div style={{
                 width: '80px', height: '80px', borderRadius: '50%',
@@ -214,7 +280,7 @@ export default function Verification() {
           )}
 
           {/* Step 1: Code */}
-          {step === 1 && (
+          {!checkingStatus && (existingStatus === null || existingStatus === 'rejected') && step === 1 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               <div style={{ textAlign: 'center' }}>
                 <h2 style={{
@@ -289,7 +355,7 @@ export default function Verification() {
           )}
 
           {/* Step 2: Selfie / Review */}
-          {step === 2 && (
+          {!checkingStatus && (existingStatus === null || existingStatus === 'rejected') && step === 2 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               <div style={{ textAlign: 'center' }}>
                 <h2 style={{
