@@ -68,13 +68,23 @@ app.get('/admin-api/verification-stats', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// Get all users
+app.get('/admin-api/users', async (req, res) => {
+  try {
+    const supabase = getAdminSupabase();
+    const { data, error } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    res.json(data || []);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 // Approve verification
 app.post('/admin-api/verify/:userId', async (req, res) => {
   try {
     const supabase = getAdminSupabase();
     const { error: reqErr } = await supabase
       .from('verification_requests')
-      .update({ status: 'approved' })
+      .update({ status: 'approved', reviewed_at: new Date().toISOString() })
       .eq('user_id', req.params.userId);
     if (reqErr) throw reqErr;
     const { error: profErr } = await supabase
@@ -92,7 +102,7 @@ app.post('/admin-api/reject/:userId', async (req, res) => {
     const supabase = getAdminSupabase();
     const { error: reqErr } = await supabase
       .from('verification_requests')
-      .update({ status: 'rejected' })
+      .update({ status: 'rejected', reviewed_at: new Date().toISOString() })
       .eq('user_id', req.params.userId);
     if (reqErr) throw reqErr;
     const { error: profErr } = await supabase

@@ -182,6 +182,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
       🔒 Verification
       <span class="tab-badge urgent" id="pendingBadge" style="display:none">0</span>
     </button>
+    <button class="tab-btn" onclick="switchTab('users',this)">👥 Users</button>
   </div>
 
   <!-- ── WAITLIST TAB ── -->
@@ -276,6 +277,42 @@ tr:hover td{background:rgba(255,255,255,.02);}
       </div>
     </div>
   </div>
+
+  <!-- ── USERS TAB ── -->
+  <div class="tab-panel" id="tab-users">
+    <div class="main">
+      <div class="kpi-row">
+        <div class="kpi-card accent">
+          <div class="kpi-label">Total users</div>
+          <div class="kpi-val" id="ukpi_total">—</div>
+          <div class="kpi-sub">All registered</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Verified</div>
+          <div class="kpi-val" id="ukpi_verified" style="color:var(--sage)">—</div>
+          <div class="kpi-sub">Identity confirmed</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Last 7 days</div>
+          <div class="kpi-val" id="ukpi_7d" style="color:var(--violet)">—</div>
+          <div class="kpi-sub">New users</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Last 24h</div>
+          <div class="kpi-val" id="ukpi_24h" style="color:var(--amber)">—</div>
+          <div class="kpi-sub">New users</div>
+        </div>
+      </div>
+
+      <div class="table-panel">
+        <div class="table-top">
+          <div class="table-title">All Users</div>
+          <input class="search-input" id="userSearchInput" placeholder="Search name..." oninput="filterUsers()"/>
+        </div>
+        <div id="usersTableWrap"><div class="loading">Loading users...</div></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Lightbox -->
@@ -301,6 +338,7 @@ function switchTab(name, btn) {
   document.getElementById('tab-' + name).classList.add('active');
   btn.classList.add('active');
   if (name === 'verification') loadVerifData();
+  if (name === 'users') loadUsersData();
 }
 
 // ── Login ────────────────────────────
@@ -605,6 +643,58 @@ function exportCSV() {
   a.href = URL.createObjectURL(blob);
   a.download = `lunara_waitlist_${new Date().toISOString().slice(0, 10)}.csv`;
   a.click();
+}
+
+// ── Users data ───────────────────────
+let usersData = [];
+
+async function loadUsersData() {
+  document.getElementById('usersTableWrap').innerHTML = '<div class="loading">Loading users...</div>';
+  try {
+    const res = await fetch('/admin-api/users', { headers: apiHeaders() });
+    if (!res.ok) throw new Error(await res.text());
+    usersData = await res.json();
+    renderUsersKpis();
+    renderUsersTable(usersData);
+  } catch (e) {
+    document.getElementById('usersTableWrap').innerHTML = `<div class="loading" style="color:#ff8080">Error: ${e.message}</div>`;
+  }
+}
+
+function renderUsersKpis() {
+  const now = new Date();
+  document.getElementById('ukpi_total').textContent = usersData.length;
+  document.getElementById('ukpi_verified').textContent = usersData.filter(u => u.is_verified).length;
+  document.getElementById('ukpi_7d').textContent = usersData.filter(u => (now - new Date(u.created_at)) < 604800000).length;
+  document.getElementById('ukpi_24h').textContent = usersData.filter(u => (now - new Date(u.created_at)) < 86400000).length;
+}
+
+function renderUsersTable(data) {
+  if (!data.length) {
+    document.getElementById('usersTableWrap').innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div><div>No users yet.</div></div>';
+    return;
+  }
+  document.getElementById('usersTableWrap').innerHTML = `
+    <table>
+      <thead><tr><th>Name</th><th>Style</th><th>Verified</th><th>Joined</th></tr></thead>
+      <tbody>${data.map(u => `
+        <tr>
+          <td><strong>${escHtml(u.display_name || 'Unnamed')}</strong></td>
+          <td><span class="badge-style">${escHtml(u.relationship_style || '—')}</span></td>
+          <td>${u.is_verified ? '<span class="badge-verified">✅ Verified</span>' : '<span style="color:rgba(245,242,238,.3);font-size:12px">No</span>'}</td>
+          <td style="color:rgba(245,242,238,.4);font-size:12px">${formatDate(u.created_at)}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+function filterUsers() {
+  const q = document.getElementById('userSearchInput').value.toLowerCase();
+  const filtered = usersData.filter(u =>
+    (u.display_name || '').toLowerCase().includes(q) ||
+    (u.relationship_style || '').toLowerCase().includes(q)
+  );
+  renderUsersTable(filtered);
 }
 
 // ── Helpers ──────────────────────────
