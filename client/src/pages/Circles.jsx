@@ -186,9 +186,28 @@ export default function Circles() {
       });
       setUserLikes(likesMap);
 
-      // Subscribe to new posts
-      const channel = subscribeToCircle(circle.id, post => {
-        setFeed(prev => [post, ...prev]);
+      // Subscribe to new posts — enrich with profile data
+      const channel = subscribeToCircle(circle.id, async (post) => {
+        // Fetch author profile for display name
+        let authorName = null;
+        let authorAvatar = null;
+        if (post.author_id) {
+          const { data: prof } = await supabase
+            .from('profiles')
+            .select('display_name, avatar_url')
+            .eq('id', post.author_id)
+            .single();
+          if (prof) {
+            authorName = prof.display_name;
+            authorAvatar = prof.avatar_url;
+          }
+        }
+        const enrichedPost = { ...post, author_name: authorName, author_avatar: authorAvatar };
+        setFeed(prev => {
+          // Prevent duplicates
+          if (prev.some(p => p.id === enrichedPost.id)) return prev;
+          return [enrichedPost, ...prev];
+        });
       });
       setCircleChannel(channel);
     } catch (err) {
@@ -227,7 +246,7 @@ export default function Circles() {
 
       setNewPostContent('');
       setIsAnonymous(false);
-      setFeed(prev => [data, ...prev]);
+      // Don't add to feed here — realtime subscription will handle it
     } catch (err) {
       setError(err.message);
     }

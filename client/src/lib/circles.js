@@ -29,8 +29,45 @@ export async function leaveCircle(circleId, userId) {
 }
 
 export async function getCircleFeed(circleId, limit = 30, offset = 0) {
-  const { data, error } = await supabase.rpc('get_circle_feed', { p_circle_id: circleId, p_limit: limit, p_offset: offset });
-  return { data: data || [], error };
+  // Try with FK join first, fall back to manual join
+  let { data, error } = await supabase
+    .from('circle_posts')
+    .select('*, author:profiles(id, display_name, avatar_url)')
+    .eq('circle_id', circleId)
+    .order('created_at', { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  if (error) {
+    // Fallback: fetch posts without join, then fetch profiles separately
+    const { data: rawPosts, error: rawError } = await supabase
+      .from('circle_posts')
+      .select('*')
+      .eq('circle_id', circleId)
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+    if (rawError) return { data: [], error: rawError };
+
+    const authorIds = [...new Set((rawPosts || []).map(p => p.author_id).filter(Boolean))];
+    let profileMap = {};
+    if (authorIds.length > 0) {
+      const { data: profiles } = await supabase.from('profiles').select('id, display_name, avatar_url').in('id', authorIds);
+      (profiles || []).forEach(p => { profileMap[p.id] = p; });
+    }
+    const posts = (rawPosts || []).map(post => ({
+      ...post,
+      author_name: profileMap[post.author_id]?.display_name || null,
+      author_avatar: profileMap[post.author_id]?.avatar_url || null,
+    }));
+    return { data: posts, error: null };
+  }
+
+  // Flatten author info for easier rendering
+  const posts = (data || []).map(post => ({
+    ...post,
+    author_name: post.author?.display_name || null,
+    author_avatar: post.author?.avatar_url || null,
+  }));
+  return { data: posts, error: null };
 }
 
 export async function createPost(circleId, authorId, content, isAnonymous = false) {
