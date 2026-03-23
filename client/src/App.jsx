@@ -11,6 +11,7 @@ import Notifications from './pages/Notifications';
 import Profile from './pages/Profile';
 import Verification from './pages/Verification';
 import Safety from './pages/Safety';
+import PrivacySettings from './pages/PrivacySettings';
 import './index.css';
 
 function ProtectedLayout() {
@@ -52,6 +53,7 @@ export default function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/verify" element={<Verification />} />
             <Route path="/safety" element={<Safety />} />
+            <Route path="/privacy-settings" element={<PrivacySettings />} />
           </Route>
           <Route path="*" element={<Navigate to="/discover" replace />} />
         </Routes>

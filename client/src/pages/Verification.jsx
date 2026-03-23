@@ -2,251 +2,27 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { Check, ChevronLeft, Loader } from 'lucide-react';
+import { Check, ChevronLeft, Loader, Camera, Shield, ArrowRight, ArrowLeft } from 'lucide-react';
 
-const pageStyle = {
-  height: '100%',
-  display: 'flex',
-  flexDirection: 'column',
-  background: 'linear-gradient(135deg, rgba(59,32,112,0.1) 0%, rgba(180,124,255,0.05) 100%)',
-  overflow: 'hidden',
-};
+const PURPLE_BG = '#1A0A3C';
+const GOLD = '#C4A44A';
+const GOLD_DIM = 'rgba(196, 164, 74, 0.15)';
+const GOLD_BORDER = 'rgba(196, 164, 74, 0.3)';
 
-const scrollContainerStyle = {
-  flex: 1,
-  overflowY: 'auto',
-  paddingBottom: '40px',
-};
-
-const headerStyle = {
-  padding: '20px 20px 12px',
-  borderBottom: '1px solid var(--border)',
-  display: 'flex',
-  alignItems: 'center',
-  gap: '12px',
-};
-
-const headerButtonStyle = {
-  background: 'none',
-  border: 'none',
-  color: 'var(--accent)',
-  cursor: 'pointer',
-  padding: '8px',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  transition: 'opacity 0.2s',
-};
-
-const contentStyle = {
-  padding: '40px 20px',
-  maxWidth: '600px',
-  margin: '0 auto',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '32px',
-};
-
-const titleStyle = {
-  fontSize: '32px',
-  fontFamily: "'Playfair Display', serif",
-  fontWeight: '700',
-  background: 'linear-gradient(135deg, #b47cff 0%, #ffbe55 100%)',
-  backgroundClip: 'text',
-  WebkitBackgroundClip: 'text',
-  WebkitTextFillColor: 'transparent',
-  margin: '0 0 8px',
-};
-
-const instructionStyle = {
-  fontSize: '15px',
-  color: 'var(--text2)',
-  lineHeight: '1.6',
-  margin: '0',
-};
-
-const cardStyle = {
-  background: 'var(--bg-card)',
-  border: '1px solid var(--border)',
-  borderRadius: 'var(--radius-lg)',
-  padding: '24px',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '20px',
-};
-
-const codeContainerStyle = {
-  background: 'linear-gradient(135deg, var(--accent-dim) 0%, rgba(180,124,255,0.1) 100%)',
-  border: '2px dashed var(--accent)',
-  borderRadius: 'var(--radius-lg)',
-  padding: '32px',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-};
-
-const codeStyle = {
-  fontSize: '48px',
-  fontWeight: '700',
-  fontFamily: "'Courier New', monospace",
-  color: 'var(--accent)',
-  letterSpacing: '8px',
-  textAlign: 'center',
-};
-
-const fileUploadContainerStyle = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '12px',
-};
-
-const fileUploadLabelStyle = {
-  fontSize: '13px',
-  fontWeight: '600',
-  color: 'var(--text2)',
-  paddingLeft: '2px',
-};
-
-const fileInputStyle = {
-  padding: '0',
-  appearance: 'none',
-  background: 'none',
-  border: 'none',
-};
-
-const fileInputWrapperStyle = {
-  position: 'relative',
-  width: '100%',
-};
-
-const fileInputButtonStyle = {
-  width: '100%',
-  padding: '16px',
-  borderRadius: 'var(--radius-lg)',
-  border: '2px dashed var(--border)',
-  background: 'var(--bg-elevated)',
-  color: 'var(--text2)',
-  cursor: 'pointer',
-  transition: 'all 0.2s',
-  fontSize: '15px',
-  fontWeight: '500',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  gap: '8px',
-};
-
-const previewContainerStyle = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '12px',
-};
-
-const previewLabelStyle = {
-  fontSize: '13px',
-  fontWeight: '600',
-  color: 'var(--text2)',
-  paddingLeft: '2px',
-};
-
-const previewImageStyle = {
-  width: '100%',
-  maxHeight: '300px',
-  borderRadius: 'var(--radius-lg)',
-  objectFit: 'contain',
-  border: '1px solid var(--border)',
-};
-
-const buttonGroupStyle = {
-  display: 'flex',
-  gap: '12px',
-  marginTop: '12px',
-};
-
-const buttonStyle = {
-  flex: 1,
-  padding: '14px 28px',
-  borderRadius: 'var(--radius-lg)',
-  fontSize: '15px',
-  fontWeight: '600',
-  border: 'none',
-  cursor: 'pointer',
-  transition: 'all 0.2s',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  gap: '8px',
-};
-
-const submitButtonStyle = {
-  ...buttonStyle,
-  background: 'linear-gradient(135deg, var(--primary), var(--primary-light))',
-  color: '#fff',
-};
-
-const cancelButtonStyle = {
-  ...buttonStyle,
-  background: 'transparent',
-  color: 'var(--text2)',
-  border: '1.5px solid rgba(180,124,255,0.3)',
-};
-
-const successContainerStyle = {
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  gap: '16px',
-  textAlign: 'center',
-  padding: '40px 20px',
-};
-
-const successIconStyle = {
-  width: '80px',
-  height: '80px',
-  borderRadius: '50%',
-  background: 'rgba(126, 196, 146, 0.15)',
-  border: '2px solid var(--success)',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-};
-
-const successTitleStyle = {
-  fontSize: '24px',
-  fontFamily: "'Playfair Display', serif",
-  fontWeight: '700',
-  color: 'var(--text)',
-  margin: '0',
-};
-
-const successMessageStyle = {
-  fontSize: '15px',
-  color: 'var(--text2)',
-  margin: '0',
-  lineHeight: '1.6',
-};
-
-const errorStyle = {
-  padding: '12px 16px',
-  background: 'var(--danger-dim)',
-  borderRadius: 'var(--radius-sm)',
-  color: 'var(--danger)',
-  fontSize: '14px',
-  border: '1px solid var(--danger)',
-};
+const STEPS = ['intro', 'code', 'selfie', 'submitted'];
 
 export default function Verification() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [step, setStep] = useState(0);
   const [verificationCode, setVerificationCode] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState(null);
+  const [consent, setConsent] = useState(false);
 
   useEffect(() => {
-    // Generate random 4-digit code
     const code = String(Math.floor(1000 + Math.random() * 9000));
     setVerificationCode(code);
   }, []);
@@ -254,56 +30,40 @@ export default function Verification() {
   function handleFileSelect(e) {
     const file = e.target.files?.[0];
     if (!file) return;
-
     setError(null);
     setSelectedFile(file);
-
-    // Generate preview
     const reader = new FileReader();
-    reader.onload = (event) => {
-      setPreviewUrl(event.target?.result);
-    };
+    reader.onload = (event) => setPreviewUrl(event.target?.result);
     reader.readAsDataURL(file);
   }
 
   async function handleSubmit() {
-    if (!selectedFile) {
-      setError('Please select a photo');
-      return;
-    }
-
-    if (!user?.id) {
-      setError('Not authenticated');
-      return;
-    }
+    if (!selectedFile || !consent) return;
+    if (!user?.id) { setError('Not authenticated'); return; }
 
     try {
       setLoading(true);
       setError(null);
 
-      // Upload selfie to storage
       const fileName = `selfie_${Date.now()}.jpg`;
-      const path = `verification/${user.id}/${fileName}`;
+      const path = `verifications/${user.id}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(path, selectedFile, { upsert: true, contentType: selectedFile.type });
-
       if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path);
 
-      // Insert verification request
-      const { error: insertError } = await supabase.from('verification_requests').insert({
+      const { error: insertError } = await supabase.from('verification_requests').upsert({
         user_id: user.id,
         selfie_url: publicUrl,
         code: verificationCode,
         status: 'pending',
-      });
-
+      }, { onConflict: 'user_id' });
       if (insertError) throw insertError;
 
-      setSubmitted(true);
+      setStep(3); // submitted
     } catch (err) {
       console.error(err);
       setError(err.message || 'Failed to submit verification');
@@ -312,82 +72,389 @@ export default function Verification() {
     }
   }
 
+  const progress = ((step + 1) / STEPS.length) * 100;
+
   return (
-    <div style={pageStyle}>
-      <div style={headerStyle}>
-        <button style={headerButtonStyle} onClick={() => navigate('/profile')}>
+    <div style={{
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      background: PURPLE_BG,
+      overflow: 'hidden',
+    }}>
+      {/* Header */}
+      <div style={{
+        padding: '16px 20px 12px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+      }}>
+        <button
+          style={{ background: 'none', border: 'none', color: GOLD, cursor: 'pointer', padding: '8px', display: 'flex' }}
+          onClick={() => step > 0 && step < 3 ? setStep(step - 1) : navigate('/profile')}
+        >
           <ChevronLeft size={24} />
         </button>
-        <h1 style={{ fontSize: '20px', margin: 0, fontFamily: "'Playfair Display', serif", fontWeight: '700' }}>Verification</h1>
+        <h1 style={{ fontSize: '20px', margin: 0, fontWeight: '700', color: '#fff' }}>Verification</h1>
       </div>
 
-      <div style={scrollContainerStyle}>
-        {submitted ? (
-          <div style={successContainerStyle}>
-            <div style={successIconStyle}>
-              <Check size={40} color="var(--success)" strokeWidth={3} />
+      {/* Progress Bar */}
+      <div style={{ padding: '0 20px 16px' }}>
+        <div style={{
+          height: '4px',
+          borderRadius: '2px',
+          background: 'rgba(255,255,255,0.1)',
+          overflow: 'hidden',
+        }}>
+          <div style={{
+            height: '100%',
+            width: `${progress}%`,
+            background: `linear-gradient(90deg, ${GOLD}, #E8C060)`,
+            borderRadius: '2px',
+            transition: 'width 0.4s ease',
+          }} />
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px' }}>
+          {STEPS.map((s, i) => (
+            <div key={s} style={{
+              fontSize: '11px',
+              color: i <= step ? GOLD : 'rgba(255,255,255,0.3)',
+              fontWeight: i === step ? '700' : '400',
+              textTransform: 'capitalize',
+            }}>
+              {s === 'selfie' ? 'Photo' : s}
             </div>
-            <h2 style={successTitleStyle}>Verification Submitted!</h2>
-            <p style={successMessageStyle}>
-              We'll review your identity within 24 hours. You'll receive a notification once verified.
-            </p>
-            <button
-              style={{
-                ...submitButtonStyle,
-                marginTop: '24px',
-                width: '100%',
-              }}
-              onClick={() => navigate('/profile')}
-            >
-              Back to Profile
-            </button>
-          </div>
-        ) : (
-          <div style={contentStyle}>
-            <div>
-              <h1 style={titleStyle}>Identity Verification</h1>
-              <p style={instructionStyle}>
-                Take a selfie holding a piece of paper with this code. Make sure your face is clearly visible.
-              </p>
-            </div>
+          ))}
+        </div>
+      </div>
 
-            <div style={cardStyle}>
-              <div>
-                <p style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text2)', margin: '0 0 12px' }}>YOUR VERIFICATION CODE</p>
-                <div style={codeContainerStyle}>
-                  <div style={codeStyle}>{verificationCode}</div>
+      {/* Content */}
+      <div style={{ flex: 1, overflowY: 'auto', paddingBottom: '40px' }}>
+        <div style={{ padding: '20px', maxWidth: '500px', margin: '0 auto' }}>
+
+          {/* Step 0: Intro */}
+          {step === 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <div style={{
+                width: '80px', height: '80px', borderRadius: '50%',
+                background: GOLD_DIM, border: `2px solid ${GOLD}`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                margin: '20px auto 0',
+              }}>
+                <Shield size={36} color={GOLD} />
+              </div>
+
+              <div style={{ textAlign: 'center' }}>
+                <h2 style={{
+                  fontSize: '28px', fontWeight: '700', color: '#fff',
+                  fontFamily: "'Playfair Display', serif", margin: '0 0 12px',
+                }}>
+                  Verify Your Identity
+                </h2>
+                <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.6)', lineHeight: '1.6', margin: 0 }}>
+                  Verification helps keep our community safe and builds trust with potential connections.
+                </p>
+              </div>
+
+              <div style={{
+                background: 'rgba(255,255,255,0.05)',
+                border: `1px solid ${GOLD_BORDER}`,
+                borderRadius: '16px',
+                padding: '24px',
+                display: 'flex', flexDirection: 'column', gap: '20px',
+              }}>
+                <h3 style={{ fontSize: '16px', fontWeight: '600', color: GOLD, margin: 0 }}>
+                  What you'll need:
+                </h3>
+                {[
+                  'A well-lit space for a selfie',
+                  'A piece of paper to write a code on',
+                  'About 2 minutes of your time',
+                ].map((item, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{
+                      width: '28px', height: '28px', borderRadius: '50%',
+                      background: GOLD_DIM, border: `1px solid ${GOLD_BORDER}`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      flexShrink: 0,
+                    }}>
+                      <span style={{ fontSize: '13px', fontWeight: '700', color: GOLD }}>{i + 1}</span>
+                    </div>
+                    <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.8)' }}>{item}</span>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                onClick={() => setStep(1)}
+                style={{
+                  padding: '16px',
+                  background: `linear-gradient(135deg, ${GOLD}, #E8C060)`,
+                  color: '#000',
+                  border: 'none',
+                  borderRadius: '14px',
+                  fontSize: '16px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                }}
+              >
+                Begin Verification <ArrowRight size={18} />
+              </button>
+            </div>
+          )}
+
+          {/* Step 1: Code */}
+          {step === 1 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <div style={{ textAlign: 'center' }}>
+                <h2 style={{
+                  fontSize: '24px', fontWeight: '700', color: '#fff',
+                  fontFamily: "'Playfair Display', serif", margin: '0 0 12px',
+                }}>
+                  Write This Code
+                </h2>
+                <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.6)', lineHeight: '1.6', margin: 0 }}>
+                  Write this code clearly on a piece of paper. You'll hold it in your selfie.
+                </p>
+              </div>
+
+              <div style={{
+                background: GOLD_DIM,
+                border: `2px dashed ${GOLD}`,
+                borderRadius: '16px',
+                padding: '40px 20px',
+                textAlign: 'center',
+              }}>
+                <div style={{
+                  fontSize: '56px', fontWeight: '700',
+                  fontFamily: "'Courier New', monospace",
+                  color: GOLD,
+                  letterSpacing: '12px',
+                }}>
+                  {verificationCode}
                 </div>
               </div>
 
-              {error && <div style={errorStyle}>{error}</div>}
+              <div style={{
+                background: 'rgba(255,255,255,0.05)',
+                borderRadius: '12px',
+                padding: '16px',
+              }}>
+                <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)', margin: 0, lineHeight: '1.6' }}>
+                  Make sure the code is clearly readable in your photo. This helps us confirm you are a real person.
+                </p>
+              </div>
 
-              <div style={fileUploadContainerStyle}>
-                <label style={fileUploadLabelStyle}>Take a Selfie</label>
-                <label style={fileInputWrapperStyle}>
-                  <div style={fileInputButtonStyle}>
-                    📸 Choose Photo
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button
+                  onClick={() => setStep(0)}
+                  style={{
+                    flex: 1, padding: '14px',
+                    background: 'transparent',
+                    color: 'rgba(255,255,255,0.6)',
+                    border: `1.5px solid ${GOLD_BORDER}`,
+                    borderRadius: '14px',
+                    fontSize: '15px', fontWeight: '600', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                  }}
+                >
+                  <ArrowLeft size={16} /> Back
+                </button>
+                <button
+                  onClick={() => setStep(2)}
+                  style={{
+                    flex: 2, padding: '14px',
+                    background: `linear-gradient(135deg, ${GOLD}, #E8C060)`,
+                    color: '#000',
+                    border: 'none',
+                    borderRadius: '14px',
+                    fontSize: '15px', fontWeight: '700', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                  }}
+                >
+                  I've Written It <ArrowRight size={16} />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 2: Selfie / Review */}
+          {step === 2 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <div style={{ textAlign: 'center' }}>
+                <h2 style={{
+                  fontSize: '24px', fontWeight: '700', color: '#fff',
+                  fontFamily: "'Playfair Display', serif", margin: '0 0 12px',
+                }}>
+                  Take Your Selfie
+                </h2>
+                <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.6)', lineHeight: '1.6', margin: 0 }}>
+                  Hold the paper with code <strong style={{ color: GOLD }}>{verificationCode}</strong> clearly visible next to your face.
+                </p>
+              </div>
+
+              {error && (
+                <div style={{
+                  padding: '12px 16px',
+                  background: 'rgba(240,120,96,0.15)',
+                  borderRadius: '10px',
+                  color: '#f07860',
+                  fontSize: '14px',
+                  border: '1px solid rgba(240,120,96,0.3)',
+                }}>
+                  {error}
+                </div>
+              )}
+
+              {!previewUrl ? (
+                <label style={{
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px',
+                  padding: '48px 20px',
+                  border: `2px dashed ${GOLD_BORDER}`,
+                  borderRadius: '16px',
+                  background: 'rgba(255,255,255,0.03)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}>
+                  <div style={{
+                    width: '64px', height: '64px', borderRadius: '50%',
+                    background: GOLD_DIM,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <Camera size={28} color={GOLD} />
                   </div>
+                  <span style={{ fontSize: '15px', fontWeight: '600', color: GOLD }}>
+                    Tap to take or choose a photo
+                  </span>
+                  <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>
+                    JPG, PNG up to 10MB
+                  </span>
                   <input
                     type="file"
                     accept="image/*"
+                    capture="user"
                     onChange={handleFileSelect}
                     style={{ display: 'none' }}
                   />
                 </label>
-              </div>
-
-              {previewUrl && (
-                <div style={previewContainerStyle}>
-                  <label style={previewLabelStyle}>Preview</label>
-                  <img src={previewUrl} alt="Selfie preview" style={previewImageStyle} />
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <div style={{
+                    borderRadius: '16px', overflow: 'hidden',
+                    border: `2px solid ${GOLD_BORDER}`,
+                  }}>
+                    <img src={previewUrl} alt="Selfie preview" style={{
+                      width: '100%', maxHeight: '300px',
+                      objectFit: 'contain', display: 'block',
+                      background: 'rgba(0,0,0,0.3)',
+                    }} />
+                  </div>
+                  <label style={{
+                    textAlign: 'center', fontSize: '14px', color: GOLD,
+                    cursor: 'pointer', fontWeight: '600',
+                  }}>
+                    Retake photo
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="user"
+                      onChange={handleFileSelect}
+                      style={{ display: 'none' }}
+                    />
+                  </label>
                 </div>
               )}
 
-              <div style={buttonGroupStyle}>
+              {/* Checklist */}
+              <div style={{
+                background: 'rgba(255,255,255,0.05)',
+                borderRadius: '12px', padding: '16px',
+                display: 'flex', flexDirection: 'column', gap: '12px',
+              }}>
+                <span style={{ fontSize: '13px', fontWeight: '600', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase' }}>
+                  Before submitting, check:
+                </span>
+                {[
+                  'Your face is clearly visible',
+                  'The verification code is readable',
+                  'The photo is well-lit',
+                ].map((item, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{
+                      width: '20px', height: '20px', borderRadius: '50%',
+                      background: GOLD_DIM, border: `1px solid ${GOLD_BORDER}`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <Check size={12} color={GOLD} />
+                    </div>
+                    <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)' }}>{item}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Consent Toggle */}
+              <div
+                style={{
+                  display: 'flex', alignItems: 'flex-start', gap: '12px',
+                  padding: '16px',
+                  background: consent ? GOLD_DIM : 'rgba(255,255,255,0.03)',
+                  border: `1px solid ${consent ? GOLD_BORDER : 'rgba(255,255,255,0.1)'}`,
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+                onClick={() => setConsent(!consent)}
+              >
+                <div style={{
+                  width: '44px', height: '24px', borderRadius: '12px',
+                  background: consent ? GOLD : 'rgba(255,255,255,0.15)',
+                  position: 'relative', flexShrink: 0,
+                  transition: 'background 0.2s',
+                }}>
+                  <div style={{
+                    width: '20px', height: '20px', borderRadius: '50%',
+                    background: '#fff',
+                    position: 'absolute', top: '2px',
+                    left: consent ? '22px' : '2px',
+                    transition: 'left 0.2s',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+                  }} />
+                </div>
+                <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', lineHeight: '1.5' }}>
+                  I consent to Lunara securely storing my verification photo for identity confirmation purposes.
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px' }}>
                 <button
-                  style={submitButtonStyle}
+                  onClick={() => setStep(1)}
+                  style={{
+                    flex: 1, padding: '14px',
+                    background: 'transparent',
+                    color: 'rgba(255,255,255,0.6)',
+                    border: `1.5px solid ${GOLD_BORDER}`,
+                    borderRadius: '14px',
+                    fontSize: '15px', fontWeight: '600', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                  }}
+                >
+                  <ArrowLeft size={16} /> Back
+                </button>
+                <button
                   onClick={handleSubmit}
-                  disabled={loading || !selectedFile}
+                  disabled={loading || !selectedFile || !consent}
+                  style={{
+                    flex: 2, padding: '14px',
+                    background: (!selectedFile || !consent) ? 'rgba(196,164,74,0.3)' : `linear-gradient(135deg, ${GOLD}, #E8C060)`,
+                    color: (!selectedFile || !consent) ? 'rgba(255,255,255,0.4)' : '#000',
+                    border: 'none',
+                    borderRadius: '14px',
+                    fontSize: '15px', fontWeight: '700',
+                    cursor: (!selectedFile || !consent) ? 'not-allowed' : 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                    opacity: loading ? 0.7 : 1,
+                  }}
                 >
                   {loading ? (
                     <>
@@ -396,31 +463,73 @@ export default function Verification() {
                     </>
                   ) : (
                     <>
-                      <Check size={16} /> Submit Verification
+                      <Shield size={16} /> Submit Verification
                     </>
                   )}
                 </button>
               </div>
+            </div>
+          )}
+
+          {/* Step 3: Submitted */}
+          {step === 3 && (
+            <div style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'center',
+              gap: '20px', textAlign: 'center', padding: '40px 0',
+            }}>
+              <div style={{
+                width: '96px', height: '96px', borderRadius: '50%',
+                background: 'rgba(126, 196, 146, 0.15)',
+                border: '2px solid #7ec492',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Check size={44} color="#7ec492" strokeWidth={3} />
+              </div>
+
+              <h2 style={{
+                fontSize: '28px', fontWeight: '700', color: '#fff',
+                fontFamily: "'Playfair Display', serif", margin: 0,
+              }}>
+                Verification Submitted!
+              </h2>
+
+              <p style={{
+                fontSize: '15px', color: 'rgba(255,255,255,0.6)',
+                lineHeight: '1.6', margin: 0, maxWidth: '300px',
+              }}>
+                We'll review your identity within 24 hours. You'll receive a notification once verified.
+              </p>
+
+              <div style={{
+                background: GOLD_DIM,
+                border: `1px solid ${GOLD_BORDER}`,
+                borderRadius: '12px',
+                padding: '16px', width: '100%', maxWidth: '300px',
+              }}>
+                <p style={{ fontSize: '13px', color: GOLD, margin: 0 }}>
+                  Verified profiles receive a gold badge and are shown more often in Discover.
+                </p>
+              </div>
 
               <button
-                style={{
-                  ...cancelButtonStyle,
-                  width: '100%',
-                }}
                 onClick={() => navigate('/profile')}
-                disabled={loading}
+                style={{
+                  padding: '16px 32px',
+                  background: `linear-gradient(135deg, ${GOLD}, #E8C060)`,
+                  color: '#000',
+                  border: 'none',
+                  borderRadius: '14px',
+                  fontSize: '16px', fontWeight: '700',
+                  cursor: 'pointer',
+                  marginTop: '12px',
+                  width: '100%', maxWidth: '300px',
+                }}
               >
-                Cancel
+                Back to Profile
               </button>
             </div>
-
-            <div style={{ background: 'var(--accent-dim)', border: '1px solid var(--accent)', borderRadius: 'var(--radius-lg)', padding: '16px' }}>
-              <p style={{ fontSize: '13px', color: 'var(--accent)', margin: '0', lineHeight: '1.6' }}>
-                💡 <strong>Tip:</strong> Hold your ID or a piece of paper with the code clearly visible. Good lighting helps us verify your identity faster.
-              </p>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

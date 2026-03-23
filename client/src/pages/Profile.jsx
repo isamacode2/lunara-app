@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { getMyPhotos, uploadProfilePhoto, deleteProfilePhoto, togglePhotoPrivacy, getPendingPhotoRequests, approvePhotoAccess, declinePhotoAccess } from '../lib/photos';
 import { avatarUrl, timeAgo } from '../lib/utils';
-import { Camera, LogOut, Save, Loader, Edit3, MapPin, Heart, Shield, Lock, Unlock, Eye, EyeOff, Plus, X, Check, AlertTriangle, ChevronRight, Trash2, Clock, BadgeCheck, ExternalLink } from 'lucide-react';
+import { Camera, LogOut, Save, Loader, Edit3, MapPin, Heart, Shield, Lock, Unlock, Eye, EyeOff, Plus, X, Check, AlertTriangle, ChevronRight, Trash2, Clock, BadgeCheck, ExternalLink, Mic, MicOff, Play, Square, Globe, User as UserIcon } from 'lucide-react';
 
 const pageStyle = {
   height: '100%',
@@ -378,6 +378,167 @@ const declineButtonStyle = {
   borderColor: 'var(--danger)',
   color: 'var(--danger)',
 };
+
+function VoiceNoteCard({ user, profile }) {
+  const [recording, setRecording] = useState(false);
+  const [mediaRecorder, setMediaRecorder] = useState(null);
+  const [audioUrl, setAudioUrl] = useState(profile?.voice_intro_url || null);
+  const [playing, setPlaying] = useState(false);
+  const [audioRef] = useState({ current: null });
+  const [uploading, setUploading] = useState(false);
+
+  async function startRecording() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      const chunks = [];
+      recorder.ondataavailable = (e) => chunks.push(e.data);
+      recorder.onstop = async () => {
+        stream.getTracks().forEach(t => t.stop());
+        const blob = new Blob(chunks, { type: 'audio/webm' });
+        const url = URL.createObjectURL(blob);
+        setAudioUrl(url);
+
+        // Upload to supabase
+        try {
+          setUploading(true);
+          const path = `${user.id}/voice_intro_${Date.now()}.webm`;
+          const { error: upErr } = await supabase.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'audio/webm' });
+          if (!upErr) {
+            const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path);
+            await supabase.from('profiles').update({
+              voice_intro_url: publicUrl + '?t=' + Date.now(),
+              has_voice_intro: true,
+            }).eq('id', user.id);
+          }
+        } catch (err) {
+          console.error('Voice upload failed:', err);
+        } finally {
+          setUploading(false);
+        }
+      };
+      recorder.start();
+      setMediaRecorder(recorder);
+      setRecording(true);
+    } catch (err) {
+      console.error('Microphone access denied:', err);
+    }
+  }
+
+  function stopRecording() {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      mediaRecorder.stop();
+      setRecording(false);
+    }
+  }
+
+  function playAudio() {
+    if (!audioUrl) return;
+    if (audioRef.current) { audioRef.current.pause(); }
+    const audio = new Audio(audioUrl);
+    audioRef.current = audio;
+    audio.onended = () => setPlaying(false);
+    audio.play();
+    setPlaying(true);
+  }
+
+  function stopAudio() {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    setPlaying(false);
+  }
+
+  return (
+    <div style={{
+      background: 'var(--bg-card)',
+      border: '1px solid var(--border)',
+      borderRadius: 'var(--radius-lg)',
+      overflow: 'hidden',
+    }}>
+      <div style={{
+        padding: '16px 20px',
+        borderBottom: '1px solid var(--border)',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      }}>
+        <h3 style={{ fontSize: '16px', fontWeight: '600', fontFamily: "'Playfair Display', serif" }}>Voice Note</h3>
+        {uploading && <Loader size={16} style={{ animation: 'spin 1s linear infinite', color: 'var(--accent)' }} />}
+      </div>
+      <div style={{ padding: '20px' }}>
+        <p style={{ fontSize: '13px', color: 'var(--text2)', marginBottom: '16px', lineHeight: '1.5' }}>
+          Record a short voice intro so potential connections can hear your voice before matching.
+        </p>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          {audioUrl && !recording && (
+            <button
+              onClick={playing ? stopAudio : playAudio}
+              style={{
+                padding: '12px 20px',
+                background: 'var(--accent-dim)',
+                border: '1px solid var(--accent)',
+                borderRadius: 'var(--radius-lg)',
+                color: 'var(--accent)',
+                cursor: 'pointer',
+                fontWeight: '600',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                flex: 1,
+                justifyContent: 'center',
+              }}
+            >
+              {playing ? <><Square size={16} /> Stop</> : <><Play size={16} /> Play</>}
+            </button>
+          )}
+          <button
+            onClick={recording ? stopRecording : startRecording}
+            style={{
+              padding: '12px 20px',
+              background: recording ? 'var(--danger-dim)' : 'linear-gradient(135deg, var(--primary), var(--primary-light))',
+              border: recording ? '1px solid var(--danger)' : 'none',
+              borderRadius: 'var(--radius-lg)',
+              color: recording ? 'var(--danger)' : '#fff',
+              cursor: 'pointer',
+              fontWeight: '600',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              flex: audioUrl && !recording ? 1 : undefined,
+              width: audioUrl && !recording ? undefined : '100%',
+              justifyContent: 'center',
+            }}
+          >
+            {recording ? (
+              <><MicOff size={16} /> Stop Recording</>
+            ) : audioUrl ? (
+              <><Mic size={16} /> Re-record</>
+            ) : (
+              <><Mic size={16} /> Record Voice Note</>
+            )}
+          </button>
+        </div>
+        {recording && (
+          <div style={{
+            marginTop: '12px', padding: '12px',
+            background: 'var(--danger-dim)',
+            borderRadius: 'var(--radius-sm)',
+            display: 'flex', alignItems: 'center', gap: '8px',
+          }}>
+            <div style={{
+              width: '10px', height: '10px', borderRadius: '50%',
+              background: 'var(--danger)',
+              animation: 'pulse 1.5s infinite',
+            }} />
+            <span style={{ fontSize: '13px', color: 'var(--danger)' }}>Recording...</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default function Profile() {
   const { user, profile, uploadAvatar, updateProfile, signOut } = useAuth();
@@ -1073,32 +1234,57 @@ export default function Profile() {
             </div>
           )}
 
-          {/* Voice Intro Card */}
-          {profile?.has_voice_intro && (
-            <div style={cardStyle}>
-              <div style={cardHeaderStyle}>
-                <h3 style={cardTitleStyle}>Voice Intro</h3>
-              </div>
-              <div style={cardBodyStyle}>
-                <button
-                  style={{
-                    padding: '12px 20px',
-                    background: 'var(--accent-dim)',
-                    border: '1px solid var(--accent)',
-                    borderRadius: 'var(--radius-lg)',
-                    color: 'var(--accent)',
-                    cursor: 'pointer',
-                    fontWeight: '600',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                  }}
-                >
-                  <Heart size={16} /> Play
-                </button>
-              </div>
+          {/* Voice Note Card */}
+          <VoiceNoteCard user={user} profile={profile} />
+
+          {/* Visibility Mode Card */}
+          <div style={cardStyle}>
+            <div style={cardHeaderStyle}>
+              <h3 style={cardTitleStyle}>Profile Visibility</h3>
             </div>
-          )}
+            <div style={cardBodyStyle}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                {profile?.visibility_mode === 'discreet' ? (
+                  <Lock size={20} color="#f07860" />
+                ) : profile?.visibility_mode === 'open' ? (
+                  <Globe size={20} color="var(--success)" />
+                ) : (
+                  <UserIcon size={20} color="var(--accent)" />
+                )}
+                <div>
+                  <div style={{ fontSize: '15px', fontWeight: '600', textTransform: 'capitalize' }}>
+                    {profile?.visibility_mode || 'standard'}
+                  </div>
+                  <div style={{ fontSize: '12px', color: 'var(--text2)' }}>
+                    {profile?.visibility_mode === 'discreet'
+                      ? 'Photo blurred, maximum privacy'
+                      : profile?.visibility_mode === 'open'
+                      ? 'Visible to all verified members'
+                      : 'Photo unlocks after mutual connection'}
+                  </div>
+                </div>
+              </div>
+              <button
+                style={{
+                  padding: '12px 20px',
+                  background: 'var(--accent-dim)',
+                  border: '1px solid var(--accent)',
+                  borderRadius: 'var(--radius-lg)',
+                  color: 'var(--accent)',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  width: '100%',
+                  justifyContent: 'center',
+                }}
+                onClick={() => navigate('/privacy-settings')}
+              >
+                <Eye size={16} /> Change Visibility
+              </button>
+            </div>
+          </div>
 
           {/* Verification Card */}
           <div style={cardStyle}>

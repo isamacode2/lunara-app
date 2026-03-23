@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { getDiscoverProfiles, sendConnection, passProfile } from '../lib/discovery';
 import { avatarUrl } from '../lib/utils';
-import { Compass, X, Heart, MapPin, Sparkles, Loader, Send } from 'lucide-react';
+import { Compass, X, Heart, MapPin, Sparkles, Loader, Send, Lock, EyeOff } from 'lucide-react';
 
 export default function Discover() {
   const { user, profile } = useAuth();
@@ -34,13 +34,7 @@ export default function Discover() {
 
   function calculateCompatibility(currentProfile, targetProfile) {
     let score = 50;
-
-    // Same relationship style: +20
-    if (currentProfile?.relationship_style === targetProfile?.relationship_style) {
-      score += 20;
-    }
-
-    // Shared interests ratio: +30
+    if (currentProfile?.relationship_style === targetProfile?.relationship_style) score += 20;
     const myInterests = currentProfile?.interests || [];
     const theirInterests = targetProfile?.interests || [];
     if (myInterests.length > 0 && theirInterests.length > 0) {
@@ -48,23 +42,15 @@ export default function Discover() {
       const ratio = sharedCount / Math.max(myInterests.length, theirInterests.length);
       score += Math.round(30 * ratio);
     }
-
-    // Same looking_for: +10
-    if (currentProfile?.looking_for?.some(l => targetProfile?.looking_for?.includes(l))) {
-      score += 10;
-    }
-
+    if (currentProfile?.looking_for?.some(l => targetProfile?.looking_for?.includes(l))) score += 10;
     return Math.min(score, 99);
   }
 
   async function handlePass() {
     const currentProfile = profiles[currentIndex];
     if (!currentProfile) return;
-
     await passProfile(user.id, currentProfile.id);
-    // Animate out
-    const nextIndex = currentIndex + 1;
-    setCurrentIndex(nextIndex);
+    setCurrentIndex(currentIndex + 1);
   }
 
   async function handleConnect() {
@@ -77,16 +63,12 @@ export default function Discover() {
   async function submitIntent() {
     const currentProfile = intentModal;
     if (!currentProfile) return;
-
     setSubmittingIntent(true);
     const { error } = await sendConnection(user.id, currentProfile.id, intentText);
-
     if (error) {
       setError(error.message);
     } else {
-      // Move to next profile
-      const nextIndex = currentIndex + 1;
-      setCurrentIndex(nextIndex);
+      setCurrentIndex(currentIndex + 1);
       setIntentModal(null);
       setIntentText('');
     }
@@ -111,14 +93,16 @@ export default function Discover() {
         <Sparkles size={48} style={{ color: 'var(--accent)' }} />
         <h2 style={{ fontSize: '24px', fontWeight: 600 }}>You've seen everyone</h2>
         <p style={{ color: 'var(--text2)', marginBottom: '20px' }}>Check back later for new matches!</p>
-        <button className="btn btn-primary" onClick={fetchProfiles}>
-          Refresh
-        </button>
+        <button className="btn btn-primary" onClick={fetchProfiles}>Refresh</button>
       </div>
     );
   }
 
   const compatibility = calculateCompatibility(profile, currentProfile);
+
+  // Photo visibility logic matching the mobile app
+  const showPhoto = currentProfile.visibility_mode === 'open' || currentProfile.is_mutual_match;
+  const isDiscreet = currentProfile.visibility_mode === 'discreet';
 
   return (
     <div className="page" style={{ backgroundColor: 'var(--bg)' }}>
@@ -150,18 +134,74 @@ export default function Discover() {
               maxHeight: 'calc(100vh - 180px)',
             }}
           >
-            {/* Photo Container - 3:3.5 aspect ratio */}
+            {/* Photo Container */}
             <div
               style={{
                 position: 'relative',
                 width: '100%',
                 aspectRatio: '3 / 3.5',
                 backgroundColor: 'var(--bg)',
-                backgroundImage: `url(${avatarUrl(currentProfile)})`,
+                backgroundImage: showPhoto ? `url(${avatarUrl(currentProfile)})` : 'none',
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
+                overflow: 'hidden',
               }}
             >
+              {/* Blurred photo overlay when not visible */}
+              {!showPhoto && (
+                <div style={{
+                  position: 'absolute',
+                  inset: 0,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '12px',
+                  zIndex: 2,
+                }}>
+                  {/* Blurred background image */}
+                  <div style={{
+                    position: 'absolute',
+                    inset: 0,
+                    backgroundImage: `url(${avatarUrl(currentProfile)})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    filter: 'blur(28px) brightness(0.5)',
+                    transform: 'scale(1.1)',
+                  }} />
+
+                  {/* Privacy overlay content */}
+                  <div style={{
+                    position: 'relative',
+                    zIndex: 3,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '10px',
+                  }}>
+                    <div style={{
+                      width: '56px', height: '56px', borderRadius: '50%',
+                      background: 'rgba(255,255,255,0.1)',
+                      backdropFilter: 'blur(8px)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      border: '1.5px solid rgba(255,255,255,0.2)',
+                    }}>
+                      {isDiscreet ? <EyeOff size={24} color="#fff" /> : <Lock size={24} color="#fff" />}
+                    </div>
+                    <span style={{
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      color: '#fff',
+                      textAlign: 'center',
+                      textShadow: '0 1px 4px rgba(0,0,0,0.5)',
+                      padding: '0 20px',
+                    }}>
+                      {isDiscreet ? 'Discreet — Photo hidden' : 'Photo unlocks after mutual connection'}
+                    </span>
+                  </div>
+                </div>
+              )}
+
               {/* Compatibility Badge */}
               <div
                 style={{
@@ -175,6 +215,7 @@ export default function Discover() {
                   fontSize: '14px',
                   fontWeight: '700',
                   boxShadow: '0 4px 16px rgba(255, 190, 85, 0.3)',
+                  zIndex: 5,
                 }}
               >
                 {compatibility}%
@@ -183,54 +224,36 @@ export default function Discover() {
 
             {/* Profile Info */}
             <div style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-              {/* Name and Age */}
               <h2 style={{ fontSize: '22px', margin: '0 0 8px 0', fontWeight: 600 }}>
                 {currentProfile.display_name}, {currentProfile.age}
               </h2>
 
-              {/* Location */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text2)', marginBottom: '12px', fontSize: '14px' }}>
                 <MapPin size={16} />
                 {currentProfile.location || 'Location not specified'}
               </div>
 
-              {/* Relationship Style Tag */}
               {currentProfile.relationship_style && (
                 <div style={{ marginBottom: '12px' }}>
-                  <span className="tag tag-purple">
-                    {currentProfile.relationship_style}
-                  </span>
+                  <span className="tag tag-purple">{currentProfile.relationship_style}</span>
                 </div>
               )}
 
-              {/* Bio - 3 line clamp */}
-              <p
-                style={{
-                  fontSize: '14px',
-                  color: 'var(--text2)',
-                  marginBottom: '16px',
-                  display: '-webkit-box',
-                  WebkitLineClamp: 3,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden',
-                  flex: 1,
-                }}
-              >
+              <p style={{
+                fontSize: '14px', color: 'var(--text2)', marginBottom: '16px',
+                display: '-webkit-box', WebkitLineClamp: 3,
+                WebkitBoxOrient: 'vertical', overflow: 'hidden', flex: 1,
+              }}>
                 {currentProfile.bio || 'No bio provided'}
               </p>
 
-              {/* Interests Pills */}
               {currentProfile.interests && currentProfile.interests.length > 0 && (
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '8px' }}>
                   {currentProfile.interests.slice(0, 5).map((interest, idx) => (
-                    <span key={idx} className="tag tag-outline">
-                      {interest}
-                    </span>
+                    <span key={idx} className="tag tag-outline">{interest}</span>
                   ))}
                   {currentProfile.interests.length > 5 && (
-                    <span className="tag tag-outline">
-                      +{currentProfile.interests.length - 5}
-                    </span>
+                    <span className="tag tag-outline">+{currentProfile.interests.length - 5}</span>
                   )}
                 </div>
               )}
@@ -238,30 +261,18 @@ export default function Discover() {
 
             {/* Action Buttons */}
             <div style={{ display: 'flex', gap: '16px', padding: '16px', justifyContent: 'center', flexShrink: 0 }}>
-              {/* Pass Button */}
               <button
                 onClick={handlePass}
                 className="btn-icon"
-                style={{
-                  background: 'transparent',
-                  border: '2px solid rgba(180,124,255,0.3)',
-                  color: 'var(--text2)',
-                }}
+                style={{ background: 'transparent', border: '2px solid rgba(180,124,255,0.3)', color: 'var(--text2)' }}
                 title="Pass"
               >
                 <X size={24} />
               </button>
-
-              {/* Connect Button */}
               <button
                 onClick={handleConnect}
                 className="btn-icon"
-                style={{
-                  background: 'var(--primary)',
-                  color: '#fff',
-                  width: '56px',
-                  height: '56px',
-                }}
+                style={{ background: 'var(--primary)', color: '#fff', width: '56px', height: '56px' }}
                 title="Connect"
               >
                 <Heart size={28} fill="currentColor" />
@@ -276,52 +287,27 @@ export default function Discover() {
         <div className="modal-overlay" onClick={() => !submittingIntent && setIntentModal(null)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <h3 className="modal-title">Share what caught your eye</h3>
-
             <p style={{ fontSize: '14px', color: 'var(--text2)', marginBottom: '16px' }}>
               Let {intentModal.display_name} know why you're interested
             </p>
-
             <textarea
               value={intentText}
               onChange={e => setIntentText(e.target.value)}
               placeholder={`Tell ${intentModal.display_name} what caught your eye...`}
               style={{
-                minHeight: '120px',
-                resize: 'vertical',
-                fontFamily: 'Outfit, sans-serif',
-                fontSize: '14px',
-                padding: '12px',
-                background: 'var(--bg-elevated)',
-                border: '1.5px solid var(--border)',
-                borderRadius: 'var(--radius-sm)',
-                color: 'var(--text)',
+                minHeight: '120px', resize: 'vertical', fontFamily: 'Outfit, sans-serif',
+                fontSize: '14px', padding: '12px', background: 'var(--bg-elevated)',
+                border: '1.5px solid var(--border)', borderRadius: 'var(--radius-sm)', color: 'var(--text)',
               }}
               disabled={submittingIntent}
             />
-
             <div className="modal-actions">
-              <button
-                className="btn btn-ghost"
-                onClick={() => setIntentModal(null)}
-                disabled={submittingIntent}
-              >
-                Cancel
-              </button>
-              <button
-                className="btn btn-primary"
-                onClick={submitIntent}
-                disabled={submittingIntent || !intentText.trim()}
-              >
+              <button className="btn btn-ghost" onClick={() => setIntentModal(null)} disabled={submittingIntent}>Cancel</button>
+              <button className="btn btn-primary" onClick={submitIntent} disabled={submittingIntent || !intentText.trim()}>
                 {submittingIntent ? (
-                  <>
-                    <Loader size={16} className="spin" />
-                    Sending...
-                  </>
+                  <><Loader size={16} className="spin" /> Sending...</>
                 ) : (
-                  <>
-                    <Send size={16} />
-                    Send
-                  </>
+                  <><Send size={16} /> Send</>
                 )}
               </button>
             </div>
