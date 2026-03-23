@@ -698,458 +698,189 @@ export default function Circles() {
 
   // VIEW: Circle Feed
   return (
-    <div className="page page-scroll" style={{ backgroundColor: 'var(--bg)' }}>
-      {/* Header */}
-      <div
-        className="page-header"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          justifyContent: 'space-between',
-        }}
-      >
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', backgroundColor: '#0e0c14' }}>
+      {/* Fixed Header */}
+      <div style={{
+        padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px',
+        justifyContent: 'space-between', flexShrink: 0, borderBottom: '1px solid var(--border)',
+      }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <button
-            className="btn-icon"
-            onClick={closeCircleFeed}
-            style={{
-              background: 'transparent',
-              color: 'var(--text)',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '8px',
-            }}
-          >
+          <button onClick={closeCircleFeed}
+            style={{ background: 'transparent', color: 'var(--text)', border: 'none', cursor: 'pointer', padding: '8px', display: 'flex', alignItems: 'center' }}>
             <ArrowLeft size={24} />
           </button>
           <div>
-            <h1
-              style={{
-                fontSize: '24px',
-                margin: 0,
-                fontWeight: 600,
-              }}
-            >
-              {activeCircle?.name}
-            </h1>
+            <h1 style={{ fontSize: '22px', margin: 0, fontWeight: 600 }}>{activeCircle?.name}</h1>
+            <span style={{ fontSize: '12px', color: 'var(--text2)' }}>{activeCircle?.member_count || 1} members</span>
           </div>
         </div>
-        <span
-          style={{
-            fontSize: '13px',
-            color: 'var(--text2)',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {activeCircle?.member_count || 1} members
-        </span>
       </div>
 
       {error && (
-        <div
-          className="msg-error"
-          style={{ margin: '16px 0', textAlign: 'center' }}
-        >
+        <div style={{ margin: '12px 20px 0', padding: '10px 14px', background: 'var(--danger-dim)', borderRadius: 'var(--radius-sm)', color: 'var(--danger)', fontSize: '13px', flexShrink: 0 }}>
           {error}
         </div>
       )}
 
-      {/* New Post Form */}
-      <div
-        className="card"
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '12px',
-          marginBottom: '20px',
-        }}
-      >
-        <textarea
-          value={newPostContent}
-          onChange={e => setNewPostContent(e.target.value)}
-          placeholder="Share your thoughts..."
-          style={{
-            minHeight: '100px',
-            resize: 'vertical',
-            fontFamily: 'Outfit, sans-serif',
-            fontSize: '14px',
-            padding: '12px',
-            background: 'var(--bg-elevated)',
-            border: '1.5px solid var(--border)',
-            borderRadius: 'var(--radius-sm)',
-            color: 'var(--text)',
-            boxSizing: 'border-box',
-          }}
-          disabled={posting}
-        />
-
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          <button
-            onClick={() => setIsAnonymous(!isAnonymous)}
+      {/* Fixed Post Composer */}
+      <div style={{
+        padding: '16px 20px', flexShrink: 0, borderBottom: '1px solid var(--border)',
+      }}>
+        <div style={{
+          background: '#16131f', border: '1px solid rgba(180,124,255,0.15)', borderRadius: '16px', padding: '16px',
+          display: 'flex', flexDirection: 'column', gap: '12px',
+        }}>
+          <textarea
+            value={newPostContent} onChange={e => setNewPostContent(e.target.value)}
+            placeholder="Share your thoughts..." disabled={posting}
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              background: 'transparent',
-              border: 'none',
-              color: isAnonymous ? 'var(--primary)' : 'var(--text2)',
-              cursor: 'pointer',
-              fontSize: '13px',
-              fontWeight: 500,
-              padding: '6px 8px',
+              minHeight: '80px', resize: 'none', fontFamily: 'Outfit, sans-serif', fontSize: '14px',
+              padding: '12px', background: 'var(--bg-elevated)', border: '1.5px solid var(--border)',
+              borderRadius: '12px', color: 'var(--text)', boxSizing: 'border-box', width: '100%',
             }}
-          >
-            <EyeOff size={16} />
-            {isAnonymous ? 'Anonymous' : 'Show name'}
-          </button>
-
-          <button
-            className="btn btn-primary btn-sm"
-            onClick={handleCreatePost}
-            disabled={posting || !newPostContent.trim()}
-          >
-            {posting ? (
-              <>
-                <Loader size={16} className="spin" />
-                Posting...
-              </>
-            ) : (
-              <>
-                <Send size={16} />
-                Post
-              </>
-            )}
-          </button>
+          />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <button onClick={() => setIsAnonymous(!isAnonymous)}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'transparent', border: 'none', color: isAnonymous ? 'var(--primary)' : 'var(--text2)', cursor: 'pointer', fontSize: '13px', fontWeight: 500, padding: '6px 8px' }}>
+              <EyeOff size={16} />
+              {isAnonymous ? 'Anonymous' : 'Show name'}
+            </button>
+            <button onClick={handleCreatePost} disabled={posting || !newPostContent.trim()}
+              style={{
+                padding: '8px 20px', borderRadius: '20px', border: 'none', fontSize: '13px', fontWeight: '700',
+                background: (posting || !newPostContent.trim()) ? 'rgba(180,124,255,0.3)' : 'var(--primary)',
+                color: (posting || !newPostContent.trim()) ? 'rgba(255,255,255,0.4)' : '#fff',
+                cursor: (posting || !newPostContent.trim()) ? 'not-allowed' : 'pointer',
+                display: 'flex', alignItems: 'center', gap: '6px',
+              }}>
+              {posting ? <><Loader size={14} className="spin" /> Posting...</> : <><Send size={14} /> Post</>}
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Feed */}
-      {feedLoading ? (
-        <div className="page-center">
-          <Loader size={32} className="spin" />
-          <p>Loading feed...</p>
-        </div>
-      ) : feed.length === 0 ? (
-        <div className="page-empty">
-          <MessageCircle size={48} style={{ color: 'var(--text2)' }} />
-          <h2 style={{ fontSize: '20px', fontWeight: 600 }}>No posts yet</h2>
-          <p style={{ color: 'var(--text2)' }}>
-            Be the first to share something
-          </p>
-        </div>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {feed.map(post => (
-            <div key={post.id} className="card">
-              {/* Post Header */}
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '12px',
-                  marginBottom: '12px',
-                }}
-              >
-                <img
-                  src={
-                    post.is_anonymous
-                      ? 'https://api.dicebear.com/7.x/initials/svg?seed=Anonymous&backgroundColor=3B2070&textColor=F3F0F5'
-                      : avatarUrl({ display_name: post.author_name })
-                  }
-                  alt="Avatar"
-                  style={{
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '50%',
-                    objectFit: 'cover',
-                  }}
-                />
-                <div style={{ flex: 1 }}>
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      marginBottom: '2px',
-                    }}
-                  >
+      {/* Scrollable Feed */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px' }}>
+        {feedLoading ? (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px', padding: '40px 0' }}>
+            <Loader size={32} className="spin" />
+            <p style={{ color: 'var(--text2)' }}>Loading feed...</p>
+          </div>
+        ) : feed.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text3)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+            <MessageCircle size={48} style={{ color: 'var(--text2)' }} />
+            <h2 style={{ fontSize: '20px', fontWeight: 600, color: 'var(--text)' }}>No posts yet</h2>
+            <p style={{ color: 'var(--text2)' }}>Be the first to share something</p>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', paddingBottom: '20px' }}>
+            {feed.map(post => (
+              <div key={post.id} style={{
+                background: '#16131f', border: '1px solid rgba(180,124,255,0.15)',
+                borderRadius: '16px', padding: '20px',
+              }}>
+                {/* Post Header */}
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '12px' }}>
+                  <div style={{
+                    width: '40px', height: '40px', borderRadius: '50%', flexShrink: 0, overflow: 'hidden',
+                    background: 'linear-gradient(135deg, #3B2070 0%, #5a3d8a 100%)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
                     {post.is_anonymous ? (
-                      <>
-                        <Lock size={14} style={{ color: 'var(--text2)' }} />
-                        <span style={{ fontSize: '14px', fontWeight: 600 }}>
-                          Anonymous
-                        </span>
-                      </>
+                      <Lock size={18} color="rgba(255,255,255,0.6)" />
                     ) : (
-                      <span style={{ fontSize: '14px', fontWeight: 600 }}>
-                        {post.author_name || 'Unknown'}
+                      <span style={{ fontSize: '16px', fontWeight: '700', color: 'rgba(255,255,255,0.8)' }}>
+                        {(post.author_name || '?')[0].toUpperCase()}
                       </span>
                     )}
                   </div>
-                  <span style={{ fontSize: '12px', color: 'var(--text2)' }}>
-                    {timeAgo(post.created_at)}
-                  </span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
+                      {post.is_anonymous ? (
+                        <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text2)' }}>Anonymous</span>
+                      ) : (
+                        <span style={{ fontSize: '14px', fontWeight: 600 }}>{post.author_name || 'Unknown'}</span>
+                      )}
+                    </div>
+                    <span style={{ fontSize: '12px', color: 'var(--text2)' }}>{timeAgo(post.created_at)}</span>
+                  </div>
                 </div>
-              </div>
 
-              {/* Post Content */}
-              <p
-                style={{
-                  fontSize: '14px',
-                  margin: '0 0 12px 0',
-                  lineHeight: '1.5',
-                  color: 'var(--text)',
-                }}
-              >
-                {post.content}
-              </p>
+                {/* Post Content */}
+                <p style={{ fontSize: '14px', margin: '0 0 16px 0', lineHeight: '1.6', color: 'var(--text)' }}>
+                  {post.content}
+                </p>
 
-              {/* Post Actions */}
-              <div
-                style={{
-                  display: 'flex',
-                  gap: '16px',
-                  paddingTop: '12px',
-                  borderTop: '1px solid var(--border)',
-                  marginBottom: post.reply_count > 0 ? '12px' : 0,
-                }}
-              >
-                <button
-                  onClick={() => handleToggleLike(post.id)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    background: 'transparent',
-                    border: 'none',
-                    color: userLikes[post.id]
-                      ? 'var(--primary)'
-                      : 'var(--text2)',
-                    cursor: 'pointer',
-                    fontSize: '13px',
-                    fontWeight: 500,
-                    padding: '4px 8px',
-                  }}
-                >
-                  <Heart
-                    size={16}
-                    fill={userLikes[post.id] ? 'currentColor' : 'none'}
-                  />
-                  {post.like_count || 0}
-                </button>
+                {/* Post Actions */}
+                <div style={{ display: 'flex', gap: '16px', paddingTop: '12px', borderTop: '1px solid rgba(180,124,255,0.1)' }}>
+                  <button onClick={() => handleToggleLike(post.id)}
+                    style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'transparent', border: 'none', color: userLikes[post.id] ? 'var(--primary)' : 'var(--text2)', cursor: 'pointer', fontSize: '13px', fontWeight: 500, padding: '4px 8px' }}>
+                    <Heart size={16} fill={userLikes[post.id] ? 'currentColor' : 'none'} />
+                    {post.like_count || 0}
+                  </button>
+                  <button onClick={() => expandedReplies === post.id ? setExpandedReplies(null) : expandReplies(post.id)}
+                    style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'transparent', border: 'none', color: expandedReplies === post.id ? 'var(--primary)' : 'var(--text2)', cursor: 'pointer', fontSize: '13px', fontWeight: 500, padding: '4px 8px' }}>
+                    <MessageCircle size={16} fill={expandedReplies === post.id ? 'currentColor' : 'none'} />
+                    {post.reply_count || 0}
+                  </button>
+                </div>
 
-                <button
-                  onClick={() => {
-                    if (expandedReplies === post.id) {
-                      setExpandedReplies(null);
-                    } else {
-                      expandReplies(post.id);
-                    }
-                  }}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    background: 'transparent',
-                    border: 'none',
-                    color:
-                      expandedReplies === post.id
-                        ? 'var(--primary)'
-                        : 'var(--text2)',
-                    cursor: 'pointer',
-                    fontSize: '13px',
-                    fontWeight: 500,
-                    padding: '4px 8px',
-                  }}
-                >
-                  <MessageCircle
-                    size={16}
-                    fill={
-                      expandedReplies === post.id ? 'currentColor' : 'none'
-                    }
-                  />
-                  {post.reply_count || 0}
-                </button>
-              </div>
-
-              {/* Expanded Replies */}
-              {expandedReplies === post.id && (
-                <div style={{ paddingTop: '12px', borderTop: '1px solid var(--border)' }}>
-                  {/* Replies List */}
-                  {post._replies && post._replies.length > 0 && (
-                    <div
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '12px',
-                        marginBottom: '12px',
-                      }}
-                    >
-                      {post._replies.map(reply => (
-                        <div
-                          key={reply.id}
-                          style={{
-                            paddingLeft: '12px',
-                            borderLeft: '2px solid var(--border)',
-                            display: 'flex',
-                            gap: '8px',
-                          }}
-                        >
-                          <img
-                            src={
-                              reply.is_anonymous
-                                ? 'https://api.dicebear.com/7.x/initials/svg?seed=Anonymous&backgroundColor=3B2070&textColor=F3F0F5'
-                                : avatarUrl(reply.author)
-                            }
-                            alt="Avatar"
-                            style={{
-                              width: '32px',
-                              height: '32px',
-                              borderRadius: '50%',
-                              objectFit: 'cover',
-                              flexShrink: 0,
-                            }}
-                          />
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '6px',
-                                marginBottom: '2px',
-                              }}
-                            >
+                {/* Expanded Replies */}
+                {expandedReplies === post.id && (
+                  <div style={{ paddingTop: '12px', marginTop: '8px', borderTop: '1px solid rgba(180,124,255,0.1)' }}>
+                    {post._replies && post._replies.length > 0 && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '12px' }}>
+                        {post._replies.map(reply => (
+                          <div key={reply.id} style={{ paddingLeft: '12px', borderLeft: '2px solid rgba(180,124,255,0.2)', display: 'flex', gap: '8px' }}>
+                            <div style={{
+                              width: '32px', height: '32px', borderRadius: '50%', flexShrink: 0,
+                              background: 'linear-gradient(135deg, #3B2070 0%, #5a3d8a 100%)',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            }}>
                               {reply.is_anonymous ? (
-                                <>
-                                  <Lock
-                                    size={12}
-                                    style={{ color: 'var(--text2)' }}
-                                  />
-                                  <span
-                                    style={{
-                                      fontSize: '12px',
-                                      fontWeight: 600,
-                                    }}
-                                  >
-                                    Anonymous
-                                  </span>
-                                </>
+                                <Lock size={14} color="rgba(255,255,255,0.5)" />
                               ) : (
-                                <span
-                                  style={{
-                                    fontSize: '12px',
-                                    fontWeight: 600,
-                                  }}
-                                >
-                                  {reply.author?.display_name || 'Unknown'}
+                                <span style={{ fontSize: '13px', fontWeight: '700', color: 'rgba(255,255,255,0.7)' }}>
+                                  {(reply.author?.display_name || '?')[0].toUpperCase()}
                                 </span>
                               )}
                             </div>
-                            <p
-                              style={{
-                                fontSize: '13px',
-                                margin: 0,
-                                color: 'var(--text)',
-                                lineHeight: '1.4',
-                              }}
-                            >
-                              {reply.content}
-                            </p>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <span style={{ fontSize: '12px', fontWeight: 600, color: reply.is_anonymous ? 'var(--text2)' : 'var(--text)' }}>
+                                {reply.is_anonymous ? 'Anonymous' : (reply.author?.display_name || 'Unknown')}
+                              </span>
+                              <p style={{ fontSize: '13px', margin: '4px 0 0', color: 'var(--text)', lineHeight: '1.4' }}>{reply.content}</p>
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                        ))}
+                      </div>
+                    )}
 
-                  {/* Reply Input */}
-                  <div
-                    style={{
-                      display: 'flex',
-                      gap: '8px',
-                      paddingTop: '12px',
-                      borderTop: '1px solid var(--border)',
-                    }}
-                  >
-                    <input
-                      type="text"
-                      value={replyText[post.id] || ''}
-                      onChange={e =>
-                        setReplyText(prev => ({
-                          ...prev,
-                          [post.id]: e.target.value,
-                        }))
-                      }
-                      placeholder="Reply..."
-                      style={{
-                        flex: 1,
-                        padding: '8px 12px',
-                        background: 'var(--bg-elevated)',
-                        border: '1.5px solid var(--border)',
-                        borderRadius: 'var(--radius-sm)',
-                        color: 'var(--text)',
-                        fontFamily: 'Outfit, sans-serif',
-                        fontSize: '13px',
-                        boxSizing: 'border-box',
-                      }}
-                    />
-                    <button
-                      onClick={() => handleCreateReply(post.id)}
-                      className="btn-icon"
-                      style={{
-                        background: 'transparent',
-                        color: 'var(--primary)',
-                        border: 'none',
-                        cursor: replyText[post.id]?.trim()
-                          ? 'pointer'
-                          : 'not-allowed',
-                        opacity: replyText[post.id]?.trim() ? 1 : 0.5,
-                        padding: '8px',
-                      }}
-                      disabled={!replyText[post.id]?.trim()}
-                    >
-                      <Send size={16} />
+                    {/* Reply Input */}
+                    <div style={{ display: 'flex', gap: '8px', paddingTop: '12px', borderTop: '1px solid rgba(180,124,255,0.1)' }}>
+                      <input type="text" value={replyText[post.id] || ''}
+                        onChange={e => setReplyText(prev => ({ ...prev, [post.id]: e.target.value }))}
+                        placeholder="Reply..."
+                        style={{ flex: 1, padding: '8px 12px', background: 'var(--bg-elevated)', border: '1.5px solid var(--border)', borderRadius: '10px', color: 'var(--text)', fontFamily: 'Outfit, sans-serif', fontSize: '13px', boxSizing: 'border-box' }}
+                      />
+                      <button onClick={() => handleCreateReply(post.id)}
+                        style={{ background: 'transparent', color: 'var(--primary)', border: 'none', cursor: replyText[post.id]?.trim() ? 'pointer' : 'not-allowed', opacity: replyText[post.id]?.trim() ? 1 : 0.5, padding: '8px', display: 'flex', alignItems: 'center' }}
+                        disabled={!replyText[post.id]?.trim()}>
+                        <Send size={16} />
+                      </button>
+                    </div>
+                    <button onClick={() => setReplyAnonymous(prev => ({ ...prev, [post.id]: !prev[post.id] }))}
+                      style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '6px', background: 'transparent', border: 'none', color: replyAnonymous[post.id] ? 'var(--primary)' : 'var(--text2)', cursor: 'pointer', fontSize: '12px', fontWeight: 500, padding: '4px 8px' }}>
+                      <EyeOff size={14} />
+                      {replyAnonymous[post.id] ? 'Anonymous' : 'Show name'}
                     </button>
                   </div>
-
-                  <button
-                    onClick={() =>
-                      setReplyAnonymous(prev => ({
-                        ...prev,
-                        [post.id]: !prev[post.id],
-                      }))
-                    }
-                    style={{
-                      marginTop: '8px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      background: 'transparent',
-                      border: 'none',
-                      color: replyAnonymous[post.id]
-                        ? 'var(--primary)'
-                        : 'var(--text2)',
-                      cursor: 'pointer',
-                      fontSize: '12px',
-                      fontWeight: 500,
-                      padding: '4px 8px',
-                    }}
-                  >
-                    <EyeOff size={14} />
-                    {replyAnonymous[post.id] ? 'Anonymous' : 'Show name'}
-                  </button>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
