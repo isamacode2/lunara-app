@@ -1,0 +1,1119 @@
+import { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import {
+  getCircles,
+  getMyCircles,
+  joinCircle,
+  leaveCircle,
+  getCircleFeed,
+  createPost,
+  deletePost,
+  toggleLike,
+  getReplies,
+  createReply,
+  subscribeToCircle,
+  unsubscribeFromCircle,
+} from '../lib/circles';
+import { supabase } from '../lib/supabase';
+import { avatarUrl, timeAgo } from '../lib/utils';
+import {
+  ArrowLeft,
+  Heart,
+  MessageCircle,
+  Send,
+  Plus,
+  EyeOff,
+  Loader,
+  Users,
+  Lock,
+} from 'lucide-react';
+
+export default function Circles() {
+  const { user } = useAuth();
+  const [view, setView] = useState('list'); // 'list' or 'feed'
+  const [activeCircle, setActiveCircle] = useState(null);
+  const [myCircles, setMyCircles] = useState([]);
+  const [allCircles, setAllCircles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [feed, setFeed] = useState([]);
+  const [feedLoading, setFeedLoading] = useState(false);
+  const [newPostContent, setNewPostContent] = useState('');
+  const [isAnonymous, setIsAnonymous] = useState(false);
+  const [posting, setPosting] = useState(false);
+  const [error, setError] = useState(null);
+  const [showProposeModal, setShowProposeModal] = useState(false);
+  const [proposeName, setProposeName] = useState('');
+  const [proposeDescription, setProposeDescription] = useState('');
+  const [proposing, setProposing] = useState(false);
+  const [expandedReplies, setExpandedReplies] = useState(null);
+  const [replyText, setReplyText] = useState({});
+  const [replyAnonymous, setReplyAnonymous] = useState({});
+  const [userLikes, setUserLikes] = useState({});
+  const [circleChannel, setCircleChannel] = useState(null);
+
+  // Load initial data
+  useEffect(() => {
+    if (!user?.id) return;
+    loadCircles();
+  }, [user?.id]);
+
+  async function loadCircles() {
+    setLoading(true);
+    setError(null);
+    try {
+      const [myData, allData] = await Promise.all([
+        getMyCircles(user.id),
+        getCircles(),
+      ]);
+
+      if (myData.error) throw myData.error;
+      if (allData.error) throw allData.error;
+
+      setMyCircles(myData.data || []);
+      setAllCircles(allData.data || []);
+    } catch (err) {
+      setError(err.message);
+    }
+    setLoading(false);
+  }
+
+  async function handleJoinCircle(circleId) {
+    try {
+      const { error } = await joinCircle(circleId, user.id);
+      if (error) throw error;
+      await loadCircles();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function handleLeaveCircle(circleId) {
+    try {
+      const { error } = await leaveCircle(circleId, user.id);
+      if (error) throw error;
+      await loadCircles();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function handleProposeCircle() {
+    if (!proposeName.trim() || !proposeDescription.trim()) {
+      setError('Please fill in all fields');
+      return;
+    }
+
+    setProposing(true);
+    setError(null);
+    try {
+      const { error: insertError } = await supabase
+        .from('circles')
+        .insert({
+          name: proposeName.trim(),
+          description: proposeDescription.trim(),
+          icon: '🌙',
+          created_by: user.id,
+          is_default: false,
+          member_count: 1,
+        });
+
+      if (insertError) throw insertError;
+
+      // Auto-join the circle
+      const { data: circles } = await getCircles();
+      const newCircle = circles?.find(
+        c =>
+          c.name === proposeName.trim() &&
+          c.description === proposeDescription.trim()
+      );
+
+      if (newCircle) {
+        await joinCircle(newCircle.id, user.id);
+      }
+
+      setProposeName('');
+      setProposeDescription('');
+      setShowProposeModal(false);
+      await loadCircles();
+    } catch (err) {
+      setError(err.message);
+    }
+    setProposing(false);
+  }
+
+  async function openCircleFeed(circle) {
+    setActiveCircle(circle);
+    setView('feed');
+    setFeedLoading(true);
+    setError(null);
+
+    try {
+      const { data: feedData, error: feedError } = await getCircleFeed(
+        circle.id
+      );
+      if (feedError) throw feedError;
+      setFeed(feedData || []);
+
+      // Load user's likes
+      const { data: likesData } = await supabase
+        .from('circle_likes')
+        .select('post_id')
+        .eq('user_id', user.id)
+        .in(
+          'post_id',
+          feedData?.map(p => p.id) || []
+        );
+
+      const likesMap = {};
+      likesData?.forEach(like => {
+        likesMap[like.post_id] = true;
+      });
+      setUserLikes(likesMap);
+
+      // Subscribe to new posts
+      const channel = subscribeToCircle(circle.id, post => {
+        setFeed(prev => [post, ...prev]);
+      });
+      setCircleChannel(channel);
+    } catch (err) {
+      setError(err.message);
+    }
+    setFeedLoading(false);
+  }
+
+  function closeCircleFeed() {
+    if (circleChannel) {
+      unsubscribeFromCircle(circleChannel);
+      setCircleChannel(null);
+    }
+    setView('list');
+    setActiveCircle(null);
+    setFeed([]);
+    setExpandedReplies(null);
+    setReplyText({});
+    setReplyAnonymous({});
+    setUserLikes({});
+  }
+
+  async function handleCreatePost() {
+    if (!newPostContent.trim()) return;
+
+    setPosting(true);
+    setError(null);
+    try {
+      const { data, error } = await createPost(
+        activeCircle.id,
+        user.id,
+        newPostContent,
+        isAnonymous
+      );
+      if (error) throw error;
+
+      setNewPostContent('');
+      setIsAnonymous(false);
+      setFeed(prev => [data, ...prev]);
+    } catch (err) {
+      setError(err.message);
+    }
+    setPosting(false);
+  }
+
+  async function handleToggleLike(postId) {
+    try {
+      const { liked } = await toggleLike(postId, user.id);
+      setUserLikes(prev => ({
+        ...prev,
+        [postId]: liked,
+      }));
+
+      // Update feed
+      setFeed(prev =>
+        prev.map(post =>
+          post.id === postId
+            ? {
+                ...post,
+                like_count: liked
+                  ? (post.like_count || 0) + 1
+                  : Math.max(0, (post.like_count || 0) - 1),
+              }
+            : post
+        )
+      );
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function expandReplies(postId) {
+    try {
+      const { data: repliesData, error } = await getReplies(postId);
+      if (error) throw error;
+      setExpandedReplies(postId);
+      // Store replies in post object
+      setFeed(prev =>
+        prev.map(post =>
+          post.id === postId ? { ...post, _replies: repliesData } : post
+        )
+      );
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function handleCreateReply(postId) {
+    if (!replyText[postId]?.trim()) return;
+
+    try {
+      const { data, error } = await createReply(
+        postId,
+        user.id,
+        replyText[postId],
+        replyAnonymous[postId] || false
+      );
+      if (error) throw error;
+
+      const { data: updatedReplies } = await getReplies(postId);
+
+      setFeed(prev =>
+        prev.map(post =>
+          post.id === postId
+            ? {
+                ...post,
+                reply_count: (post.reply_count || 0) + 1,
+                _replies: updatedReplies,
+              }
+            : post
+        )
+      );
+
+      setReplyText(prev => ({
+        ...prev,
+        [postId]: '',
+      }));
+      setReplyAnonymous(prev => ({
+        ...prev,
+        [postId]: false,
+      }));
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  // VIEW: Circle List
+  if (view === 'list') {
+    const discoverCircles = allCircles.filter(
+      c => !myCircles.find(my => my.id === c.id)
+    );
+
+    return (
+      <div className="page page-scroll" style={{ backgroundColor: 'var(--bg)' }}>
+        {/* Header */}
+        <div
+          className="page-header"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '12px',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Users size={24} style={{ color: 'var(--accent)' }} />
+            <h1 style={{ fontSize: '28px', margin: 0 }}>Circles</h1>
+          </div>
+          <button
+            className="btn btn-outline btn-sm"
+            onClick={() => setShowProposeModal(true)}
+          >
+            <Plus size={16} />
+            Propose
+          </button>
+        </div>
+
+        {error && (
+          <div
+            className="msg-error"
+            style={{ margin: '16px 0', textAlign: 'center' }}
+          >
+            {error}
+          </div>
+        )}
+
+        {loading ? (
+          <div className="page-center">
+            <Loader size={32} className="spin" />
+            <p>Loading circles...</p>
+          </div>
+        ) : (
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            {/* My Circles */}
+            {myCircles.length > 0 && (
+              <section style={{ marginBottom: '32px' }}>
+                <h2
+                  style={{
+                    fontSize: '16px',
+                    fontWeight: 600,
+                    color: 'var(--text2)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    marginBottom: '12px',
+                  }}
+                >
+                  My Circles
+                </h2>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns:
+                      'repeat(auto-fill, minmax(160px, 1fr))',
+                    gap: '12px',
+                  }}
+                >
+                  {myCircles.map(circle => (
+                    <div
+                      key={circle.id}
+                      className="card"
+                      onClick={() => openCircleFeed(circle)}
+                      style={{
+                        cursor: 'pointer',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        padding: '16px',
+                      }}
+                    >
+                      <div style={{ fontSize: '32px', marginBottom: '8px' }}>
+                        {circle.icon || '🌙'}
+                      </div>
+                      <h3
+                        style={{
+                          fontSize: '16px',
+                          fontWeight: 600,
+                          margin: '0 0 4px 0',
+                          flex: 1,
+                        }}
+                      >
+                        {circle.name}
+                      </h3>
+                      <p
+                        style={{
+                          fontSize: '13px',
+                          color: 'var(--text2)',
+                          margin: 0,
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                          marginBottom: '12px',
+                          flex: 1,
+                        }}
+                      >
+                        {circle.description}
+                      </p>
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontSize: '12px',
+                            color: 'var(--text2)',
+                          }}
+                        >
+                          {circle.member_count || 1} members
+                        </span>
+                        <button
+                          className="btn btn-sm btn-ghost"
+                          onClick={e => {
+                            e.stopPropagation();
+                            handleLeaveCircle(circle.id);
+                          }}
+                          style={{ padding: '4px 8px' }}
+                        >
+                          Leave
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Discover Circles */}
+            {discoverCircles.length > 0 && (
+              <section>
+                <h2
+                  style={{
+                    fontSize: '16px',
+                    fontWeight: 600,
+                    color: 'var(--text2)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    marginBottom: '12px',
+                  }}
+                >
+                  Discover Circles
+                </h2>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns:
+                      'repeat(auto-fill, minmax(160px, 1fr))',
+                    gap: '12px',
+                  }}
+                >
+                  {discoverCircles.map(circle => (
+                    <div
+                      key={circle.id}
+                      className="card"
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        padding: '16px',
+                      }}
+                    >
+                      <div style={{ fontSize: '32px', marginBottom: '8px' }}>
+                        {circle.icon || '🌙'}
+                      </div>
+                      <h3
+                        style={{
+                          fontSize: '16px',
+                          fontWeight: 600,
+                          margin: '0 0 4px 0',
+                          flex: 1,
+                        }}
+                      >
+                        {circle.name}
+                      </h3>
+                      <p
+                        style={{
+                          fontSize: '13px',
+                          color: 'var(--text2)',
+                          margin: 0,
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                          marginBottom: '12px',
+                          flex: 1,
+                        }}
+                      >
+                        {circle.description}
+                      </p>
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontSize: '12px',
+                            color: 'var(--text2)',
+                          }}
+                        >
+                          {circle.member_count || 1} members
+                        </span>
+                        <button
+                          className="btn btn-sm btn-primary"
+                          onClick={() => handleJoinCircle(circle.id)}
+                          style={{ padding: '4px 8px' }}
+                        >
+                          Join
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {myCircles.length === 0 && discoverCircles.length === 0 && (
+              <div className="page-empty">
+                <Users size={48} style={{ color: 'var(--text2)' }} />
+                <h2 style={{ fontSize: '20px', fontWeight: 600 }}>
+                  No circles yet
+                </h2>
+                <p style={{ color: 'var(--text2)' }}>
+                  Propose a circle or discover existing ones
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Propose Circle Modal */}
+        {showProposeModal && (
+          <div
+            className="modal-overlay"
+            onClick={() => !proposing && setShowProposeModal(false)}
+          >
+            <div className="modal-content" onClick={e => e.stopPropagation()}>
+              <h3 className="modal-title">Propose a Circle</h3>
+
+              <div className="form-group">
+                <label
+                  style={{
+                    display: 'block',
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    marginBottom: '8px',
+                  }}
+                >
+                  Circle Name
+                </label>
+                <input
+                  type="text"
+                  value={proposeName}
+                  onChange={e => setProposeName(e.target.value)}
+                  placeholder="e.g., Book Club, Game Night"
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    background: 'var(--bg-elevated)',
+                    border: '1.5px solid var(--border)',
+                    borderRadius: 'var(--radius-sm)',
+                    color: 'var(--text)',
+                    fontFamily: 'Outfit, sans-serif',
+                    fontSize: '14px',
+                    boxSizing: 'border-box',
+                  }}
+                  disabled={proposing}
+                />
+              </div>
+
+              <div className="form-group">
+                <label
+                  style={{
+                    display: 'block',
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    marginBottom: '8px',
+                  }}
+                >
+                  Description
+                </label>
+                <textarea
+                  value={proposeDescription}
+                  onChange={e => setProposeDescription(e.target.value)}
+                  placeholder="What's this circle about?"
+                  style={{
+                    width: '100%',
+                    minHeight: '100px',
+                    padding: '12px',
+                    background: 'var(--bg-elevated)',
+                    border: '1.5px solid var(--border)',
+                    borderRadius: 'var(--radius-sm)',
+                    color: 'var(--text)',
+                    fontFamily: 'Outfit, sans-serif',
+                    fontSize: '14px',
+                    resize: 'vertical',
+                    boxSizing: 'border-box',
+                  }}
+                  disabled={proposing}
+                />
+              </div>
+
+              {error && (
+                <div className="msg-error" style={{ marginBottom: '16px' }}>
+                  {error}
+                </div>
+              )}
+
+              <div className="modal-actions">
+                <button
+                  className="btn btn-ghost"
+                  onClick={() => setShowProposeModal(false)}
+                  disabled={proposing}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="btn btn-primary"
+                  onClick={handleProposeCircle}
+                  disabled={
+                    proposing ||
+                    !proposeName.trim() ||
+                    !proposeDescription.trim()
+                  }
+                >
+                  {proposing ? (
+                    <>
+                      <Loader size={16} className="spin" />
+                      Creating...
+                    </>
+                  ) : (
+                    <>
+                      <Plus size={16} />
+                      Create Circle
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // VIEW: Circle Feed
+  return (
+    <div className="page page-scroll" style={{ backgroundColor: 'var(--bg)' }}>
+      {/* Header */}
+      <div
+        className="page-header"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          justifyContent: 'space-between',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button
+            className="btn-icon"
+            onClick={closeCircleFeed}
+            style={{
+              background: 'transparent',
+              color: 'var(--text)',
+              border: 'none',
+              cursor: 'pointer',
+              padding: '8px',
+            }}
+          >
+            <ArrowLeft size={24} />
+          </button>
+          <div>
+            <h1
+              style={{
+                fontSize: '24px',
+                margin: 0,
+                fontWeight: 600,
+              }}
+            >
+              {activeCircle?.name}
+            </h1>
+          </div>
+        </div>
+        <span
+          style={{
+            fontSize: '13px',
+            color: 'var(--text2)',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {activeCircle?.member_count || 1} members
+        </span>
+      </div>
+
+      {error && (
+        <div
+          className="msg-error"
+          style={{ margin: '16px 0', textAlign: 'center' }}
+        >
+          {error}
+        </div>
+      )}
+
+      {/* New Post Form */}
+      <div
+        className="card"
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px',
+          marginBottom: '20px',
+        }}
+      >
+        <textarea
+          value={newPostContent}
+          onChange={e => setNewPostContent(e.target.value)}
+          placeholder="Share your thoughts..."
+          style={{
+            minHeight: '100px',
+            resize: 'vertical',
+            fontFamily: 'Outfit, sans-serif',
+            fontSize: '14px',
+            padding: '12px',
+            background: 'var(--bg-elevated)',
+            border: '1.5px solid var(--border)',
+            borderRadius: 'var(--radius-sm)',
+            color: 'var(--text)',
+            boxSizing: 'border-box',
+          }}
+          disabled={posting}
+        />
+
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <button
+            onClick={() => setIsAnonymous(!isAnonymous)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              background: 'transparent',
+              border: 'none',
+              color: isAnonymous ? 'var(--primary)' : 'var(--text2)',
+              cursor: 'pointer',
+              fontSize: '13px',
+              fontWeight: 500,
+              padding: '6px 8px',
+            }}
+          >
+            <EyeOff size={16} />
+            {isAnonymous ? 'Anonymous' : 'Show name'}
+          </button>
+
+          <button
+            className="btn btn-primary btn-sm"
+            onClick={handleCreatePost}
+            disabled={posting || !newPostContent.trim()}
+          >
+            {posting ? (
+              <>
+                <Loader size={16} className="spin" />
+                Posting...
+              </>
+            ) : (
+              <>
+                <Send size={16} />
+                Post
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Feed */}
+      {feedLoading ? (
+        <div className="page-center">
+          <Loader size={32} className="spin" />
+          <p>Loading feed...</p>
+        </div>
+      ) : feed.length === 0 ? (
+        <div className="page-empty">
+          <MessageCircle size={48} style={{ color: 'var(--text2)' }} />
+          <h2 style={{ fontSize: '20px', fontWeight: 600 }}>No posts yet</h2>
+          <p style={{ color: 'var(--text2)' }}>
+            Be the first to share something
+          </p>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {feed.map(post => (
+            <div key={post.id} className="card">
+              {/* Post Header */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '12px',
+                  marginBottom: '12px',
+                }}
+              >
+                <img
+                  src={
+                    post.is_anonymous
+                      ? 'https://api.dicebear.com/7.x/initials/svg?seed=Anonymous&backgroundColor=3B2070&textColor=F3F0F5'
+                      : avatarUrl({ display_name: post.author_name })
+                  }
+                  alt="Avatar"
+                  style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    objectFit: 'cover',
+                  }}
+                />
+                <div style={{ flex: 1 }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      marginBottom: '2px',
+                    }}
+                  >
+                    {post.is_anonymous ? (
+                      <>
+                        <Lock size={14} style={{ color: 'var(--text2)' }} />
+                        <span style={{ fontSize: '14px', fontWeight: 600 }}>
+                          Anonymous
+                        </span>
+                      </>
+                    ) : (
+                      <span style={{ fontSize: '14px', fontWeight: 600 }}>
+                        {post.author_name || 'Unknown'}
+                      </span>
+                    )}
+                  </div>
+                  <span style={{ fontSize: '12px', color: 'var(--text2)' }}>
+                    {timeAgo(post.created_at)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Post Content */}
+              <p
+                style={{
+                  fontSize: '14px',
+                  margin: '0 0 12px 0',
+                  lineHeight: '1.5',
+                  color: 'var(--text)',
+                }}
+              >
+                {post.content}
+              </p>
+
+              {/* Post Actions */}
+              <div
+                style={{
+                  display: 'flex',
+                  gap: '16px',
+                  paddingTop: '12px',
+                  borderTop: '1px solid var(--border)',
+                  marginBottom: post.reply_count > 0 ? '12px' : 0,
+                }}
+              >
+                <button
+                  onClick={() => handleToggleLike(post.id)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    background: 'transparent',
+                    border: 'none',
+                    color: userLikes[post.id]
+                      ? 'var(--primary)'
+                      : 'var(--text2)',
+                    cursor: 'pointer',
+                    fontSize: '13px',
+                    fontWeight: 500,
+                    padding: '4px 8px',
+                  }}
+                >
+                  <Heart
+                    size={16}
+                    fill={userLikes[post.id] ? 'currentColor' : 'none'}
+                  />
+                  {post.like_count || 0}
+                </button>
+
+                <button
+                  onClick={() => {
+                    if (expandedReplies === post.id) {
+                      setExpandedReplies(null);
+                    } else {
+                      expandReplies(post.id);
+                    }
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    background: 'transparent',
+                    border: 'none',
+                    color:
+                      expandedReplies === post.id
+                        ? 'var(--primary)'
+                        : 'var(--text2)',
+                    cursor: 'pointer',
+                    fontSize: '13px',
+                    fontWeight: 500,
+                    padding: '4px 8px',
+                  }}
+                >
+                  <MessageCircle
+                    size={16}
+                    fill={
+                      expandedReplies === post.id ? 'currentColor' : 'none'
+                    }
+                  />
+                  {post.reply_count || 0}
+                </button>
+              </div>
+
+              {/* Expanded Replies */}
+              {expandedReplies === post.id && (
+                <div style={{ paddingTop: '12px', borderTop: '1px solid var(--border)' }}>
+                  {/* Replies List */}
+                  {post._replies && post._replies.length > 0 && (
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '12px',
+                        marginBottom: '12px',
+                      }}
+                    >
+                      {post._replies.map(reply => (
+                        <div
+                          key={reply.id}
+                          style={{
+                            paddingLeft: '12px',
+                            borderLeft: '2px solid var(--border)',
+                            display: 'flex',
+                            gap: '8px',
+                          }}
+                        >
+                          <img
+                            src={
+                              reply.is_anonymous
+                                ? 'https://api.dicebear.com/7.x/initials/svg?seed=Anonymous&backgroundColor=3B2070&textColor=F3F0F5'
+                                : avatarUrl(reply.author)
+                            }
+                            alt="Avatar"
+                            style={{
+                              width: '32px',
+                              height: '32px',
+                              borderRadius: '50%',
+                              objectFit: 'cover',
+                              flexShrink: 0,
+                            }}
+                          />
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                marginBottom: '2px',
+                              }}
+                            >
+                              {reply.is_anonymous ? (
+                                <>
+                                  <Lock
+                                    size={12}
+                                    style={{ color: 'var(--text2)' }}
+                                  />
+                                  <span
+                                    style={{
+                                      fontSize: '12px',
+                                      fontWeight: 600,
+                                    }}
+                                  >
+                                    Anonymous
+                                  </span>
+                                </>
+                              ) : (
+                                <span
+                                  style={{
+                                    fontSize: '12px',
+                                    fontWeight: 600,
+                                  }}
+                                >
+                                  {reply.author?.display_name || 'Unknown'}
+                                </span>
+                              )}
+                            </div>
+                            <p
+                              style={{
+                                fontSize: '13px',
+                                margin: 0,
+                                color: 'var(--text)',
+                                lineHeight: '1.4',
+                              }}
+                            >
+                              {reply.content}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Reply Input */}
+                  <div
+                    style={{
+                      display: 'flex',
+                      gap: '8px',
+                      paddingTop: '12px',
+                      borderTop: '1px solid var(--border)',
+                    }}
+                  >
+                    <input
+                      type="text"
+                      value={replyText[post.id] || ''}
+                      onChange={e =>
+                        setReplyText(prev => ({
+                          ...prev,
+                          [post.id]: e.target.value,
+                        }))
+                      }
+                      placeholder="Reply..."
+                      style={{
+                        flex: 1,
+                        padding: '8px 12px',
+                        background: 'var(--bg-elevated)',
+                        border: '1.5px solid var(--border)',
+                        borderRadius: 'var(--radius-sm)',
+                        color: 'var(--text)',
+                        fontFamily: 'Outfit, sans-serif',
+                        fontSize: '13px',
+                        boxSizing: 'border-box',
+                      }}
+                    />
+                    <button
+                      onClick={() => handleCreateReply(post.id)}
+                      className="btn-icon"
+                      style={{
+                        background: 'transparent',
+                        color: 'var(--primary)',
+                        border: 'none',
+                        cursor: replyText[post.id]?.trim()
+                          ? 'pointer'
+                          : 'not-allowed',
+                        opacity: replyText[post.id]?.trim() ? 1 : 0.5,
+                        padding: '8px',
+                      }}
+                      disabled={!replyText[post.id]?.trim()}
+                    >
+                      <Send size={16} />
+                    </button>
+                  </div>
+
+                  <button
+                    onClick={() =>
+                      setReplyAnonymous(prev => ({
+                        ...prev,
+                        [post.id]: !prev[post.id],
+                      }))
+                    }
+                    style={{
+                      marginTop: '8px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      background: 'transparent',
+                      border: 'none',
+                      color: replyAnonymous[post.id]
+                        ? 'var(--primary)'
+                        : 'var(--text2)',
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      fontWeight: 500,
+                      padding: '4px 8px',
+                    }}
+                  >
+                    <EyeOff size={14} />
+                    {replyAnonymous[post.id] ? 'Anonymous' : 'Show name'}
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

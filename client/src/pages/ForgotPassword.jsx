@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import MoonLogo from '../components/MoonLogo';
 
@@ -51,33 +51,73 @@ const subtitleStyle = {
   margin: '0',
 };
 
+const descriptionStyle = {
+  fontSize: '14px',
+  color: 'var(--text2)',
+  lineHeight: '1.5',
+};
+
 const formStyle = {
   display: 'flex',
   flexDirection: 'column',
   gap: '16px',
 };
 
-const linksStyle = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '10px',
-  fontSize: '14px',
-  textAlign: 'center',
-};
-
 const linkStyle = {
   color: 'var(--accent)',
   textDecoration: 'none',
   transition: 'opacity 0.2s',
+  textAlign: 'center',
+  fontSize: '14px',
 };
 
-export default function Login() {
+const confirmationStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: '20px',
+  textAlign: 'center',
+};
+
+const checkIconStyle = {
+  width: '64px',
+  height: '64px',
+  borderRadius: '50%',
+  background: 'var(--accent-dim)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: '32px',
+  color: 'var(--accent)',
+};
+
+const confirmationTextStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '8px',
+};
+
+const confirmationTitleStyle = {
+  fontSize: '22px',
+  fontFamily: "'Playfair Display', serif",
+  fontWeight: '700',
+  color: 'var(--text)',
+  margin: '0',
+};
+
+const confirmationDescStyle = {
+  fontSize: '14px',
+  color: 'var(--text2)',
+  lineHeight: '1.5',
+  margin: '0',
+};
+
+export default function ForgotPassword() {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signIn } = useAuth();
-  const navigate = useNavigate();
+  const [submitted, setSubmitted] = useState(false);
+  const { resetPassword } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -85,14 +125,39 @@ export default function Login() {
     setLoading(true);
 
     try {
-      await signIn(email, password);
-      navigate('/discover');
+      await resetPassword(email);
+      setSubmitted(true);
     } catch (err) {
-      setError(err.message || 'Invalid email or password');
+      setError(err.message || 'Error sending reset link');
     } finally {
       setLoading(false);
     }
   };
+
+  if (submitted) {
+    return (
+      <div style={pageStyle}>
+        <div style={cardStyle} className="anim-in">
+          <div style={confirmationStyle}>
+            <div style={checkIconStyle}>✓</div>
+            <div style={confirmationTextStyle}>
+              <h2 style={confirmationTitleStyle}>Check your email</h2>
+              <p style={confirmationDescStyle}>
+                We've sent a password reset link to <strong>{email}</strong>. Click it to set a new password.
+              </p>
+            </div>
+            <Link
+              to="/login"
+              className="btn btn-primary btn-lg btn-full"
+              style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              Back to login
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={pageStyle}>
@@ -101,8 +166,10 @@ export default function Login() {
           <div style={logoStyle}>
             <MoonLogo size={56} />
           </div>
-          <h1 style={titleStyle}>Lunara</h1>
-          <p style={subtitleStyle}>Connection without limits</p>
+          <h1 style={titleStyle}>Reset password</h1>
+          <p style={descriptionStyle}>
+            Enter your email address and we'll send you a link to reset your password.
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} style={formStyle}>
@@ -118,18 +185,6 @@ export default function Login() {
             />
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Password</label>
-            <input
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              disabled={loading}
-            />
-          </div>
-
           {error && <div className="msg-error">{error}</div>}
 
           <button
@@ -137,21 +192,13 @@ export default function Login() {
             className="btn btn-primary btn-lg btn-full"
             disabled={loading}
           >
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? 'Sending link...' : 'Send reset link'}
           </button>
         </form>
 
-        <div style={linksStyle}>
-          <span>
-            Don't have an account?{' '}
-            <Link to="/signup" style={linkStyle}>
-              Sign up
-            </Link>
-          </span>
-          <Link to="/forgot-password" style={linkStyle}>
-            Forgot password?
-          </Link>
-        </div>
+        <Link to="/login" style={linkStyle}>
+          Back to login
+        </Link>
       </div>
     </div>
   );

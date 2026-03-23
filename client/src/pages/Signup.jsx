@@ -2,7 +2,139 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import MoonLogo from '../components/MoonLogo';
-import './Auth.css';
+
+const pageStyle = {
+  height: '100%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: '20px',
+  backgroundImage: 'linear-gradient(135deg, rgba(59,32,112,0.1) 0%, rgba(180,124,255,0.05) 100%)',
+  overflowY: 'auto',
+};
+
+const cardStyle = {
+  width: '100%',
+  maxWidth: '400px',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '24px',
+  margin: 'auto',
+};
+
+const headerStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: '12px',
+  textAlign: 'center',
+};
+
+const logoStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+};
+
+const titleStyle = {
+  fontSize: '32px',
+  fontFamily: "'Playfair Display', serif",
+  fontWeight: '700',
+  background: 'linear-gradient(135deg, #b47cff 0%, #ffbe55 100%)',
+  backgroundClip: 'text',
+  WebkitBackgroundClip: 'text',
+  WebkitTextFillColor: 'transparent',
+  margin: '0',
+};
+
+const subtitleStyle = {
+  fontSize: '14px',
+  color: 'var(--text2)',
+  margin: '0',
+};
+
+const formStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '16px',
+};
+
+const relStylesContainerStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '8px',
+};
+
+const relStylesGridStyle = {
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr',
+  gap: '8px',
+};
+
+const pillStyle = (isSelected) => ({
+  padding: '10px 12px',
+  borderRadius: 'var(--radius-full)',
+  border: '1.5px solid',
+  borderColor: isSelected ? 'var(--accent)' : 'var(--border)',
+  background: isSelected ? 'var(--accent-dim)' : 'transparent',
+  color: isSelected ? 'var(--accent)' : 'var(--text2)',
+  fontSize: '12px',
+  fontWeight: '600',
+  cursor: 'pointer',
+  transition: 'all 0.2s',
+  textAlign: 'center',
+  whiteSpace: 'nowrap',
+  '&:hover': {
+    borderColor: 'var(--accent)',
+  },
+});
+
+const linkStyle = {
+  color: 'var(--accent)',
+  textDecoration: 'none',
+  transition: 'opacity 0.2s',
+};
+
+const confirmationStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: '20px',
+  textAlign: 'center',
+};
+
+const checkIconStyle = {
+  width: '64px',
+  height: '64px',
+  borderRadius: '50%',
+  background: 'var(--accent-dim)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: '32px',
+  color: 'var(--accent)',
+};
+
+const confirmationTextStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '8px',
+};
+
+const confirmationTitleStyle = {
+  fontSize: '22px',
+  fontFamily: "'Playfair Display', serif",
+  fontWeight: '700',
+  color: 'var(--text)',
+  margin: '0',
+};
+
+const confirmationDescStyle = {
+  fontSize: '14px',
+  color: 'var(--text2)',
+  lineHeight: '1.5',
+  margin: '0',
+};
 
 const RELATIONSHIP_STYLES = [
   'Polyamorous',
@@ -21,128 +153,155 @@ export default function Signup() {
   const [relationshipStyle, setRelationshipStyle] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
   const { signUp } = useAuth();
-  const navigate = useNavigate();
 
-  async function handleSubmit(e) {
+  const passwordValid = password.length >= 6;
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    if (password.length < 6) {
+    if (!passwordValid) {
       setError('Password must be at least 6 characters');
       return;
     }
 
+    if (!relationshipStyle) {
+      setError('Please select your relationship style');
+      return;
+    }
+
     setLoading(true);
+
     try {
       await signUp(email, password, {
         display_name: displayName,
         relationship_style: relationshipStyle,
       });
-      setSuccess(true);
+      setShowConfirmation(true);
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Error creating account');
     } finally {
       setLoading(false);
     }
-  }
+  };
 
-  if (success) {
+  if (showConfirmation) {
     return (
-      <div className="auth-page">
-        <div className="auth-container animate-in">
-          <div className="auth-logo">
-            <MoonLogo size={56} />
+      <div style={pageStyle}>
+        <div style={cardStyle} className="anim-in">
+          <div style={confirmationStyle}>
+            <div style={checkIconStyle}>✓</div>
+            <div style={confirmationTextStyle}>
+              <h2 style={confirmationTitleStyle}>Check your email</h2>
+              <p style={confirmationDescStyle}>
+                We've sent a confirmation link to <strong>{email}</strong>. Click it to verify your account.
+              </p>
+            </div>
+            <Link
+              to="/login"
+              className="btn btn-primary btn-lg btn-full"
+              style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              Back to login
+            </Link>
           </div>
-          <h1 className="auth-title">Check your email</h1>
-          <p className="auth-subtitle">
-            We sent a confirmation link to <strong>{email}</strong>.
-            Click it to activate your account, then come back and sign in.
-          </p>
-          <Link to="/login" className="btn btn-primary btn-lg auth-btn" style={{ marginTop: 24 }}>
-            Back to Sign In
-          </Link>
         </div>
-        <div className="auth-bg-glow" />
       </div>
     );
   }
 
   return (
-    <div className="auth-page">
-      <div className="auth-container animate-in">
-        <div className="auth-logo">
-          <MoonLogo size={56} />
+    <div style={pageStyle}>
+      <div style={cardStyle} className="anim-in">
+        <div style={headerStyle}>
+          <div style={logoStyle}>
+            <MoonLogo size={56} />
+          </div>
+          <h1 style={titleStyle}>Lunara</h1>
+          <p style={subtitleStyle}>Connection without limits</p>
         </div>
-        <h1 className="auth-title">Join Lunara</h1>
-        <p className="auth-subtitle">Find your constellation</p>
 
-        <form onSubmit={handleSubmit} className="auth-form">
+        <form onSubmit={handleSubmit} style={formStyle}>
           <div className="form-group">
-            <label htmlFor="displayName">Display Name</label>
+            <label className="form-label">Display Name</label>
             <input
-              id="displayName"
               type="text"
-              placeholder="What should we call you?"
+              placeholder="Your name"
               value={displayName}
-              onChange={e => setDisplayName(e.target.value)}
+              onChange={(e) => setDisplayName(e.target.value)}
               required
-              autoComplete="name"
+              disabled={loading}
             />
           </div>
+
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label className="form-label">Email</label>
             <input
-              id="email"
               type="email"
-              placeholder="you@example.com"
+              placeholder="your@email.com"
               value={email}
-              onChange={e => setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value)}
               required
-              autoComplete="email"
+              disabled={loading}
             />
           </div>
+
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label className="form-label">Password</label>
             <input
-              id="password"
               type="password"
-              placeholder="At least 6 characters"
+              placeholder="••••••••"
               value={password}
-              onChange={e => setPassword(e.target.value)}
+              onChange={(e) => setPassword(e.target.value)}
               required
-              autoComplete="new-password"
+              disabled={loading}
             />
+            {password && !passwordValid && (
+              <span className="msg-error">Minimum 6 characters</span>
+            )}
           </div>
-          <div className="form-group">
-            <label htmlFor="style">Relationship Style</label>
-            <select
-              id="style"
-              value={relationshipStyle}
-              onChange={e => setRelationshipStyle(e.target.value)}
-              required
-            >
-              <option value="" disabled>Choose your style</option>
-              {RELATIONSHIP_STYLES.map(s => (
-                <option key={s} value={s}>{s}</option>
+
+          <div style={relStylesContainerStyle}>
+            <label className="form-label">Relationship Style</label>
+            <div style={relStylesGridStyle}>
+              {RELATIONSHIP_STYLES.map((style) => (
+                <button
+                  key={style}
+                  type="button"
+                  onClick={() => setRelationshipStyle(style)}
+                  disabled={loading}
+                  style={{
+                    ...pillStyle(relationshipStyle === style),
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    opacity: loading ? 0.5 : 1,
+                  }}
+                >
+                  {style}
+                </button>
               ))}
-            </select>
+            </div>
           </div>
 
-          {error && <p className="error-msg">{error}</p>}
+          {error && <div className="msg-error">{error}</div>}
 
-          <button type="submit" className="btn btn-primary btn-lg auth-btn" disabled={loading}>
-            {loading ? 'Creating account...' : 'Create Account'}
+          <button
+            type="submit"
+            className="btn btn-primary btn-lg btn-full"
+            disabled={loading || !passwordValid || !relationshipStyle}
+          >
+            {loading ? 'Creating account...' : 'Sign Up'}
           </button>
         </form>
 
-        <p className="auth-footer">
-          Already have an account? <Link to="/login">Sign in</Link>
-        </p>
+        <div style={{ textAlign: 'center', fontSize: '14px' }}>
+          Already have an account?{' '}
+          <Link to="/login" style={linkStyle}>
+            Sign in
+          </Link>
+        </div>
       </div>
-
-      <div className="auth-bg-glow" />
     </div>
   );
 }

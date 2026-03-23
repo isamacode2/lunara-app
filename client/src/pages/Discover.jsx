@@ -1,184 +1,333 @@
-import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '../lib/supabase';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { X, Heart, MapPin, Sparkles, Loader } from 'lucide-react';
-import './Discover.css';
-
-function compatibilityScore(myProfile, other) {
-  let score = 50;
-  if (myProfile.relationship_style && other.relationship_style) {
-    if (myProfile.relationship_style === other.relationship_style) score += 20;
-  }
-  const myInterests = myProfile.interests || [];
-  const theirInterests = other.interests || [];
-  const shared = myInterests.filter(i => theirInterests.includes(i)).length;
-  if (myInterests.length > 0 && theirInterests.length > 0) {
-    score += Math.min(30, Math.round((shared / Math.max(myInterests.length, 1)) * 30));
-  }
-  if (myProfile.looking_for && other.looking_for) {
-    const myLF = myProfile.looking_for || [];
-    const theirLF = other.looking_for || [];
-    const sharedLF = myLF.filter(l => theirLF.includes(l)).length;
-    if (sharedLF > 0) score += 10;
-  }
-  return Math.min(99, score);
-}
+import { getDiscoverProfiles, sendConnection, passProfile } from '../lib/discovery';
+import { avatarUrl } from '../lib/utils';
+import { Compass, X, Heart, MapPin, Sparkles, Loader, Send } from 'lucide-react';
 
 export default function Discover() {
   const { user, profile } = useAuth();
   const [profiles, setProfiles] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [swiping, setSwiping] = useState(null);
-  const [noMore, setNoMore] = useState(false);
+  const [error, setError] = useState(null);
+  const [intentModal, setIntentModal] = useState(null);
+  const [intentText, setIntentText] = useState('');
+  const [submittingIntent, setSubmittingIntent] = useState(false);
 
-  const fetchProfiles = useCallback(async () => {
-    if (!user) return;
+  useEffect(() => {
+    if (!user?.id) return;
+    fetchProfiles();
+  }, [user?.id]);
 
-    // Get IDs we've already acted on
-    const [{ data: conns }, { data: passed }] = await Promise.all([
-      supabase.from('connections').select('sender_id, receiver_id')
-        .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`),
-      supabase.from('passes').select('passed_id').eq('user_id', user.id),
-    ]);
-
-    const seenIds = new Set([user.id]);
-    (conns || []).forEach(c => { seenIds.add(c.sender_id); seenIds.add(c.receiver_id); });
-    (passed || []).forEach(p => seenIds.add(p.passed_id));
-
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .not('id', 'in', `(${[...seenIds].join(',')})`)
-      .not('display_name', 'is', null)
-      .limit(20);
-
-    if (!error && data) {
-      setProfiles(data);
-      setNoMore(data.length === 0);
+  async function fetchProfiles() {
+    setLoading(true);
+    setError(null);
+    const { data, error } = await getDiscoverProfiles(user.id);
+    if (error) {
+      setError(error.message);
+    } else {
+      setProfiles(data || []);
+      setCurrentIndex(0);
     }
     setLoading(false);
-  }, [user]);
+  }
 
-  useEffect(() => { fetchProfiles(); }, [fetchProfiles]);
+  function calculateCompatibility(currentProfile, targetProfile) {
+    let score = 50;
 
-  async function handleConnect() {
-    if (!currentProfile) return;
-    setSwiping('right');
-    await supabase.from('connections').insert({
-      sender_id: user.id,
-      receiver_id: currentProfile.id,
-      status: 'pending',
-    });
-    setTimeout(() => advance(), 300);
+    // Same relationship style: +20
+    if (currentProfile?.relationship_style === targetProfile?.relationship_style) {
+      score += 20;
+    }
+
+    // Shared interests ratio: +30
+    const myInterests = currentProfile?.interests || [];
+    const theirInterests = targetProfile?.interests || [];
+    if (myInterests.length > 0 && theirInterests.length > 0) {
+      const sharedCount = myInterests.filter(i => theirInterests.includes(i)).length;
+      const ratio = sharedCount / Math.max(myInterests.length, theirInterests.length);
+      score += Math.round(30 * ratio);
+    }
+
+    // Same looking_for: +10
+    if (currentProfile?.looking_for?.some(l => targetProfile?.looking_for?.includes(l))) {
+      score += 10;
+    }
+
+    return Math.min(score, 99);
   }
 
   async function handlePass() {
+    const currentProfile = profiles[currentIndex];
     if (!currentProfile) return;
-    setSwiping('left');
-    await supabase.from('passes').insert({
-      user_id: user.id,
-      passed_id: currentProfile.id,
-    });
-    setTimeout(() => advance(), 300);
+
+    await passProfile(user.id, currentProfile.id);
+    // Animate out
+    const nextIndex = currentIndex + 1;
+    setCurrentIndex(nextIndex);
   }
 
-  function advance() {
-    setSwiping(null);
-    if (currentIndex + 1 >= profiles.length) {
-      setNoMore(true);
+  async function handleConnect() {
+    const currentProfile = profiles[currentIndex];
+    if (!currentProfile) return;
+    setIntentModal(currentProfile);
+    setIntentText('');
+  }
+
+  async function submitIntent() {
+    const currentProfile = intentModal;
+    if (!currentProfile) return;
+
+    setSubmittingIntent(true);
+    const { error } = await sendConnection(user.id, currentProfile.id, intentText);
+
+    if (error) {
+      setError(error.message);
     } else {
-      setCurrentIndex(prev => prev + 1);
+      // Move to next profile
+      const nextIndex = currentIndex + 1;
+      setCurrentIndex(nextIndex);
+      setIntentModal(null);
+      setIntentText('');
     }
+    setSubmittingIntent(false);
   }
-
-  const currentProfile = profiles[currentIndex];
-  const score = currentProfile && profile ? compatibilityScore(profile, currentProfile) : 0;
 
   if (loading) {
     return (
-      <div className="discover-page">
-        <div className="discover-loading">
-          <Loader size={28} className="spin" />
-          <p>Finding people near you...</p>
-        </div>
+      <div className="page page-center">
+        <Loader size={32} className="spin" />
+        <p>Loading profiles...</p>
       </div>
     );
   }
 
-  if (noMore || !currentProfile) {
+  const currentProfile = profiles[currentIndex];
+  const noMoreProfiles = currentIndex >= profiles.length;
+
+  if (noMoreProfiles) {
     return (
-      <div className="discover-page">
-        <div className="discover-empty animate-in">
-          <Sparkles size={48} color="var(--gold)" />
-          <h2>You've seen everyone</h2>
-          <p>Check back later for new profiles</p>
-          <button className="btn btn-outline" onClick={() => {
-            setCurrentIndex(0);
-            setNoMore(false);
-            setLoading(true);
-            fetchProfiles();
-          }}>Refresh</button>
-        </div>
+      <div className="page page-center">
+        <Sparkles size={48} style={{ color: 'var(--accent)' }} />
+        <h2 style={{ fontSize: '24px', fontWeight: 600 }}>You've seen everyone</h2>
+        <p style={{ color: 'var(--text2)', marginBottom: '20px' }}>Check back later for new matches!</p>
+        <button className="btn btn-primary" onClick={fetchProfiles}>
+          Refresh
+        </button>
       </div>
     );
   }
 
-  const avatarUrl = currentProfile.avatar_url
-    || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(currentProfile.display_name || 'U')}&backgroundColor=3B2070&textColor=F3F0F5`;
+  const compatibility = calculateCompatibility(profile, currentProfile);
 
   return (
-    <div className="discover-page">
-      <div className={`profile-card animate-in ${swiping === 'left' ? 'swipe-left' : ''} ${swiping === 'right' ? 'swipe-right' : ''}`}>
-        <div className="card-image">
-          <img src={avatarUrl} alt={currentProfile.display_name} />
-          <div className="card-image-overlay" />
-          <div className="card-score">
-            <Sparkles size={14} />
-            <span>{score}%</span>
-          </div>
-        </div>
-
-        <div className="card-body">
-          <div className="card-header">
-            <h2 className="card-name">
-              {currentProfile.display_name}
-              {currentProfile.age ? <span className="card-age">, {currentProfile.age}</span> : null}
-            </h2>
-            {currentProfile.location_city && (
-              <p className="card-location">
-                <MapPin size={14} />
-                {currentProfile.location_city}
-              </p>
-            )}
-          </div>
-
-          {currentProfile.relationship_style && (
-            <span className="card-tag">{currentProfile.relationship_style}</span>
-          )}
-
-          {currentProfile.bio && (
-            <p className="card-bio">{currentProfile.bio}</p>
-          )}
-
-          {currentProfile.interests && currentProfile.interests.length > 0 && (
-            <div className="card-interests">
-              {currentProfile.interests.slice(0, 5).map(i => (
-                <span key={i} className="interest-tag">{i}</span>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="card-actions">
-          <button className="btn-action btn-pass" onClick={handlePass}>
-            <X size={28} strokeWidth={2.5} />
-          </button>
-          <button className="btn-action btn-connect" onClick={handleConnect}>
-            <Heart size={28} strokeWidth={2.5} />
-          </button>
-        </div>
+    <div className="page" style={{ backgroundColor: 'var(--bg)' }}>
+      {/* Header */}
+      <div className="page-header" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <Compass size={24} style={{ color: 'var(--accent)' }} />
+        <h1 style={{ fontSize: '28px', margin: 0 }}>Discover</h1>
       </div>
+
+      {/* Profile Card Container */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', overflow: 'hidden' }}>
+        {error && <div className="msg-error" style={{ marginBottom: '20px', textAlign: 'center' }}>{error}</div>}
+
+        {currentProfile && (
+          <div
+            key={currentProfile.id}
+            className="anim-in"
+            style={{
+              width: '100%',
+              maxWidth: '340px',
+              borderRadius: 'var(--radius-lg)',
+              overflow: 'hidden',
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border)',
+              boxShadow: 'var(--shadow)',
+              display: 'flex',
+              flexDirection: 'column',
+              height: '100%',
+              maxHeight: 'calc(100vh - 180px)',
+            }}
+          >
+            {/* Photo Container - 3:3.5 aspect ratio */}
+            <div
+              style={{
+                position: 'relative',
+                width: '100%',
+                aspectRatio: '3 / 3.5',
+                backgroundColor: 'var(--bg)',
+                backgroundImage: `url(${avatarUrl(currentProfile)})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              }}
+            >
+              {/* Compatibility Badge */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '16px',
+                  right: '16px',
+                  background: 'var(--gold)',
+                  color: '#000',
+                  padding: '8px 14px',
+                  borderRadius: 'var(--radius-full)',
+                  fontSize: '14px',
+                  fontWeight: '700',
+                  boxShadow: '0 4px 16px rgba(255, 190, 85, 0.3)',
+                }}
+              >
+                {compatibility}%
+              </div>
+            </div>
+
+            {/* Profile Info */}
+            <div style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+              {/* Name and Age */}
+              <h2 style={{ fontSize: '22px', margin: '0 0 8px 0', fontWeight: 600 }}>
+                {currentProfile.display_name}, {currentProfile.age}
+              </h2>
+
+              {/* Location */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text2)', marginBottom: '12px', fontSize: '14px' }}>
+                <MapPin size={16} />
+                {currentProfile.location || 'Location not specified'}
+              </div>
+
+              {/* Relationship Style Tag */}
+              {currentProfile.relationship_style && (
+                <div style={{ marginBottom: '12px' }}>
+                  <span className="tag tag-purple">
+                    {currentProfile.relationship_style}
+                  </span>
+                </div>
+              )}
+
+              {/* Bio - 3 line clamp */}
+              <p
+                style={{
+                  fontSize: '14px',
+                  color: 'var(--text2)',
+                  marginBottom: '16px',
+                  display: '-webkit-box',
+                  WebkitLineClamp: 3,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                  flex: 1,
+                }}
+              >
+                {currentProfile.bio || 'No bio provided'}
+              </p>
+
+              {/* Interests Pills */}
+              {currentProfile.interests && currentProfile.interests.length > 0 && (
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '8px' }}>
+                  {currentProfile.interests.slice(0, 5).map((interest, idx) => (
+                    <span key={idx} className="tag tag-outline">
+                      {interest}
+                    </span>
+                  ))}
+                  {currentProfile.interests.length > 5 && (
+                    <span className="tag tag-outline">
+                      +{currentProfile.interests.length - 5}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            <div style={{ display: 'flex', gap: '16px', padding: '16px', justifyContent: 'center', flexShrink: 0 }}>
+              {/* Pass Button */}
+              <button
+                onClick={handlePass}
+                className="btn-icon"
+                style={{
+                  background: 'transparent',
+                  border: '2px solid rgba(180,124,255,0.3)',
+                  color: 'var(--text2)',
+                }}
+                title="Pass"
+              >
+                <X size={24} />
+              </button>
+
+              {/* Connect Button */}
+              <button
+                onClick={handleConnect}
+                className="btn-icon"
+                style={{
+                  background: 'var(--primary)',
+                  color: '#fff',
+                  width: '56px',
+                  height: '56px',
+                }}
+                title="Connect"
+              >
+                <Heart size={28} fill="currentColor" />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Intent Modal */}
+      {intentModal && (
+        <div className="modal-overlay" onClick={() => !submittingIntent && setIntentModal(null)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <h3 className="modal-title">Share what caught your eye</h3>
+
+            <p style={{ fontSize: '14px', color: 'var(--text2)', marginBottom: '16px' }}>
+              Let {intentModal.display_name} know why you're interested
+            </p>
+
+            <textarea
+              value={intentText}
+              onChange={e => setIntentText(e.target.value)}
+              placeholder={`Tell ${intentModal.display_name} what caught your eye...`}
+              style={{
+                minHeight: '120px',
+                resize: 'vertical',
+                fontFamily: 'Outfit, sans-serif',
+                fontSize: '14px',
+                padding: '12px',
+                background: 'var(--bg-elevated)',
+                border: '1.5px solid var(--border)',
+                borderRadius: 'var(--radius-sm)',
+                color: 'var(--text)',
+              }}
+              disabled={submittingIntent}
+            />
+
+            <div className="modal-actions">
+              <button
+                className="btn btn-ghost"
+                onClick={() => setIntentModal(null)}
+                disabled={submittingIntent}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={submitIntent}
+                disabled={submittingIntent || !intentText.trim()}
+              >
+                {submittingIntent ? (
+                  <>
+                    <Loader size={16} className="spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Send size={16} />
+                    Send
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
