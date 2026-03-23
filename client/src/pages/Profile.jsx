@@ -8,21 +8,12 @@ import { Camera, LogOut, Save, Loader, Edit3, MapPin, Heart, Shield, Lock, Unloc
 
 const pageStyle = {
   height: '100%',
-  display: 'flex',
-  flexDirection: 'column',
-  overflow: 'hidden',
-};
-
-const scrollContainerStyle = {
-  flex: 1,
   overflowY: 'auto',
-  paddingBottom: '88px',
 };
 
 const headerContainerStyle = {
   padding: '24px 20px 20px',
   background: 'linear-gradient(180deg, var(--bg-card) 0%, var(--bg) 100%)',
-  borderBottom: '1px solid var(--border)',
 };
 
 const avatarContainerStyle = {
@@ -814,7 +805,6 @@ export default function Profile() {
         </div>
       </div>
 
-      <div style={scrollContainerStyle}>
         <div style={contentStyle}>
           {error && <div style={{ color: 'var(--danger)', fontSize: '14px', padding: '12px 16px', background: 'var(--danger-dim)', borderRadius: 'var(--radius-sm)' }}>{error}</div>}
           {success && <div style={{ color: 'var(--success)', fontSize: '14px', padding: '12px 16px', background: 'rgba(126, 196, 146, 0.15)', borderRadius: 'var(--radius-sm)' }}>{success}</div>}
@@ -1372,7 +1362,6 @@ export default function Profile() {
             </div>
           </div>
         </div>
-      </div>
 
       {/* Lightbox */}
       {lightboxPhoto && (

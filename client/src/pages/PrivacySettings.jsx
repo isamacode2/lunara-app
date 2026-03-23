@@ -52,10 +52,9 @@ export default function PrivacySettings() {
 
   return (
     <div style={{
-      height: '100%',
       display: 'flex',
       flexDirection: 'column',
-      overflow: 'hidden',
+      minHeight: '100%',
     }}>
       {/* Header */}
       <div style={{

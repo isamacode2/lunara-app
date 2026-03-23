@@ -5,10 +5,9 @@ import { supabase } from '../lib/supabase';
 import { ChevronLeft, ExternalLink, AlertTriangle, Shield, Heart, Phone, Check, X, Loader } from 'lucide-react';
 
 const pageStyle = {
-  height: '100%',
   display: 'flex',
   flexDirection: 'column',
-  overflow: 'hidden',
+  minHeight: '100%',
 };
 
 const headerStyle = {
