@@ -191,10 +191,12 @@ function VoiceNoteCard({ user, profile }) {
           setUploading(true);
           setStatus('Saving voice note...');
           const ext = actualType.includes('mp4') ? 'mp4' : 'webm';
-          const path = `${user.id}/voice_intro_${Date.now()}.${ext}`;
-          const { error: upErr } = await supabase.storage.from('avatars').upload(path, blob, { upsert: true, contentType: actualType });
+          const path = `${user.id}/intro.${ext}`;
+          // Delete any existing file first so upsert works cleanly
+          await supabase.storage.from('voice-intros').remove([path]);
+          const { error: upErr } = await supabase.storage.from('voice-intros').upload(path, blob, { upsert: true, contentType: actualType });
           if (upErr) throw upErr;
-          const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path);
+          const { data: { publicUrl } } = supabase.storage.from('voice-intros').getPublicUrl(path);
           const savedUrl = publicUrl + '?t=' + Date.now();
           const { error: dbErr } = await supabase.from('profiles').update({ voice_intro_url: savedUrl, has_voice_intro: true }).eq('id', user.id);
           if (dbErr) throw dbErr;
@@ -244,6 +246,8 @@ function VoiceNoteCard({ user, profile }) {
     setStatus(null);
     try {
       setDeleting(true);
+      // Remove file from storage (try both extensions)
+      await supabase.storage.from('voice-intros').remove([`${user.id}/intro.webm`, `${user.id}/intro.mp4`]);
       const { error: dbErr } = await supabase.from('profiles').update({ voice_intro_url: null, has_voice_intro: false }).eq('id', user.id);
       if (dbErr) throw dbErr;
       if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
