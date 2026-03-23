@@ -152,23 +152,11 @@ tr:hover td{background:rgba(255,255,255,.02);}
     <div class="login-logo">🌙 Lunara</div>
     <div class="login-sub">Admin Dashboard — restricted access</div>
     <div class="field">
-      <label>Supabase URL</label>
-      <input id="cfg_url" type="text" placeholder="https://xxxx.supabase.co" autocomplete="off"/>
-    </div>
-    <div class="field">
-      <label>Service Role Key</label>
-      <input id="cfg_key" type="password" placeholder="eyJhbGci..." autocomplete="off"/>
-    </div>
-    <div class="field">
       <label>Admin Password</label>
-      <input id="cfg_pass" type="password" placeholder="Set your own password below"/>
+      <input id="cfg_pass" type="password" placeholder="Enter admin password" autocomplete="off" onkeydown="if(event.key==='Enter')adminLogin()"/>
     </div>
     <button class="btn-login" onclick="adminLogin()">Access Dashboard →</button>
     <div class="login-err" id="loginErr"></div>
-    <div style="margin-top:20px;padding-top:20px;border-top:1px solid rgba(255,255,255,.07);font-size:12px;color:rgba(245,242,238,.25);">
-      Use your Supabase <strong>service_role</strong> key (not anon key) to bypass RLS and view all entries.
-      Set ADMIN_PASSWORD to any string you want — just remember it.
-    </div>
   </div>
 </div>
 
@@ -297,134 +285,142 @@ tr:hover td{background:rgba(255,255,255,.02);}
 
 <script>
 // ── Config ───────────────────────────
-const ADMIN_PASSWORD = 'lunara2025';
-let SUPA_URL = '';
-let SUPA_KEY = '';
-let allData  = [];
+let adminPass = '';
+let allData = [];
 let verifData = [];
 let verifFilter = 'pending';
 
+function apiHeaders() {
+  return { 'x-admin-password': adminPass, 'Content-Type': 'application/json' };
+}
+
 // ── Tab switching ────────────────────
-function switchTab(name, btn){
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('tab-'+name).classList.add('active');
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
   btn.classList.add('active');
-  if(name === 'verification') loadVerifData();
+  if (name === 'verification') loadVerifData();
 }
 
 // ── Login ────────────────────────────
-function adminLogin(){
-  const url  = document.getElementById('cfg_url').value.trim().replace(/\/$/, '');
-  const key  = document.getElementById('cfg_key').value.trim();
+async function adminLogin() {
   const pass = document.getElementById('cfg_pass').value;
-  const err  = document.getElementById('loginErr');
+  const err = document.getElementById('loginErr');
+  if (!pass) { err.textContent = 'Please enter the admin password.'; err.style.display = 'block'; return; }
 
-  if(!url || !key){ err.textContent='Please enter your Supabase URL and key.'; err.style.display='block'; return; }
-  if(pass !== ADMIN_PASSWORD){ err.textContent='Incorrect admin password.'; err.style.display='block'; return; }
+  // Test the password by making a request
+  try {
+    const res = await fetch('/admin-api/waitlist', { headers: { 'x-admin-password': pass } });
+    if (res.status === 401) { err.textContent = 'Incorrect admin password.'; err.style.display = 'block'; return; }
+    if (!res.ok) throw new Error('Server error');
 
-  SUPA_URL = url;
-  SUPA_KEY = key;
-  sessionStorage.setItem('lunara_admin', JSON.stringify({url, key}));
+    adminPass = pass;
+    sessionStorage.setItem('lunara_admin_pass', pass);
+    allData = await res.json();
 
-  document.getElementById('loginWrap').style.display='none';
-  document.getElementById('dashWrap').style.display='block';
-  loadData();
+    document.getElementById('loginWrap').style.display = 'none';
+    document.getElementById('dashWrap').style.display = 'block';
+    renderDash();
+    loadVerifBadge();
+  } catch (e) {
+    err.textContent = 'Connection error: ' + e.message; err.style.display = 'block';
+  }
 }
 
-function logout(){
-  sessionStorage.removeItem('lunara_admin');
+function logout() {
+  sessionStorage.removeItem('lunara_admin_pass');
   location.reload();
 }
 
-const saved = sessionStorage.getItem('lunara_admin');
-if(saved){
-  try {
-    const {url, key} = JSON.parse(saved);
-    SUPA_URL = url; SUPA_KEY = key;
-    document.getElementById('loginWrap').style.display='none';
-    document.getElementById('dashWrap').style.display='block';
-  } catch(e){ sessionStorage.removeItem('lunara_admin'); }
+// Auto-login from session
+const savedPass = sessionStorage.getItem('lunara_admin_pass');
+if (savedPass) {
+  adminPass = savedPass;
+  document.getElementById('loginWrap').style.display = 'none';
+  document.getElementById('dashWrap').style.display = 'block';
 }
 
 // ── Waitlist data ────────────────────
-async function loadData(){
+async function loadData() {
   try {
-    const res = await fetch(`${SUPA_URL}/rest/v1/waitlist?select=*&order=created_at.desc`, {
-      headers:{'apikey':SUPA_KEY,'Authorization':`Bearer ${SUPA_KEY}`}
-    });
-    if(!res.ok) throw new Error(await res.text());
+    const res = await fetch('/admin-api/waitlist', { headers: apiHeaders() });
+    if (!res.ok) throw new Error(await res.text());
     allData = await res.json();
     renderDash();
-  } catch(e){
-    document.getElementById('tableWrap').innerHTML=`<div class="loading" style="color:#ff8080">Error loading data: ${e.message}</div>`;
+  } catch (e) {
+    document.getElementById('tableWrap').innerHTML = `<div class="loading" style="color:#ff8080">Error loading data: ${e.message}</div>`;
   }
-  // Also refresh pending badge
   loadVerifBadge();
 }
 
-async function loadVerifBadge(){
+async function loadVerifBadge() {
   try {
-    const res = await fetch(`${SUPA_URL}/rest/v1/profiles?select=id,verification_status&verification_status=eq.pending`, {
-      headers:{'apikey':SUPA_KEY,'Authorization':`Bearer ${SUPA_KEY}`,'Prefer':'count=exact'}
-    });
-    const count = parseInt(res.headers.get('content-range')?.split('/')[1] || '0');
+    const res = await fetch('/admin-api/verification-stats', { headers: apiHeaders() });
+    if (!res.ok) return;
+    const stats = await res.json();
     const badge = document.getElementById('pendingBadge');
-    if(count > 0){ badge.textContent = count; badge.style.display='inline-block'; }
-    else { badge.style.display='none'; }
-  } catch(e){}
+    if (stats.pending > 0) { badge.textContent = stats.pending; badge.style.display = 'inline-block'; }
+    else { badge.style.display = 'none'; }
+  } catch (e) {}
 }
 
 // ── Verification data ────────────────
-async function loadVerifData(){
-  document.getElementById('verifGrid').innerHTML='<div class="loading">Loading profiles...</div>';
+async function loadVerifData() {
+  document.getElementById('verifGrid').innerHTML = '<div class="loading">Loading verification requests...</div>';
   try {
-    const res = await fetch(
-      `${SUPA_URL}/rest/v1/profiles?select=id,display_name,avatar_url,verification_status,verification_photo_url,created_at,relationship_style&order=created_at.desc`,
-      {headers:{'apikey':SUPA_KEY,'Authorization':`Bearer ${SUPA_KEY}`}}
-    );
-    if(!res.ok) throw new Error(await res.text());
-    verifData = await res.json();
-    renderVerifKpis();
+    // Load requests and stats in parallel
+    const [reqRes, statsRes] = await Promise.all([
+      fetch('/admin-api/verifications', { headers: apiHeaders() }),
+      fetch('/admin-api/verification-stats', { headers: apiHeaders() })
+    ]);
+    if (!reqRes.ok) throw new Error(await reqRes.text());
+    verifData = await reqRes.json();
+    const stats = statsRes.ok ? await statsRes.json() : { pending: 0, approved: 0, rejected: 0, noRequest: 0 };
+    renderVerifKpis(stats);
     renderVerifGrid();
-  } catch(e){
-    document.getElementById('verifGrid').innerHTML=`<div class="loading" style="color:#ff8080">Error: ${e.message}</div>`;
+  } catch (e) {
+    document.getElementById('verifGrid').innerHTML = `<div class="loading" style="color:#ff8080">Error: ${e.message}</div>`;
   }
 }
 
-function renderVerifKpis(){
-  const pending  = verifData.filter(r=>r.verification_status==='pending').length;
-  const verified = verifData.filter(r=>r.verification_status==='verified').length;
-  const rejected = verifData.filter(r=>r.verification_status==='rejected').length;
-  const none     = verifData.filter(r=>!r.verification_status || r.verification_status==='unverified').length;
-  document.getElementById('vkpi_pending').textContent  = pending;
-  document.getElementById('vkpi_verified').textContent = verified;
-  document.getElementById('vkpi_rejected').textContent = rejected;
-  document.getElementById('vkpi_none').textContent     = none;
+function renderVerifKpis(stats) {
+  if (!stats) {
+    stats = {
+      pending: verifData.filter(r => r.status === 'pending').length,
+      approved: verifData.filter(r => r.status === 'approved').length,
+      rejected: verifData.filter(r => r.status === 'rejected').length,
+      noRequest: 0
+    };
+  }
+  document.getElementById('vkpi_pending').textContent = stats.pending;
+  document.getElementById('vkpi_verified').textContent = stats.approved;
+  document.getElementById('vkpi_rejected').textContent = stats.rejected;
+  document.getElementById('vkpi_none').textContent = stats.noRequest;
   const badge = document.getElementById('pendingBadge');
-  if(pending > 0){ badge.textContent=pending; badge.style.display='inline-block'; }
-  else { badge.style.display='none'; }
+  if (stats.pending > 0) { badge.textContent = stats.pending; badge.style.display = 'inline-block'; }
+  else { badge.style.display = 'none'; }
 }
 
-function filterVerif(status, btn){
+function filterVerif(status, btn) {
   verifFilter = status;
-  document.querySelectorAll('.filter-pill').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
   btn.classList.add('active');
   renderVerifGrid();
 }
 
-function renderVerifGrid(){
+function renderVerifGrid() {
   const filtered = verifFilter === 'all'
     ? verifData
     : verifData.filter(r => {
-        if(verifFilter === 'pending')  return r.verification_status === 'pending';
-        if(verifFilter === 'verified') return r.verification_status === 'verified';
-        if(verifFilter === 'rejected') return r.verification_status === 'rejected';
+        if (verifFilter === 'pending') return r.status === 'pending';
+        if (verifFilter === 'verified') return r.status === 'approved';
+        if (verifFilter === 'rejected') return r.status === 'rejected';
         return true;
       });
 
-  if(!filtered.length){
-    document.getElementById('verifGrid').innerHTML=`
+  if (!filtered.length) {
+    document.getElementById('verifGrid').innerHTML = `
       <div class="empty-state" style="grid-column:1/-1">
         <div class="empty-icon">✅</div>
         <div>No ${verifFilter === 'all' ? '' : verifFilter} verification requests</div>
@@ -433,50 +429,54 @@ function renderVerifGrid(){
   }
 
   document.getElementById('verifGrid').innerHTML = filtered.map(r => {
-    const isPending  = r.verification_status === 'pending';
-    const isVerified = r.verification_status === 'verified';
-    const isRejected = r.verification_status === 'rejected';
+    const p = r.profile || {};
+    const isPending = r.status === 'pending';
+    const isApproved = r.status === 'approved';
+    const isRejected = r.status === 'rejected';
 
-    const avatarHtml = r.avatar_url
-      ? `<img src="${escHtml(r.avatar_url)}" alt="avatar"/>`
+    const avatarHtml = p.avatar_url
+      ? `<img src="${escHtml(p.avatar_url)}" alt="avatar"/>`
       : `<span>👤</span>`;
 
-    const photoHtml = r.verification_photo_url
-      ? `<img class="verif-photo" src="${escHtml(r.verification_photo_url)}" alt="ID photo" onclick="openLightbox('${escHtml(r.verification_photo_url)}')" title="Click to enlarge"/>`
+    const photoHtml = r.selfie_url
+      ? `<img class="verif-photo" src="${escHtml(r.selfie_url)}" alt="Selfie" onclick="openLightbox('${escHtml(r.selfie_url)}')" title="Click to enlarge"/>`
       : `<div class="verif-no-photo">No photo submitted</div>`;
 
     const statusBadge = isPending
       ? `<span class="badge-pending">⏳ Pending</span>`
-      : isVerified
-      ? `<span class="badge-verified">✅ Verified</span>`
+      : isApproved
+      ? `<span class="badge-verified">✅ Approved</span>`
       : isRejected
       ? `<span class="badge-rejected">❌ Rejected</span>`
-      : `<span style="font-size:11px;color:rgba(245,242,238,.3)">No request</span>`;
+      : '';
+
+    const codeHtml = r.code ? `<div style="font-size:11px;color:rgba(245,242,238,.4);margin-top:4px;">Code: <strong style="color:var(--amber);letter-spacing:2px;">${escHtml(r.code)}</strong></div>` : '';
 
     const actionsHtml = isPending ? `
       <div class="verif-actions">
-        <button class="btn-approve" onclick="updateVerif('${r.id}','verified')">✓ Approve</button>
-        <button class="btn-reject"  onclick="updateVerif('${r.id}','rejected')">✗ Reject</button>
+        <button class="btn-approve" onclick="updateVerif('${r.user_id}','approve')">✓ Approve</button>
+        <button class="btn-reject"  onclick="updateVerif('${r.user_id}','reject')">✗ Reject</button>
       </div>` : `
       <div class="verif-actions">
-        <div class="verif-done-badge ${isVerified?'approved':'rejected'}">
-          ${isVerified ? '✅ Approved' : isRejected ? '❌ Rejected' : '—'}
+        <div class="verif-done-badge ${isApproved ? 'approved' : 'rejected'}">
+          ${isApproved ? '✅ Approved' : isRejected ? '❌ Rejected' : '—'}
         </div>
-        <button class="btn-undo" onclick="updateVerif('${r.id}','pending')">↩ Undo</button>
+        <button class="btn-undo" onclick="updateVerif('${r.user_id}','reset')">↩ Undo</button>
       </div>`;
 
     return `
-      <div class="verif-card ${isPending?'pending':''}" id="vcard-${r.id}">
+      <div class="verif-card ${isPending ? 'pending' : ''}" id="vcard-${r.user_id}">
         <div class="verif-card-head">
           <div class="verif-avatar">${avatarHtml}</div>
           <div>
-            <div class="verif-name">${escHtml(r.display_name||'Unnamed')}</div>
-            <div class="verif-email">${escHtml(r.relationship_style||'')}</div>
-            <div class="verif-meta">Joined ${timeAgo(r.created_at)} · ${statusBadge}</div>
+            <div class="verif-name">${escHtml(p.display_name || 'Unnamed')}</div>
+            <div class="verif-email">${escHtml(p.relationship_style || '')}</div>
+            <div class="verif-meta">Submitted ${timeAgo(r.created_at)} · ${statusBadge}</div>
+            ${codeHtml}
           </div>
         </div>
         <div class="verif-photo-wrap">
-          <div class="verif-photo-label">Submitted ID / selfie</div>
+          <div class="verif-photo-label">Verification selfie with code</div>
           ${photoHtml}
         </div>
         ${actionsHtml}
@@ -484,69 +484,56 @@ function renderVerifGrid(){
   }).join('');
 }
 
-async function updateVerif(userId, status){
-  const card = document.getElementById('vcard-'+userId);
-  if(card) card.style.opacity='0.5';
+async function updateVerif(userId, action) {
+  const card = document.getElementById('vcard-' + userId);
+  if (card) card.style.opacity = '0.5';
 
   try {
-    const res = await fetch(`${SUPA_URL}/rest/v1/profiles?id=eq.${userId}`, {
-      method:'PATCH',
-      headers:{
-        'apikey':SUPA_KEY,
-        'Authorization':`Bearer ${SUPA_KEY}`,
-        'Content-Type':'application/json',
-        'Prefer':'return=minimal'
-      },
-      body: JSON.stringify({
-        verification_status: status,
-        verification_reviewed_at: new Date().toISOString()
-      })
-    });
-    if(!res.ok) throw new Error(await res.text());
-
-    // Update local data
-    const idx = verifData.findIndex(r=>r.id===userId);
-    if(idx !== -1) verifData[idx].verification_status = status;
-    renderVerifKpis();
-    renderVerifGrid();
-  } catch(e){
-    alert('Error updating: '+e.message);
-    if(card) card.style.opacity='1';
+    const endpoint = action === 'approve' ? `/admin-api/verify/${userId}`
+      : action === 'reject' ? `/admin-api/reject/${userId}`
+      : `/admin-api/reset-verify/${userId}`;
+    const res = await fetch(endpoint, { method: 'POST', headers: apiHeaders() });
+    if (!res.ok) throw new Error(await res.text());
+    // Reload verification data
+    await loadVerifData();
+  } catch (e) {
+    alert('Error updating: ' + e.message);
+    if (card) card.style.opacity = '1';
   }
 }
 
 // ── Lightbox ─────────────────────────
-function openLightbox(url){
+function openLightbox(url) {
   document.getElementById('lightboxImg').src = url;
   document.getElementById('lightbox').classList.add('open');
 }
-function closeLightbox(){
+function closeLightbox() {
   document.getElementById('lightbox').classList.remove('open');
 }
 
 // ── Waitlist render ──────────────────
-function renderDash(){
+function renderDash() {
   const data = allData;
-  const now  = new Date();
+  const now = new Date();
   const last24 = data.filter(r => (now - new Date(r.created_at)) < 86400000).length;
-  const last7d  = data.filter(r => (now - new Date(r.created_at)) < 604800000).length;
+  const last7d = data.filter(r => (now - new Date(r.created_at)) < 604800000).length;
   document.getElementById('kpi_total').textContent = data.length;
-  document.getElementById('kpi_24h').textContent   = last24;
-  document.getElementById('kpi_7d').textContent    = last7d;
+  document.getElementById('kpi_24h').textContent = last24;
+  document.getElementById('kpi_7d').textContent = last7d;
 
   const styleCounts = {};
-  data.forEach(r => { styleCounts[r.relationship_style] = (styleCounts[r.relationship_style]||0)+1; });
-  const sortedStyles = Object.entries(styleCounts).sort((a,b)=>b[1]-a[1]);
+  data.forEach(r => { styleCounts[r.relationship_style] = (styleCounts[r.relationship_style] || 0) + 1; });
+  const sortedStyles = Object.entries(styleCounts).sort((a, b) => b[1] - a[1]);
   document.getElementById('kpi_top').textContent = sortedStyles[0]?.[0] || '—';
 
   const maxCount = sortedStyles[0]?.[1] || 1;
   document.getElementById('styleChart').innerHTML = sortedStyles.length ? sortedStyles.map(([style, count]) => `
     <div class="bar-item">
       <div class="bar-label"><span>${style}</span><span style="color:var(--coral);font-weight:700">${count}</span></div>
-      <div class="bar-track"><div class="bar-fill" style="width:${(count/maxCount*100).toFixed(1)}%"></div></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(count / maxCount * 100).toFixed(1)}%"></div></div>
     </div>`).join('') : '<div style="color:rgba(245,242,238,.3);font-size:13px">No data yet</div>';
 
-  const recent = data.slice(0,5);
+  const recent = data.slice(0, 5);
   document.getElementById('recentList').innerHTML = recent.length ? recent.map(r => `
     <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05);">
       <div>
@@ -562,23 +549,23 @@ function renderDash(){
   renderTable(data);
 }
 
-function renderTable(data){
-  if(!data.length){
-    document.getElementById('tableWrap').innerHTML=`
+function renderTable(data) {
+  if (!data.length) {
+    document.getElementById('tableWrap').innerHTML = `
       <div class="empty-state"><div class="empty-icon">🌙</div><div>No waitlist entries yet.</div></div>`;
     return;
   }
-  document.getElementById('tableWrap').innerHTML=`
+  document.getElementById('tableWrap').innerHTML = `
     <table>
       <thead><tr>
         <th>Name</th><th>Email</th><th>Style</th><th>Source</th><th>Signed up</th><th></th>
       </tr></thead>
-      <tbody>${data.map(r=>`
+      <tbody>${data.map(r => `
         <tr>
           <td><strong>${escHtml(r.display_name)}</strong></td>
           <td style="color:rgba(245,242,238,.6)">${escHtml(r.email)}</td>
           <td><span class="badge-style">${escHtml(r.relationship_style)}</span></td>
-          <td style="color:rgba(245,242,238,.4);font-size:12px">${escHtml(r.source||'landing_page')}</td>
+          <td style="color:rgba(245,242,238,.4);font-size:12px">${escHtml(r.source || 'landing_page')}</td>
           <td style="color:rgba(245,242,238,.4);font-size:12px">${formatDate(r.created_at)}</td>
           <td><button class="del-btn" onclick="deleteEntry('${r.id}','${escHtml(r.email)}')">Remove</button></td>
         </tr>`).join('')}
@@ -586,53 +573,53 @@ function renderTable(data){
     </table>`;
 }
 
-function filterTable(){
+function filterTable() {
   const q = document.getElementById('searchInput').value.toLowerCase();
   const filtered = allData.filter(r =>
-    r.display_name.toLowerCase().includes(q) ||
-    r.email.toLowerCase().includes(q) ||
-    r.relationship_style.toLowerCase().includes(q)
+    (r.display_name || '').toLowerCase().includes(q) ||
+    (r.email || '').toLowerCase().includes(q) ||
+    (r.relationship_style || '').toLowerCase().includes(q)
   );
   renderTable(filtered);
 }
 
-async function deleteEntry(id, email){
-  if(!confirm(`Remove ${email} from the waitlist?`)) return;
-  await fetch(`${SUPA_URL}/rest/v1/waitlist?id=eq.${id}`,{
-    method:'DELETE',
-    headers:{'apikey':SUPA_KEY,'Authorization':`Bearer ${SUPA_KEY}`}
-  });
-  allData = allData.filter(r=>r.id!==id);
-  renderDash();
+async function deleteEntry(id, email) {
+  if (!confirm(`Remove ${email} from the waitlist?`)) return;
+  try {
+    await fetch(`/admin-api/waitlist/${id}`, { method: 'DELETE', headers: apiHeaders() });
+    allData = allData.filter(r => r.id !== id);
+    renderDash();
+  } catch (e) { alert('Error: ' + e.message); }
 }
 
-function exportCSV(){
-  if(!allData.length){ alert('No data to export.'); return; }
-  const headers = ['ID','Name','Email','Relationship Style','Source','Referrer','Signed Up'];
-  const rows = allData.map(r=>[
+function exportCSV() {
+  if (!allData.length) { alert('No data to export.'); return; }
+  const headers = ['ID', 'Name', 'Email', 'Relationship Style', 'Source', 'Referrer', 'Signed Up'];
+  const rows = allData.map(r => [
     r.id, r.display_name, r.email, r.relationship_style,
-    r.source||'', r.referrer||'', r.created_at
-  ].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','));
+    r.source || '', r.referrer || '', r.created_at
+  ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(','));
   const csv = [headers.join(','), ...rows].join('\n');
-  const blob = new Blob([csv],{type:'text/csv'});
+  const blob = new Blob([csv], { type: 'text/csv' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `lunara_waitlist_${new Date().toISOString().slice(0,10)}.csv`;
+  a.download = `lunara_waitlist_${new Date().toISOString().slice(0, 10)}.csv`;
   a.click();
 }
 
 // ── Helpers ──────────────────────────
-function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function formatDate(s){ return new Date(s).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
-function timeAgo(s){
-  const d = (Date.now()-new Date(s))/1000;
-  if(d<60) return 'just now';
-  if(d<3600) return Math.floor(d/60)+'m ago';
-  if(d<86400) return Math.floor(d/3600)+'h ago';
-  return Math.floor(d/86400)+'d ago';
+function escHtml(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+function formatDate(s) { return new Date(s).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }
+function timeAgo(s) {
+  const d = (Date.now() - new Date(s)) / 1000;
+  if (d < 60) return 'just now';
+  if (d < 3600) return Math.floor(d / 60) + 'm ago';
+  if (d < 86400) return Math.floor(d / 3600) + 'h ago';
+  return Math.floor(d / 86400) + 'd ago';
 }
 
-if(SUPA_URL) loadData();
+// Auto-load data if already logged in
+if (adminPass) loadData();
 </script>
 </body>
 </html>
