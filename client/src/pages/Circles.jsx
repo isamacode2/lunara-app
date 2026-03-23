@@ -376,7 +376,7 @@ export default function Circles() {
             <p>Loading circles...</p>
           </div>
         ) : (
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingBottom: '100px' }}>
             {/* My Circles */}
             {myCircles.length > 0 && (
               <section style={{ marginBottom: '32px' }}>

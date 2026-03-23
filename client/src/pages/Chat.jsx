@@ -501,7 +501,7 @@ export default function Chat() {
                 <p>When someone connects with you, they'll appear here</p>
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '12px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '12px', paddingBottom: '100px' }}>
                 {requests.map(req => (
                   <div
                     key={req.id}
@@ -604,7 +604,7 @@ export default function Chat() {
                 <p>Connect with someone to start messaging</p>
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0', padding: '0' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0', padding: '0', paddingBottom: '100px' }}>
                 {matches.map(match => (
                   <div
                     key={match.id}

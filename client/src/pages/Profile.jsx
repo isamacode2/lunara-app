@@ -96,7 +96,7 @@ function LocationAutocomplete({ value, onChange, onSelect }) {
         {searching && <Loader size={14} style={{ position: 'absolute', right: '12px', top: '14px', animation: 'spin 1s linear infinite', color: 'var(--text2)' }} />}
       </div>
       {suggestions.length > 0 && (
-        <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', maxHeight: '200px', overflowY: 'auto', boxShadow: 'var(--shadow)' }}>
+        <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 9999, background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', maxHeight: '200px', overflowY: 'auto', boxShadow: '0 8px 24px rgba(0,0,0,0.4)' }}>
           {suggestions.map((s, i) => (
             <div key={i}
               style={{ padding: '10px 14px', fontSize: '13px', color: 'var(--text)', cursor: 'pointer', borderBottom: '1px solid var(--border)' }}
@@ -419,7 +419,7 @@ export default function Profile() {
             </div>
 
             {/* Location */}
-            <div style={cardStyle}>
+            <div style={{ ...cardStyle, overflow: 'visible' }}>
               <div style={cardHeaderStyle}><h3 style={cardTitleStyle}>Location</h3></div>
               <div style={{ ...cardBodyStyle, display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div style={formGroupStyle}>

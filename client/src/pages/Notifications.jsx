@@ -222,6 +222,7 @@ export default function Notifications() {
             display: 'flex',
             flexDirection: 'column',
             gap: '12px',
+            paddingBottom: '100px',
           }}
         >
           {notifications.map(notification => {
