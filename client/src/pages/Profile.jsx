@@ -390,6 +390,18 @@ export default function Profile() {
           <p style={{ fontSize: '14px', color: 'var(--text2)', margin: '0' }}>{user?.email}</p>
           {profile?.pronouns && <p style={{ fontSize: '13px', color: 'var(--text2)', margin: '4px 0 0' }}>{profile.pronouns}</p>}
           {profile?.relationship_style && <div style={{ marginTop: '8px' }}><span className="tag tag-purple">{profile.relationship_style}</span></div>}
+          {/* Verification badge / button */}
+          {profile?.is_verified ? (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '10px', color: 'var(--gold)' }}>
+              <BadgeCheck size={18} />
+              <span style={{ fontSize: '13px', fontWeight: '600' }}>Verified Member</span>
+            </div>
+          ) : (
+            <button onClick={() => navigate('/verify')}
+              style={{ marginTop: '10px', padding: '8px 20px', background: 'linear-gradient(135deg, var(--primary), var(--primary-light))', color: '#fff', border: 'none', borderRadius: '20px', cursor: 'pointer', fontWeight: '600', fontSize: '13px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <Shield size={14} /> Get Verified
+            </button>
+          )}
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '32px', marginTop: '16px' }}>
           <div style={{ textAlign: 'center' }}><div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--accent)' }}>{stats.connections}</div><div style={{ fontSize: '12px', color: 'var(--text2)', marginTop: '4px' }}>Connections</div></div>
@@ -693,21 +705,6 @@ export default function Profile() {
                   style={{ padding: '12px 20px', background: 'var(--accent-dim)', border: '1px solid var(--accent)', borderRadius: 'var(--radius-lg)', color: 'var(--accent)', cursor: 'pointer', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px', width: '100%', justifyContent: 'center' }}>
                   <Eye size={16} /> Change Visibility
                 </button>
-              </div>
-            </div>
-
-            {/* Verification */}
-            <div style={cardStyle}>
-              <div style={cardHeaderStyle}><h3 style={cardTitleStyle}>Verification</h3></div>
-              <div style={cardBodyStyle}>
-                {profile?.is_verified ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--success)' }}><BadgeCheck size={24} /><span style={{ fontWeight: '600' }}>Verified</span></div>
-                ) : (
-                  <button onClick={() => navigate('/verify')}
-                    style={{ padding: '12px 20px', background: 'linear-gradient(135deg, var(--primary), var(--primary-light))', color: '#fff', border: 'none', borderRadius: 'var(--radius-lg)', cursor: 'pointer', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px', width: '100%', justifyContent: 'center' }}>
-                    <Shield size={16} /> Get Verified
-                  </button>
-                )}
               </div>
             </div>
 
