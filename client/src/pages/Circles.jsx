@@ -50,6 +50,8 @@ export default function Circles() {
   const [replyAnonymous, setReplyAnonymous] = useState({});
   const [userLikes, setUserLikes] = useState({});
   const [circleChannel, setCircleChannel] = useState(null);
+  const [joiningCircleId, setJoiningCircleId] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
 
   // Load initial data
   useEffect(() => {
@@ -78,12 +80,26 @@ export default function Circles() {
   }
 
   async function handleJoinCircle(circleId) {
+    setJoiningCircleId(circleId);
+    setError(null);
     try {
       const { error } = await joinCircle(circleId, user.id);
       if (error) throw error;
-      await loadCircles();
+
+      // Optimistic update: move circle from discover to myCircles
+      const joined = allCircles.find(c => c.id === circleId);
+      if (joined) {
+        const updated = { ...joined, member_count: (joined.member_count || 0) + 1 };
+        setMyCircles(prev => [...prev, updated]);
+        setAllCircles(prev => prev.map(c => c.id === circleId ? updated : c));
+      }
+
+      setSuccessMessage(`Joined ${joined?.name || 'circle'}!`);
+      setTimeout(() => setSuccessMessage(null), 2500);
     } catch (err) {
       setError(err.message);
+    } finally {
+      setJoiningCircleId(null);
     }
   }
 
@@ -339,6 +355,21 @@ export default function Circles() {
           </div>
         )}
 
+        {successMessage && (
+          <div style={{
+            margin: '0 20px 12px',
+            padding: '12px 16px',
+            background: 'rgba(126, 196, 146, 0.15)',
+            borderRadius: 'var(--radius-sm)',
+            color: 'var(--success)',
+            fontSize: '14px',
+            fontWeight: '600',
+            textAlign: 'center',
+          }}>
+            {successMessage}
+          </div>
+        )}
+
         {loading ? (
           <div className="page-center">
             <Loader size={32} className="spin" />
@@ -518,11 +549,16 @@ export default function Circles() {
                           {circle.member_count || 1} members
                         </span>
                         <button
-                          className="btn btn-sm btn-primary"
-                          onClick={() => handleJoinCircle(circle.id)}
-                          style={{ padding: '4px 8px' }}
+                          className={myCircles.find(m => m.id === circle.id) ? 'btn btn-sm btn-outline' : 'btn btn-sm btn-primary'}
+                          onClick={() => !myCircles.find(m => m.id === circle.id) && handleJoinCircle(circle.id)}
+                          disabled={joiningCircleId === circle.id}
+                          style={{
+                            padding: '4px 8px',
+                            opacity: joiningCircleId === circle.id ? 0.6 : 1,
+                            cursor: myCircles.find(m => m.id === circle.id) ? 'default' : 'pointer',
+                          }}
                         >
-                          Join
+                          {joiningCircleId === circle.id ? 'Joining...' : myCircles.find(m => m.id === circle.id) ? 'Joined \u2713' : 'Join'}
                         </button>
                       </div>
                     </div>

@@ -13,7 +13,10 @@ export async function getMyCircles(userId) {
 }
 
 export async function joinCircle(circleId, userId) {
-  const { error } = await supabase.from('circle_members').insert({ circle_id: circleId, user_id: userId });
+  const { error } = await supabase.from('circle_members').upsert(
+    { circle_id: circleId, user_id: userId },
+    { onConflict: 'circle_id,user_id', ignoreDuplicates: true }
+  );
   if (!error) {
     const { count } = await supabase.from('circle_members').select('*', { count: 'exact', head: true }).eq('circle_id', circleId);
     await supabase.from('circles').update({ member_count: count || 1 }).eq('id', circleId);
