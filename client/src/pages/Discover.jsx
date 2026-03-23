@@ -113,7 +113,7 @@ export default function Discover() {
       </div>
 
       {/* Profile Card Container */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', overflow: 'hidden' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px', overflowY: 'auto' }}>
         {error && <div className="msg-error" style={{ marginBottom: '20px', textAlign: 'center' }}>{error}</div>}
 
         {currentProfile && (
@@ -130,8 +130,7 @@ export default function Discover() {
               boxShadow: 'var(--shadow)',
               display: 'flex',
               flexDirection: 'column',
-              height: '100%',
-              maxHeight: 'calc(100vh - 180px)',
+              flexShrink: 0,
             }}
           >
             {/* Photo Container */}
@@ -139,7 +138,7 @@ export default function Discover() {
               style={{
                 position: 'relative',
                 width: '100%',
-                aspectRatio: '3 / 3.5',
+                aspectRatio: '4 / 3.5',
                 backgroundColor: 'var(--bg)',
                 backgroundImage: showPhoto ? `url(${avatarUrl(currentProfile)})` : 'none',
                 backgroundSize: 'cover',
@@ -260,22 +259,30 @@ export default function Discover() {
             </div>
 
             {/* Action Buttons */}
-            <div style={{ display: 'flex', gap: '16px', padding: '16px', justifyContent: 'center', flexShrink: 0 }}>
+            <div style={{ display: 'flex', gap: '12px', padding: '16px', flexShrink: 0 }}>
               <button
                 onClick={handlePass}
-                className="btn-icon"
-                style={{ background: 'transparent', border: '2px solid rgba(180,124,255,0.3)', color: 'var(--text2)' }}
-                title="Pass"
+                style={{
+                  flex: 1, padding: '16px', borderRadius: 'var(--radius-lg)',
+                  border: '1.5px solid var(--border)', background: 'var(--bg-elevated)',
+                  color: 'var(--text2)', fontSize: '16px', fontWeight: '700',
+                  cursor: 'pointer', display: 'flex', alignItems: 'center',
+                  justifyContent: 'center', gap: '8px', transition: 'all 0.2s',
+                }}
               >
-                <X size={24} />
+                Pass
               </button>
               <button
                 onClick={handleConnect}
-                className="btn-icon"
-                style={{ background: 'var(--primary)', color: '#fff', width: '56px', height: '56px' }}
-                title="Connect"
+                style={{
+                  flex: 1, padding: '16px', borderRadius: 'var(--radius-lg)',
+                  border: 'none', background: 'var(--primary)',
+                  color: '#fff', fontSize: '16px', fontWeight: '700',
+                  cursor: 'pointer', display: 'flex', alignItems: 'center',
+                  justifyContent: 'center', gap: '8px', transition: 'all 0.2s',
+                }}
               >
-                <Heart size={28} fill="currentColor" />
+                Connect
               </button>
             </div>
           </div>
