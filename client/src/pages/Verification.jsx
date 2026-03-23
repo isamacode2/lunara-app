@@ -31,6 +31,15 @@ export default function Verification() {
     const file = e.target.files?.[0];
     if (!file) return;
     setError(null);
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      setError('Only JPEG, PNG, and WebP images are allowed');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setError('File too large. Maximum size is 5MB');
+      return;
+    }
     setSelectedFile(file);
     const reader = new FileReader();
     reader.onload = (event) => setPreviewUrl(event.target?.result);

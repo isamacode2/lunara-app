@@ -147,6 +147,16 @@ export default function Chat() {
     const file = e.target.files?.[0];
     if (!file || !activeChat) return;
 
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      alert('Only JPEG, PNG, WebP, and GIF images are allowed');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File too large. Maximum size is 5MB');
+      return;
+    }
+
     setUploading(true);
     const timestamp = Date.now();
     const ext = file.name.split('.').pop();

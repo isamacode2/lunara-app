@@ -62,6 +62,9 @@ export function AuthProvider({ children }) {
   }
 
   async function uploadAvatar(file) {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) throw new Error('Only JPEG, PNG, WebP, and GIF images are allowed');
+    if (file.size > 5 * 1024 * 1024) throw new Error('File too large. Maximum size is 5MB');
     const ext = file.name.split('.').pop();
     const path = `${user.id}/avatar.${ext}`;
     const { error: upErr } = await supabase.storage.from('avatars').upload(path, file, { upsert: true, contentType: file.type });
