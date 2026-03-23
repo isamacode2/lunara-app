@@ -148,52 +148,150 @@ function PillPicker({ label, options, selected, onChange, allowCustom }) {
 // ─── Voice Note Component ───
 function VoiceNoteCard({ user, profile }) {
   const [recording, setRecording] = useState(false);
-  const [mediaRecorder, setMediaRecorder] = useState(null);
   const [audioUrl, setAudioUrl] = useState(profile?.voice_intro_url || null);
+  const [localBlobUrl, setLocalBlobUrl] = useState(null);
   const [playing, setPlaying] = useState(false);
-  const [audioRef] = useState({ current: null });
   const [uploading, setUploading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [status, setStatus] = useState(null);
+  const [error, setError] = useState(null);
+  const mediaRecorderRef = useRef(null);
+  const audioRef = useRef(null);
+  const chunksRef = useRef([]);
 
   async function startRecording() {
+    setError(null);
+    setStatus(null);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
-      const chunks = [];
-      recorder.ondataavailable = (e) => chunks.push(e.data);
+      // Pick a supported MIME type
+      const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus'
+        : MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm'
+        : MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : '';
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+      chunksRef.current = [];
+      recorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) chunksRef.current.push(e.data);
+      };
       recorder.onstop = async () => {
         stream.getTracks().forEach(t => t.stop());
-        const blob = new Blob(chunks, { type: 'audio/webm' });
-        setAudioUrl(URL.createObjectURL(blob));
+        if (chunksRef.current.length === 0) {
+          setError('No audio was captured. Please try again.');
+          return;
+        }
+        const actualType = recorder.mimeType || 'audio/webm';
+        const blob = new Blob(chunksRef.current, { type: actualType });
+        // Create local playback URL
+        if (localBlobUrl) URL.revokeObjectURL(localBlobUrl);
+        const blobUrl = URL.createObjectURL(blob);
+        setLocalBlobUrl(blobUrl);
+        setAudioUrl(blobUrl);
+        // Upload to Supabase
         try {
           setUploading(true);
-          const path = `${user.id}/voice_intro_${Date.now()}.webm`;
-          const { error: upErr } = await supabase.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'audio/webm' });
-          if (!upErr) {
-            const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path);
-            await supabase.from('profiles').update({ voice_intro_url: publicUrl + '?t=' + Date.now(), has_voice_intro: true }).eq('id', user.id);
-          }
-        } catch (err) { console.error('Voice upload failed:', err); }
-        finally { setUploading(false); }
+          setStatus('Saving voice note...');
+          const ext = actualType.includes('mp4') ? 'mp4' : 'webm';
+          const path = `${user.id}/voice_intro_${Date.now()}.${ext}`;
+          const { error: upErr } = await supabase.storage.from('avatars').upload(path, blob, { upsert: true, contentType: actualType });
+          if (upErr) throw upErr;
+          const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path);
+          const savedUrl = publicUrl + '?t=' + Date.now();
+          const { error: dbErr } = await supabase.from('profiles').update({ voice_intro_url: savedUrl, has_voice_intro: true }).eq('id', user.id);
+          if (dbErr) throw dbErr;
+          setAudioUrl(savedUrl);
+          setStatus('Voice note saved!');
+          setTimeout(() => setStatus(null), 3000);
+        } catch (err) {
+          console.error('Voice upload failed:', err);
+          setError('Failed to save voice note. You can still play it locally.');
+        } finally {
+          setUploading(false);
+        }
       };
-      recorder.start();
-      setMediaRecorder(recorder);
+      recorder.start(100); // collect data every 100ms for reliability
+      mediaRecorderRef.current = recorder;
       setRecording(true);
-    } catch (err) { console.error('Microphone access denied:', err); }
+    } catch (err) {
+      console.error('Microphone error:', err);
+      setError('Could not access microphone. Please allow microphone access in your browser settings.');
+    }
   }
-  function stopRecording() { if (mediaRecorder && mediaRecorder.state !== 'inactive') { mediaRecorder.stop(); setRecording(false); } }
-  function playAudio() { if (!audioUrl) return; if (audioRef.current) audioRef.current.pause(); const a = new Audio(audioUrl); audioRef.current = a; a.onended = () => setPlaying(false); a.play(); setPlaying(true); }
-  function stopAudio() { if (audioRef.current) { audioRef.current.pause(); audioRef.current.currentTime = 0; } setPlaying(false); }
+
+  function stopRecording() {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+      setRecording(false);
+    }
+  }
+
+  function playAudio() {
+    if (!audioUrl) return;
+    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+    const a = new Audio(audioUrl);
+    audioRef.current = a;
+    a.onended = () => setPlaying(false);
+    a.onerror = () => { setPlaying(false); setError('Could not play audio. Try re-recording.'); };
+    a.play().then(() => setPlaying(true)).catch(() => { setPlaying(false); setError('Playback failed.'); });
+  }
+
+  function stopAudio() {
+    if (audioRef.current) { audioRef.current.pause(); audioRef.current.currentTime = 0; audioRef.current = null; }
+    setPlaying(false);
+  }
+
+  async function deleteVoiceNote() {
+    setError(null);
+    setStatus(null);
+    try {
+      setDeleting(true);
+      const { error: dbErr } = await supabase.from('profiles').update({ voice_intro_url: null, has_voice_intro: false }).eq('id', user.id);
+      if (dbErr) throw dbErr;
+      if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+      if (localBlobUrl) URL.revokeObjectURL(localBlobUrl);
+      setAudioUrl(null);
+      setLocalBlobUrl(null);
+      setPlaying(false);
+      setStatus('Voice note deleted');
+      setTimeout(() => setStatus(null), 3000);
+    } catch (err) {
+      console.error('Delete failed:', err);
+      setError('Failed to delete voice note');
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   return (
     <div style={cardStyle}>
-      <div style={cardHeaderStyle}>
+      <div style={{ ...cardHeaderStyle, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h3 style={cardTitleStyle}>Voice Note</h3>
-        {uploading && <Loader size={16} style={{ animation: 'spin 1s linear infinite', color: 'var(--accent)' }} />}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {uploading && <Loader size={16} style={{ animation: 'spin 1s linear infinite', color: 'var(--accent)' }} />}
+          {audioUrl && !recording && !uploading && (
+            <button onClick={deleteVoiceNote} disabled={deleting}
+              style={{ background: 'transparent', border: 'none', color: 'var(--text2)', cursor: deleting ? 'not-allowed' : 'pointer', padding: '4px', display: 'flex', alignItems: 'center', opacity: deleting ? 0.5 : 1 }}
+              title="Delete voice note">
+              <Trash2 size={16} />
+            </button>
+          )}
+        </div>
       </div>
       <div style={cardBodyStyle}>
         <p style={{ fontSize: '13px', color: 'var(--text2)', marginBottom: '16px', lineHeight: '1.5' }}>
           Record a short voice intro so potential connections can hear your voice.
         </p>
+
+        {error && (
+          <div style={{ marginBottom: '12px', padding: '10px 14px', background: 'var(--danger-dim)', borderRadius: 'var(--radius-sm)', color: 'var(--danger)', fontSize: '13px' }}>
+            {error}
+          </div>
+        )}
+        {status && (
+          <div style={{ marginBottom: '12px', padding: '10px 14px', background: 'rgba(126, 196, 146, 0.15)', borderRadius: 'var(--radius-sm)', color: 'var(--success)', fontSize: '13px', fontWeight: 600 }}>
+            {status}
+          </div>
+        )}
+
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
           {audioUrl && !recording && (
             <button onClick={playing ? stopAudio : playAudio}
@@ -201,15 +299,15 @@ function VoiceNoteCard({ user, profile }) {
               {playing ? <><Square size={16} /> Stop</> : <><Play size={16} /> Play</>}
             </button>
           )}
-          <button onClick={recording ? stopRecording : startRecording}
-            style={{ flex: audioUrl && !recording ? 1 : undefined, width: audioUrl && !recording ? undefined : '100%', padding: '12px 20px', background: recording ? 'var(--danger-dim)' : 'linear-gradient(135deg, var(--primary), var(--primary-light))', border: recording ? '1px solid var(--danger)' : 'none', borderRadius: 'var(--radius-lg)', color: recording ? 'var(--danger)' : '#fff', cursor: 'pointer', fontWeight: '600', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+          <button onClick={recording ? stopRecording : startRecording} disabled={uploading}
+            style={{ flex: audioUrl && !recording ? 1 : undefined, width: audioUrl && !recording ? undefined : '100%', padding: '12px 20px', background: recording ? 'var(--danger-dim)' : uploading ? 'rgba(180,124,255,0.3)' : 'linear-gradient(135deg, var(--primary), var(--primary-light))', border: recording ? '1px solid var(--danger)' : 'none', borderRadius: 'var(--radius-lg)', color: recording ? 'var(--danger)' : '#fff', cursor: uploading ? 'not-allowed' : 'pointer', fontWeight: '600', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', opacity: uploading ? 0.6 : 1 }}>
             {recording ? <><MicOff size={16} /> Stop Recording</> : audioUrl ? <><Mic size={16} /> Re-record</> : <><Mic size={16} /> Record Voice Note</>}
           </button>
         </div>
         {recording && (
           <div style={{ marginTop: '12px', padding: '12px', background: 'var(--danger-dim)', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--danger)', animation: 'pulse 1.5s infinite' }} />
-            <span style={{ fontSize: '13px', color: 'var(--danger)' }}>Recording...</span>
+            <span style={{ fontSize: '13px', color: 'var(--danger)' }}>Recording... tap Stop when done</span>
           </div>
         )}
       </div>
