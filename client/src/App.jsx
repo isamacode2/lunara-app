@@ -24,7 +24,7 @@ function ProtectedLayout() {
   if (!user) return <Navigate to="/login" replace />;
   return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ flex: 1, overflow: 'hidden' }}><Outlet /></div>
+      <div style={{ flex: 1, overflow: 'auto', paddingBottom: '80px' }}><Outlet /></div>
       <BottomNav />
     </div>
   );
