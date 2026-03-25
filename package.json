@@ -4,7 +4,7 @@
   "description": "Lunara Dating Web App",
   "main": "server.js",
   "scripts": {
-    "build": "cd client && npm install && npm run build",
+    "build": "echo \"Build skipped - dist already compiled\"",
     "start": "node server.js",
     "dev": "cd client && npm run dev"
   },
