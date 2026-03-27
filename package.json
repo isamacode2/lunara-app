@@ -1,10 +1,10 @@
 {
   "name": "lunara-app",
-  "version": "2.0.0",
-  "description": "Lunara Dating Web App",
+  "version": "3.0.0",
+  "description": "Lunara — ENM Growth & Guidance Platform",
   "main": "server.js",
   "scripts": {
-    "build": "echo \"Build skipped - dist already compiled\"",
+    "build": "cd client && npm install && npx vite build --outDir ../dist --emptyOutDir",
     "start": "node server.js",
     "dev": "cd client && npm run dev"
   },
