@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { Loader, Plus } from 'lucide-react';
+import { Loader } from 'lucide-react';
 
 const QUICK_PROMPTS = [
   "What does safety mean to me in relationships?",
@@ -412,7 +412,14 @@ export default function Reflect() {
 
         {/* Reflections Feed */}
         <div style={s.reflectionsSection}>
-          <h3 style={s.sectionHeading}>Your Reflections</h3>
+          <div style={s.sectionHeadingRow}>
+            <h3 style={{...s.sectionHeading, marginBottom: 0}}>Your Reflections</h3>
+            {!showCompose && (
+              <button style={s.inlineCreateBtn} onClick={openFreeWrite}>
+                +
+              </button>
+            )}
+          </div>
 
           {reflections.length === 0 ? (
             <div style={s.emptyState}>
@@ -510,13 +517,6 @@ export default function Reflect() {
         </div>
 
       </div>
-
-      {/* Floating Action Button */}
-      {!showCompose && (
-        <button style={s.fab} onClick={openFreeWrite}>
-          +
-        </button>
-      )}
     </div>
   );
 }
@@ -654,6 +654,27 @@ const s = {
   // Reflections Section
   reflectionsSection: {
     margin: '24px 20px 0',
+  },
+  sectionHeadingRow: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: '12px',
+  },
+  inlineCreateBtn: {
+    width: '30px',
+    height: '30px',
+    borderRadius: '15px',
+    background: 'var(--accent)',
+    color: '#fff',
+    fontSize: '18px',
+    fontWeight: '400',
+    border: 'none',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    lineHeight: 1,
   },
   reflectionCard: {
     padding: '12px',
@@ -899,6 +920,7 @@ const s = {
   },
   statsContent: {
     display: 'flex',
+    flexWrap: 'wrap',
     justifyContent: 'center',
     alignItems: 'center',
     gap: '8px',
@@ -924,24 +946,4 @@ const s = {
     padding: 0,
   },
 
-  // FAB
-  fab: {
-    position: 'fixed',
-    bottom: '84px',
-    right: '20px',
-    width: '56px',
-    height: '56px',
-    borderRadius: '28px',
-    background: 'var(--accent)',
-    color: '#fff',
-    fontSize: '28px',
-    fontWeight: '300',
-    border: 'none',
-    cursor: 'pointer',
-    boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-    zIndex: 10,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
 };
