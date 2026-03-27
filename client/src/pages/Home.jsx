@@ -184,7 +184,7 @@ export default function Home() {
   }
 
   return (
-    <div className="page" style={{ overflow: 'auto', paddingBottom: '80px' }}>
+    <div className="page" style={{ overflow: 'auto', paddingBottom: '16px' }}>
       {/* Welcome Section */}
       <div style={s.welcomeSection}>
         <h1 style={s.welcomeGreeting}>

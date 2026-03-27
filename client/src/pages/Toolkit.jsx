@@ -438,7 +438,7 @@ export default function Toolkit() {
   const totalGuides = CATEGORIES.reduce((sum, cat) => sum + cat.items.length, 0);
 
   return (
-    <div className="page" style={{ overflow: 'auto', paddingBottom: '80px' }}>
+    <div className="page" style={{ overflow: 'auto', paddingBottom: '16px' }}>
       {/* Header */}
       <div style={s.header}>
         <div style={s.eyebrow}>RELATIONSHIP TOOLKIT</div>
@@ -546,7 +546,7 @@ export default function Toolkit() {
                   >
                     <div style={{
                       ...s.itemNumber,
-                      background: completed[item.title] ? 'var(--sage-light)' : 'rgba(167, 139, 250, 0.1)',
+                      background: completed[item.title] ? 'var(--sage-light)' : 'var(--accent-light)',
                     }}>
                       {completed[item.title] ? (
                         <span style={{ color: 'var(--sage)' }}>✓</span>
@@ -709,7 +709,7 @@ const s = {
     margin: '16px 20px',
     padding: '16px',
     borderRadius: '16px',
-    background: 'rgba(167, 139, 250, 0.1)',
+    background: 'var(--accent-light)',
     boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
   },
   stat: { textAlign: 'center' },
@@ -782,12 +782,13 @@ const s = {
     width: '48px',
     height: '48px',
     borderRadius: '12px',
-    background: 'rgba(167, 139, 250, 0.1)',
+    background: 'var(--accent-light)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     fontSize: '24px',
     flexShrink: 0,
+    color: 'var(--accent)',
   },
   categoryTitle: {
     fontSize: '16px',

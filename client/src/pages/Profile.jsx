@@ -31,7 +31,7 @@ function ChipSelector({ options, selected, onSelect, multi = false }) {
             style={{
               padding: '9px 14px',
               borderRadius: 'var(--radius-full)',
-              background: active ? 'rgba(180, 124, 255, 0.15)' : 'var(--bg2)',
+              background: active ? 'var(--accent-light)' : 'var(--bg2)',
               border: active ? '1.5px solid var(--accent)' : '1.5px solid var(--border)',
               color: active ? 'var(--accent)' : 'var(--text2)',
               fontSize: '13px',
@@ -171,7 +171,7 @@ export default function Profile() {
     }
 
     return (
-      <div style={{ backgroundColor: 'var(--bg)', minHeight: '100vh', paddingBottom: '100px' }}>
+      <div style={{ backgroundColor: 'var(--bg)', minHeight: '100vh', paddingBottom: '16px' }}>
         <div style={{
           position: 'sticky',
           top: 0,
@@ -411,7 +411,7 @@ export default function Profile() {
 
   // ── DISPLAY VIEW ──
   return (
-    <div style={{ backgroundColor: 'var(--bg)', minHeight: '100vh', paddingBottom: '100px' }}>
+    <div style={{ backgroundColor: 'var(--bg)', minHeight: '100vh', paddingBottom: '16px' }}>
       {/* Header Card with Avatar */}
       <div style={{
         background: 'var(--bg2)',
@@ -548,7 +548,7 @@ export default function Profile() {
                     paddingLeft: '14px',
                     paddingRight: '14px',
                     borderRadius: 'var(--radius-full)',
-                    background: 'rgba(180, 124, 255, 0.15)',
+                    background: 'var(--accent-light)',
                   }}
                 >
                   <span style={{ color: 'var(--accent)', fontSize: '13px', fontWeight: '600' }}>
@@ -643,7 +643,7 @@ export default function Profile() {
               fontFamily: 'Outfit, sans-serif',
               transition: 'background 0.2s',
             }}
-            onMouseEnter={e => e.target.style.background = 'rgba(180, 124, 255, 0.05)'}
+            onMouseEnter={e => e.target.style.background = 'var(--accent-dim)'}
             onMouseLeave={e => e.target.style.background = 'transparent'}
           >
             Privacy settings
@@ -668,7 +668,7 @@ export default function Profile() {
               fontFamily: 'Outfit, sans-serif',
               transition: 'background 0.2s',
             }}
-            onMouseEnter={e => e.target.style.background = 'rgba(180, 124, 255, 0.05)'}
+            onMouseEnter={e => e.target.style.background = 'var(--accent-dim)'}
             onMouseLeave={e => e.target.style.background = 'transparent'}
           >
             Safety & blocked users

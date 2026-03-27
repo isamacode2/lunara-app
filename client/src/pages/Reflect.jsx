@@ -539,7 +539,7 @@ const s = {
   scrollContent: {
     flex: 1,
     overflow: 'auto',
-    paddingBottom: '80px',
+    paddingBottom: '16px',
   },
 
   // Header
