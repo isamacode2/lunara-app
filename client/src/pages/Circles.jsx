@@ -52,6 +52,25 @@ export default function Circles() {
   const [circleChannel, setCircleChannel] = useState(null);
   const [joiningCircleId, setJoiningCircleId] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
+  const [profilePreview, setProfilePreview] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(false);
+
+  async function openProfilePreview(userId) {
+    if (!userId || userId === user?.id) return;
+    setProfileLoading(true);
+    try {
+      const { data } = await supabase
+        .from('profiles')
+        .select('id, display_name, avatar_url, bio, pronouns, relationship_style, experience_level, partner_status, communication_style, interests')
+        .eq('id', userId)
+        .single();
+      if (data) setProfilePreview(data);
+    } catch (err) {
+      console.log('Profile fetch error:', err);
+    } finally {
+      setProfileLoading(false);
+    }
+  }
 
   // Load initial data
   useEffect(() => {
@@ -789,16 +808,21 @@ export default function Circles() {
                 borderRadius: '16px', padding: '20px',
               }}>
                 {/* Post Header */}
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '12px' }}>
+                <div
+                  style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '12px', cursor: post.is_anonymous ? 'default' : 'pointer' }}
+                  onClick={() => !post.is_anonymous && post.user_id && openProfilePreview(post.user_id)}
+                >
                   <div style={{
                     width: '40px', height: '40px', borderRadius: '50%', flexShrink: 0, overflow: 'hidden',
-                    background: 'linear-gradient(135deg, #3B2070 0%, #5a3d8a 100%)',
+                    background: post.author_avatar ? 'transparent' : 'var(--accent-dim)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>
                     {post.is_anonymous ? (
                       <Lock size={18} color="var(--text2)" />
+                    ) : post.author_avatar ? (
+                      <img src={post.author_avatar} alt="" style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} />
                     ) : (
-                      <span style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text)' }}>
+                      <span style={{ fontSize: '16px', fontWeight: '700', color: 'var(--accent)' }}>
                         {(post.author_name || '?')[0].toUpperCase()}
                       </span>
                     )}
@@ -843,7 +867,7 @@ export default function Circles() {
                           <div key={reply.id} style={{ paddingLeft: '12px', borderLeft: '2px solid var(--border-focus)', display: 'flex', gap: '8px' }}>
                             <div style={{
                               width: '32px', height: '32px', borderRadius: '50%', flexShrink: 0,
-                              background: 'linear-gradient(135deg, #3B2070 0%, #5a3d8a 100%)',
+                              background: 'var(--accent-dim)',
                               display: 'flex', alignItems: 'center', justifyContent: 'center',
                             }}>
                               {reply.is_anonymous ? (
@@ -890,6 +914,91 @@ export default function Circles() {
           </div>
         )}
       </div>
+
+      {/* Profile Preview Modal */}
+      {profilePreview && (
+        <div
+          style={{
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(6px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 200,
+          }}
+          onClick={() => setProfilePreview(null)}
+        >
+          <div
+            style={{
+              background: 'var(--bg-card)', borderRadius: '20px', padding: '24px', maxWidth: '360px',
+              width: '100%', boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px' }}>
+              <div style={{
+                width: '56px', height: '56px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0,
+                background: profilePreview.avatar_url ? 'transparent' : 'var(--accent-dim)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                {profilePreview.avatar_url ? (
+                  <img src={profilePreview.avatar_url} alt="" style={{ width: '56px', height: '56px', borderRadius: '50%', objectFit: 'cover' }} />
+                ) : (
+                  <span style={{ fontSize: '22px', fontWeight: '700', color: 'var(--accent)' }}>
+                    {(profilePreview.display_name || '?')[0].toUpperCase()}
+                  </span>
+                )}
+              </div>
+              <div>
+                <div style={{ fontSize: '18px', fontWeight: '700', color: 'var(--ink)' }}>{profilePreview.display_name}</div>
+                {profilePreview.pronouns && (
+                  <div style={{ fontSize: '13px', color: 'var(--text2)' }}>{profilePreview.pronouns}</div>
+                )}
+              </div>
+            </div>
+
+            {profilePreview.bio && (
+              <p style={{ fontSize: '14px', lineHeight: '1.5', color: 'var(--text)', margin: '0 0 14px', borderTop: '1px solid var(--border)', paddingTop: '14px' }}>
+                {profilePreview.bio}
+              </p>
+            )}
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '14px' }}>
+              {profilePreview.relationship_style && (
+                <span style={{ padding: '4px 10px', borderRadius: '9999px', background: 'var(--accent-dim)', color: 'var(--accent)', fontSize: '12px', fontWeight: '600' }}>
+                  {profilePreview.relationship_style}
+                </span>
+              )}
+              {profilePreview.experience_level && (
+                <span style={{ padding: '4px 10px', borderRadius: '9999px', background: 'var(--sage-light)', color: 'var(--sage)', fontSize: '12px', fontWeight: '600' }}>
+                  {profilePreview.experience_level}
+                </span>
+              )}
+              {profilePreview.partner_status && (
+                <span style={{ padding: '4px 10px', borderRadius: '9999px', border: '1px solid var(--border)', color: 'var(--text2)', fontSize: '12px', fontWeight: '600' }}>
+                  {profilePreview.partner_status}
+                </span>
+              )}
+            </div>
+
+            {profilePreview.interests && profilePreview.interests.length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '14px' }}>
+                {profilePreview.interests.slice(0, 6).map(interest => (
+                  <span key={interest} style={{ padding: '3px 8px', borderRadius: '9999px', border: '1px solid var(--border)', color: 'var(--text2)', fontSize: '11px' }}>
+                    {interest}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <button
+              onClick={() => setProfilePreview(null)}
+              style={{
+                width: '100%', padding: '12px', borderRadius: '10px', background: 'var(--bg3)',
+                border: 'none', fontSize: '14px', fontWeight: '600', color: 'var(--ink)', cursor: 'pointer',
+              }}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

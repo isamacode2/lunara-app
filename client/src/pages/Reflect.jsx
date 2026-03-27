@@ -540,7 +540,7 @@ const s = {
   scrollContent: {
     flex: 1,
     overflow: 'auto',
-    paddingBottom: '8px',
+    paddingBottom: '24px',
   },
 
   // Header

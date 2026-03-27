@@ -434,6 +434,34 @@ export default function Guide() {
             Your guidance is private and not shared with other members
           </div>
         </div>
+
+        {/* Subscription Modal (also needed in module view) */}
+        {showSubModal && (
+          <div style={s.modalOverlay} onClick={() => setShowSubModal(false)}>
+            <div style={s.modal} onClick={(e) => e.stopPropagation()}>
+              <button style={s.modalClose} onClick={() => setShowSubModal(false)}>✕</button>
+              <div style={s.modalIcon}>✨</div>
+              <h2 style={s.modalTitle}>Unlock ENM Guidance</h2>
+              <p style={s.modalDesc}>
+                Get structured AI-powered support for conversations, boundaries, jealousy, agreements, and more.
+              </p>
+              <div style={s.modalFreeNote}>
+                All members get Talk through a situation, Prepare a conversation, and Make sense of jealousy for free.
+              </div>
+              <div style={s.modalFeatures}>
+                <div style={s.modalFeature}>• Personalised situation analysis</div>
+                <div style={s.modalFeature}>• Conversation drafts and openers</div>
+                <div style={s.modalFeature}>• Boundary wording builder</div>
+                <div style={s.modalFeature}>• Multi-step guidance threads</div>
+                <div style={s.modalFeature}>• Reflection-to-action recommendations</div>
+                <div style={s.modalFeature}>• Tailored toolkit and circle suggestions</div>
+              </div>
+              <button style={s.modalButton} onClick={() => setShowSubModal(false)}>
+                Unlock Full Guidance — $9.99/month
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
