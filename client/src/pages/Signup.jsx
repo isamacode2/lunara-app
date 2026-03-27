@@ -9,7 +9,7 @@ const pageStyle = {
   alignItems: 'center',
   justifyContent: 'center',
   padding: '20px',
-  backgroundImage: 'linear-gradient(135deg, rgba(59,32,112,0.1) 0%, rgba(180,124,255,0.05) 100%)',
+  background: 'var(--bg)',
   overflowY: 'auto',
 };
 
@@ -38,12 +38,10 @@ const logoStyle = {
 
 const titleStyle = {
   fontSize: '32px',
-  fontFamily: "'Playfair Display', serif",
-  fontWeight: '700',
-  background: 'linear-gradient(135deg, #b47cff 0%, #ffbe55 100%)',
-  backgroundClip: 'text',
-  WebkitBackgroundClip: 'text',
-  WebkitTextFillColor: 'transparent',
+  fontFamily: "'Outfit', sans-serif",
+  fontWeight: '800',
+  color: 'var(--ink)',
+  letterSpacing: '-0.5px',
   margin: '0',
 };
 
@@ -123,9 +121,9 @@ const confirmationTextStyle = {
 
 const confirmationTitleStyle = {
   fontSize: '22px',
-  fontFamily: "'Playfair Display', serif",
+  fontFamily: "'Outfit', sans-serif",
   fontWeight: '700',
-  color: 'var(--text)',
+  color: 'var(--ink)',
   margin: '0',
 };
 
@@ -220,7 +218,7 @@ export default function Signup() {
             <MoonLogo size={56} />
           </div>
           <h1 style={titleStyle}>Lunara</h1>
-          <p style={subtitleStyle}>Connection without limits</p>
+          <p style={subtitleStyle}>Grow into your relationships</p>
         </div>
 
         <form onSubmit={handleSubmit} style={formStyle}>

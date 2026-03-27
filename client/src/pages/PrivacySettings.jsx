@@ -70,7 +70,7 @@ export default function PrivacySettings() {
         >
           <ChevronLeft size={24} />
         </button>
-        <h1 style={{ fontSize: '20px', margin: 0, fontFamily: "'Playfair Display', serif", fontWeight: '700' }}>
+        <h1 style={{ fontSize: '20px', margin: 0, fontFamily: "'Outfit', sans-serif", fontWeight: '700' }}>
           Profile Visibility
         </h1>
       </div>
@@ -81,7 +81,7 @@ export default function PrivacySettings() {
           <div>
             <h2 style={{
               fontSize: '22px', fontWeight: '700', margin: '0 0 8px',
-              fontFamily: "'Playfair Display', serif",
+              fontFamily: "'Outfit', sans-serif",
             }}>
               Control Who Sees You
             </h2>

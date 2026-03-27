@@ -125,7 +125,7 @@ export default function Verification() {
         >
           <ChevronLeft size={24} />
         </button>
-        <h1 style={{ fontSize: '20px', margin: 0, fontWeight: '700', color: '#fff' }}>Verification</h1>
+        <h1 style={{ fontSize: '20px', margin: 0, fontWeight: '700', color: 'var(--ink)' }}>Verification</h1>
       </div>
 
       {/* Progress Bar */}
@@ -133,7 +133,7 @@ export default function Verification() {
         <div style={{
           height: '4px',
           borderRadius: '2px',
-          background: 'rgba(255,255,255,0.1)',
+          background: 'var(--border)',
           overflow: 'hidden',
         }}>
           <div style={{
@@ -148,7 +148,7 @@ export default function Verification() {
           {STEPS.map((s, i) => (
             <div key={s} style={{
               fontSize: '11px',
-              color: i <= step ? GOLD : 'rgba(255,255,255,0.3)',
+              color: i <= step ? GOLD : 'var(--border)',
               fontWeight: i === step ? '700' : '400',
               textTransform: 'capitalize',
             }}>
@@ -166,7 +166,7 @@ export default function Verification() {
           {checkingStatus && (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', padding: '60px 0' }}>
               <Loader size={32} style={{ animation: 'spin 1s linear infinite', color: GOLD }} />
-              <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px' }}>Checking verification status...</p>
+              <p style={{ color: 'var(--text3)', fontSize: '14px' }}>Checking verification status...</p>
             </div>
           )}
 
@@ -176,8 +176,8 @@ export default function Verification() {
               <div style={{ width: '96px', height: '96px', borderRadius: '50%', background: GOLD_DIM, border: `2px solid ${GOLD}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Check size={44} color={GOLD} strokeWidth={3} />
               </div>
-              <h2 style={{ fontSize: '28px', fontWeight: '700', color: '#fff', fontFamily: "'Playfair Display', serif", margin: 0 }}>You're Verified!</h2>
-              <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.6)', lineHeight: '1.6', margin: 0, maxWidth: '300px' }}>
+              <h2 style={{ fontSize: '28px', fontWeight: '700', color: 'var(--ink)', fontFamily: "'Outfit', sans-serif", margin: 0 }}>You're Verified!</h2>
+              <p style={{ fontSize: '15px', color: 'var(--text2)', lineHeight: '1.6', margin: 0, maxWidth: '300px' }}>
                 Your identity has been confirmed. You have a gold verification badge on your profile.
               </p>
               <button onClick={() => navigate('/profile')} style={{ padding: '16px 32px', background: `linear-gradient(135deg, ${GOLD}, #E8C060)`, color: '#000', border: 'none', borderRadius: '14px', fontSize: '16px', fontWeight: '700', cursor: 'pointer', width: '100%', maxWidth: '300px' }}>
@@ -192,8 +192,8 @@ export default function Verification() {
               <div style={{ width: '96px', height: '96px', borderRadius: '50%', background: 'rgba(255,200,60,0.1)', border: '2px solid rgba(255,200,60,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Loader size={40} color={GOLD} style={{ animation: 'spin 3s linear infinite' }} />
               </div>
-              <h2 style={{ fontSize: '28px', fontWeight: '700', color: '#fff', fontFamily: "'Playfair Display', serif", margin: 0 }}>Under Review</h2>
-              <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.6)', lineHeight: '1.6', margin: 0, maxWidth: '320px' }}>
+              <h2 style={{ fontSize: '28px', fontWeight: '700', color: 'var(--ink)', fontFamily: "'Outfit', sans-serif", margin: 0 }}>Under Review</h2>
+              <p style={{ fontSize: '15px', color: 'var(--text2)', lineHeight: '1.6', margin: 0, maxWidth: '320px' }}>
                 Your verification is being reviewed. We'll notify you when it's approved — usually within 24 hours.
               </p>
               <div style={{ background: GOLD_DIM, border: `1px solid ${GOLD_BORDER}`, borderRadius: '12px', padding: '16px', width: '100%', maxWidth: '300px' }}>
@@ -221,18 +221,18 @@ export default function Verification() {
 
               <div style={{ textAlign: 'center' }}>
                 <h2 style={{
-                  fontSize: '28px', fontWeight: '700', color: '#fff',
-                  fontFamily: "'Playfair Display', serif", margin: '0 0 12px',
+                  fontSize: '28px', fontWeight: '700', color: 'var(--ink)',
+                  fontFamily: "'Outfit', sans-serif", margin: '0 0 12px',
                 }}>
                   Verify Your Identity
                 </h2>
-                <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.6)', lineHeight: '1.6', margin: 0 }}>
+                <p style={{ fontSize: '15px', color: 'var(--text2)', lineHeight: '1.6', margin: 0 }}>
                   Verification helps keep our community safe and builds trust with potential connections.
                 </p>
               </div>
 
               <div style={{
-                background: 'rgba(255,255,255,0.05)',
+                background: 'var(--bg3)',
                 border: `1px solid ${GOLD_BORDER}`,
                 borderRadius: '16px',
                 padding: '24px',
@@ -255,7 +255,7 @@ export default function Verification() {
                     }}>
                       <span style={{ fontSize: '13px', fontWeight: '700', color: GOLD }}>{i + 1}</span>
                     </div>
-                    <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.8)' }}>{item}</span>
+                    <span style={{ fontSize: '14px', color: 'var(--text)' }}>{item}</span>
                   </div>
                 ))}
               </div>
@@ -284,12 +284,12 @@ export default function Verification() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               <div style={{ textAlign: 'center' }}>
                 <h2 style={{
-                  fontSize: '24px', fontWeight: '700', color: '#fff',
-                  fontFamily: "'Playfair Display', serif", margin: '0 0 12px',
+                  fontSize: '24px', fontWeight: '700', color: 'var(--ink)',
+                  fontFamily: "'Outfit', sans-serif", margin: '0 0 12px',
                 }}>
                   Write This Code
                 </h2>
-                <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.6)', lineHeight: '1.6', margin: 0 }}>
+                <p style={{ fontSize: '15px', color: 'var(--text2)', lineHeight: '1.6', margin: 0 }}>
                   Write this code clearly on a piece of paper. You'll hold it in your selfie.
                 </p>
               </div>
@@ -312,11 +312,11 @@ export default function Verification() {
               </div>
 
               <div style={{
-                background: 'rgba(255,255,255,0.05)',
+                background: 'var(--bg3)',
                 borderRadius: '12px',
                 padding: '16px',
               }}>
-                <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)', margin: 0, lineHeight: '1.6' }}>
+                <p style={{ fontSize: '13px', color: 'var(--text3)', margin: 0, lineHeight: '1.6' }}>
                   Make sure the code is clearly readable in your photo. This helps us confirm you are a real person.
                 </p>
               </div>
@@ -327,7 +327,7 @@ export default function Verification() {
                   style={{
                     flex: 1, padding: '14px',
                     background: 'transparent',
-                    color: 'rgba(255,255,255,0.6)',
+                    color: 'var(--text2)',
                     border: `1.5px solid ${GOLD_BORDER}`,
                     borderRadius: '14px',
                     fontSize: '15px', fontWeight: '600', cursor: 'pointer',
@@ -359,12 +359,12 @@ export default function Verification() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               <div style={{ textAlign: 'center' }}>
                 <h2 style={{
-                  fontSize: '24px', fontWeight: '700', color: '#fff',
-                  fontFamily: "'Playfair Display', serif", margin: '0 0 12px',
+                  fontSize: '24px', fontWeight: '700', color: 'var(--ink)',
+                  fontFamily: "'Outfit', sans-serif", margin: '0 0 12px',
                 }}>
                   Take Your Selfie
                 </h2>
-                <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.6)', lineHeight: '1.6', margin: 0 }}>
+                <p style={{ fontSize: '15px', color: 'var(--text2)', lineHeight: '1.6', margin: 0 }}>
                   Hold the paper with code <strong style={{ color: GOLD }}>{verificationCode}</strong> clearly visible next to your face.
                 </p>
               </div>
@@ -388,7 +388,7 @@ export default function Verification() {
                   padding: '48px 20px',
                   border: `2px dashed ${GOLD_BORDER}`,
                   borderRadius: '16px',
-                  background: 'rgba(255,255,255,0.03)',
+                  background: 'var(--bg3)',
                   cursor: 'pointer',
                   transition: 'all 0.2s',
                 }}>
@@ -402,7 +402,7 @@ export default function Verification() {
                   <span style={{ fontSize: '15px', fontWeight: '600', color: GOLD }}>
                     Tap to take or choose a photo
                   </span>
-                  <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>
+                  <span style={{ fontSize: '13px', color: 'var(--text3)' }}>
                     JPG, PNG up to 10MB
                   </span>
                   <input
@@ -443,11 +443,11 @@ export default function Verification() {
 
               {/* Checklist */}
               <div style={{
-                background: 'rgba(255,255,255,0.05)',
+                background: 'var(--bg3)',
                 borderRadius: '12px', padding: '16px',
                 display: 'flex', flexDirection: 'column', gap: '12px',
               }}>
-                <span style={{ fontSize: '13px', fontWeight: '600', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase' }}>
+                <span style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text3)', textTransform: 'uppercase' }}>
                   Before submitting, check:
                 </span>
                 {[
@@ -463,7 +463,7 @@ export default function Verification() {
                     }}>
                       <Check size={12} color={GOLD} />
                     </div>
-                    <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)' }}>{item}</span>
+                    <span style={{ fontSize: '13px', color: 'var(--text2)' }}>{item}</span>
                   </div>
                 ))}
               </div>
@@ -473,8 +473,8 @@ export default function Verification() {
                 style={{
                   display: 'flex', alignItems: 'flex-start', gap: '12px',
                   padding: '16px',
-                  background: consent ? GOLD_DIM : 'rgba(255,255,255,0.03)',
-                  border: `1px solid ${consent ? GOLD_BORDER : 'rgba(255,255,255,0.1)'}`,
+                  background: consent ? GOLD_DIM : 'var(--bg3)',
+                  border: `1px solid ${consent ? GOLD_BORDER : 'var(--border)'}`,
                   borderRadius: '12px',
                   cursor: 'pointer',
                   transition: 'all 0.2s',
@@ -483,7 +483,7 @@ export default function Verification() {
               >
                 <div style={{
                   width: '44px', height: '24px', borderRadius: '12px',
-                  background: consent ? GOLD : 'rgba(255,255,255,0.15)',
+                  background: consent ? GOLD : 'var(--border)',
                   position: 'relative', flexShrink: 0,
                   transition: 'background 0.2s',
                 }}>
@@ -496,7 +496,7 @@ export default function Verification() {
                     boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
                   }} />
                 </div>
-                <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', lineHeight: '1.5' }}>
+                <span style={{ fontSize: '13px', color: 'var(--text2)', lineHeight: '1.5' }}>
                   I consent to Lunara securely storing my verification photo for identity confirmation purposes.
                 </span>
               </div>
@@ -507,7 +507,7 @@ export default function Verification() {
                   style={{
                     flex: 1, padding: '14px',
                     background: 'transparent',
-                    color: 'rgba(255,255,255,0.6)',
+                    color: 'var(--text2)',
                     border: `1.5px solid ${GOLD_BORDER}`,
                     borderRadius: '14px',
                     fontSize: '15px', fontWeight: '600', cursor: 'pointer',
@@ -522,7 +522,7 @@ export default function Verification() {
                   style={{
                     flex: 2, padding: '14px',
                     background: (!selectedFile || !consent) ? 'rgba(196,164,74,0.3)' : `linear-gradient(135deg, ${GOLD}, #E8C060)`,
-                    color: (!selectedFile || !consent) ? 'rgba(255,255,255,0.4)' : '#000',
+                    color: (!selectedFile || !consent) ? 'var(--text3)' : '#000',
                     border: 'none',
                     borderRadius: '14px',
                     fontSize: '15px', fontWeight: '700',
@@ -562,14 +562,14 @@ export default function Verification() {
               </div>
 
               <h2 style={{
-                fontSize: '28px', fontWeight: '700', color: '#fff',
-                fontFamily: "'Playfair Display', serif", margin: 0,
+                fontSize: '28px', fontWeight: '700', color: 'var(--ink)',
+                fontFamily: "'Outfit', sans-serif", margin: 0,
               }}>
                 Verification Submitted!
               </h2>
 
               <p style={{
-                fontSize: '15px', color: 'rgba(255,255,255,0.6)',
+                fontSize: '15px', color: 'var(--text2)',
                 lineHeight: '1.6', margin: 0, maxWidth: '300px',
               }}>
                 We'll review your identity within 24 hours. You'll receive a notification once verified.

@@ -45,7 +45,7 @@ const contentStyle = {
 
 const titleStyle = {
   fontSize: '28px',
-  fontFamily: "'Playfair Display', serif",
+  fontFamily: "'Outfit', sans-serif",
   fontWeight: '700',
   margin: '12px 0',
 };
@@ -68,7 +68,7 @@ const cardHeaderStyle = {
 const cardTitleStyle = {
   fontSize: '16px',
   fontWeight: '600',
-  fontFamily: "'Playfair Display', serif",
+  fontFamily: "'Outfit', sans-serif",
   flex: 1,
 };
 
@@ -128,7 +128,7 @@ const secondaryButtonStyle = {
   ...buttonStyle,
   background: 'transparent',
   color: 'var(--text)',
-  border: '1.5px solid rgba(180,124,255,0.3)',
+  border: '1.5px solid var(--border-focus)',
 };
 
 const linkStyle = {
@@ -167,7 +167,7 @@ const modalContentStyle = {
 
 const modalTitleStyle = {
   fontSize: '22px',
-  fontFamily: "'Playfair Display', serif",
+  fontFamily: "'Outfit', sans-serif",
   fontWeight: '700',
   marginBottom: '16px',
   margin: '0',
@@ -320,7 +320,7 @@ export default function Safety() {
         <button style={headerButtonStyle} onClick={() => navigate('/profile')}>
           <ChevronLeft size={24} />
         </button>
-        <h1 style={{ fontSize: '20px', margin: 0, fontFamily: "'Playfair Display', serif", fontWeight: '700' }}>Safety & Privacy</h1>
+        <h1 style={{ fontSize: '20px', margin: 0, fontFamily: "'Outfit', sans-serif", fontWeight: '700' }}>Safety & Privacy</h1>
       </div>
 
       <div style={scrollContainerStyle}>
@@ -519,7 +519,7 @@ export default function Safety() {
                   padding: '12px 24px',
                   background: 'transparent',
                   color: 'var(--text2)',
-                  border: '1.5px solid rgba(180,124,255,0.3)',
+                  border: '1.5px solid var(--border-focus)',
                   borderRadius: 'var(--radius-lg)',
                   fontWeight: '600',
                   cursor: 'pointer',

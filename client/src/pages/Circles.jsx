@@ -707,7 +707,7 @@ export default function Circles() {
 
   // VIEW: Circle Feed
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', backgroundColor: '#0e0c14' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', backgroundColor: 'var(--bg)' }}>
       {/* Fixed Header */}
       <div style={{
         padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px',
@@ -736,7 +736,7 @@ export default function Circles() {
         padding: '16px 20px', flexShrink: 0, borderBottom: '1px solid var(--border)',
       }}>
         <div style={{
-          background: '#16131f', border: '1px solid rgba(180,124,255,0.15)', borderRadius: '16px', padding: '16px',
+          background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '16px', padding: '16px',
           display: 'flex', flexDirection: 'column', gap: '12px',
         }}>
           <textarea
@@ -757,8 +757,8 @@ export default function Circles() {
             <button onClick={handleCreatePost} disabled={posting || !newPostContent.trim()}
               style={{
                 padding: '8px 20px', borderRadius: '20px', border: 'none', fontSize: '13px', fontWeight: '700',
-                background: (posting || !newPostContent.trim()) ? 'rgba(180,124,255,0.3)' : 'var(--primary)',
-                color: (posting || !newPostContent.trim()) ? 'rgba(255,255,255,0.4)' : '#fff',
+                background: (posting || !newPostContent.trim()) ? 'var(--accent-dim)' : 'var(--primary)',
+                color: (posting || !newPostContent.trim()) ? 'var(--text3)' : '#fff',
                 cursor: (posting || !newPostContent.trim()) ? 'not-allowed' : 'pointer',
                 display: 'flex', alignItems: 'center', gap: '6px',
               }}>
@@ -785,7 +785,7 @@ export default function Circles() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', paddingBottom: '20px' }}>
             {feed.map(post => (
               <div key={post.id} style={{
-                background: '#16131f', border: '1px solid rgba(180,124,255,0.15)',
+                background: 'var(--bg-card)', border: '1px solid var(--border)',
                 borderRadius: '16px', padding: '20px',
               }}>
                 {/* Post Header */}
@@ -796,9 +796,9 @@ export default function Circles() {
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>
                     {post.is_anonymous ? (
-                      <Lock size={18} color="rgba(255,255,255,0.6)" />
+                      <Lock size={18} color="var(--text2)" />
                     ) : (
-                      <span style={{ fontSize: '16px', fontWeight: '700', color: 'rgba(255,255,255,0.8)' }}>
+                      <span style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text)' }}>
                         {(post.author_name || '?')[0].toUpperCase()}
                       </span>
                     )}
@@ -821,7 +821,7 @@ export default function Circles() {
                 </p>
 
                 {/* Post Actions */}
-                <div style={{ display: 'flex', gap: '16px', paddingTop: '12px', borderTop: '1px solid rgba(180,124,255,0.1)' }}>
+                <div style={{ display: 'flex', gap: '16px', paddingTop: '12px', borderTop: '1px solid var(--border)' }}>
                   <button onClick={() => handleToggleLike(post.id)}
                     style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'transparent', border: 'none', color: userLikes[post.id] ? 'var(--primary)' : 'var(--text2)', cursor: 'pointer', fontSize: '13px', fontWeight: 500, padding: '4px 8px' }}>
                     <Heart size={16} fill={userLikes[post.id] ? 'currentColor' : 'none'} />
@@ -836,20 +836,20 @@ export default function Circles() {
 
                 {/* Expanded Replies */}
                 {expandedReplies === post.id && (
-                  <div style={{ paddingTop: '12px', marginTop: '8px', borderTop: '1px solid rgba(180,124,255,0.1)' }}>
+                  <div style={{ paddingTop: '12px', marginTop: '8px', borderTop: '1px solid var(--border)' }}>
                     {post._replies && post._replies.length > 0 && (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '12px' }}>
                         {post._replies.map(reply => (
-                          <div key={reply.id} style={{ paddingLeft: '12px', borderLeft: '2px solid rgba(180,124,255,0.2)', display: 'flex', gap: '8px' }}>
+                          <div key={reply.id} style={{ paddingLeft: '12px', borderLeft: '2px solid var(--border-focus)', display: 'flex', gap: '8px' }}>
                             <div style={{
                               width: '32px', height: '32px', borderRadius: '50%', flexShrink: 0,
                               background: 'linear-gradient(135deg, #3B2070 0%, #5a3d8a 100%)',
                               display: 'flex', alignItems: 'center', justifyContent: 'center',
                             }}>
                               {reply.is_anonymous ? (
-                                <Lock size={14} color="rgba(255,255,255,0.5)" />
+                                <Lock size={14} color="var(--text3)" />
                               ) : (
-                                <span style={{ fontSize: '13px', fontWeight: '700', color: 'rgba(255,255,255,0.7)' }}>
+                                <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text2)' }}>
                                   {(reply.author?.display_name || '?')[0].toUpperCase()}
                                 </span>
                               )}
@@ -866,7 +866,7 @@ export default function Circles() {
                     )}
 
                     {/* Reply Input */}
-                    <div style={{ display: 'flex', gap: '8px', paddingTop: '12px', borderTop: '1px solid rgba(180,124,255,0.1)' }}>
+                    <div style={{ display: 'flex', gap: '8px', paddingTop: '12px', borderTop: '1px solid var(--border)' }}>
                       <input type="text" value={replyText[post.id] || ''}
                         onChange={e => setReplyText(prev => ({ ...prev, [post.id]: e.target.value }))}
                         placeholder="Reply..."
