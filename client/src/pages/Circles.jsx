@@ -341,46 +341,29 @@ export default function Circles() {
     );
 
     return (
-      <div className="page page-scroll" style={{ backgroundColor: 'var(--bg)' }}>
-        {/* Header */}
-        <div
-          className="page-header"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '12px',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Users size={24} style={{ color: 'var(--accent)' }} />
-            <h1 style={{ fontSize: '28px', margin: 0 }}>Circles</h1>
-          </div>
-          <button
-            className="btn btn-outline btn-sm"
-            onClick={() => setShowProposeModal(true)}
-          >
-            <Plus size={16} />
-            Propose
-          </button>
+      <div style={{ backgroundColor: 'var(--bg)', minHeight: '100vh', paddingBottom: '100px' }}>
+        {/* Welcome Header */}
+        <div style={{
+          background: 'var(--bg2)',
+          borderBottomLeftRadius: '28px',
+          borderBottomRightRadius: '28px',
+          paddingTop: '60px',
+          paddingBottom: '12px',
+          paddingLeft: '20px',
+          paddingRight: '20px',
+          boxShadow: '0 2px 12px rgba(0, 0, 0, 0.03)',
+        }}>
+          <h1 style={{ fontSize: '24px', fontWeight: '800', margin: '0 0 8px 0', color: 'var(--ink)' }}>Circles</h1>
+          <p style={{ fontSize: '13px', color: 'var(--text2)', margin: 0 }}>Calm, moderated spaces for honest conversation</p>
         </div>
-
-        {error && (
-          <div
-            className="msg-error"
-            style={{ margin: '16px 0', textAlign: 'center' }}
-          >
-            {error}
-          </div>
-        )}
 
         {successMessage && (
           <div style={{
-            margin: '0 20px 12px',
+            margin: '12px 20px 0',
             padding: '12px 16px',
             background: 'rgba(126, 196, 146, 0.15)',
             borderRadius: 'var(--radius-sm)',
-            color: 'var(--success)',
+            color: '#7ec492',
             fontSize: '14px',
             fontWeight: '600',
             textAlign: 'center',
@@ -389,213 +372,220 @@ export default function Circles() {
           </div>
         )}
 
+        {error && (
+          <div style={{
+            margin: '12px 20px 0',
+            padding: '12px 16px',
+            background: 'rgba(255, 80, 80, 0.15)',
+            borderRadius: 'var(--radius-sm)',
+            color: '#ff5050',
+            fontSize: '14px',
+            fontWeight: '600',
+            textAlign: 'center',
+          }}>
+            {error}
+          </div>
+        )}
+
         {loading ? (
-          <div className="page-center">
-            <Loader size={32} className="spin" />
-            <p>Loading circles...</p>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '12px',
+            padding: '60px 20px',
+          }}>
+            <Loader size={32} style={{ animation: 'spin 1s linear infinite' }} />
+            <p style={{ color: 'var(--text2)' }}>Loading circles...</p>
           </div>
         ) : (
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingBottom: '100px' }}>
-            {/* My Circles */}
-            {myCircles.length > 0 && (
-              <section style={{ marginBottom: '32px' }}>
-                <h2
-                  style={{
-                    fontSize: '16px',
-                    fontWeight: 600,
-                    color: 'var(--text2)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                    marginBottom: '12px',
-                  }}
-                >
-                  My Circles
-                </h2>
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns:
-                      'repeat(auto-fill, minmax(160px, 1fr))',
-                    gap: '12px',
-                  }}
-                >
-                  {myCircles.map(circle => (
-                    <div
-                      key={circle.id}
-                      className="card"
-                      onClick={() => openCircleFeed(circle)}
-                      style={{
-                        cursor: 'pointer',
+          <div style={{ padding: '16px 20px' }}>
+            {myCircles.length > 0 ? (
+              <>
+                {myCircles.map(circle => (
+                  <div
+                    key={circle.id}
+                    onClick={() => openCircleFeed(circle)}
+                    style={{
+                      background: 'var(--bg2)',
+                      borderRadius: 'var(--radius-lg)',
+                      padding: '16px',
+                      marginBottom: '12px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '12px',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <div style={{
+                        width: '48px',
+                        height: '48px',
+                        borderRadius: 'var(--radius-sm)',
+                        background: 'rgba(180, 124, 255, 0.15)',
                         display: 'flex',
-                        flexDirection: 'column',
-                        padding: '16px',
-                      }}
-                    >
-                      <div style={{ fontSize: '32px', marginBottom: '8px' }}>
-                        {circle.icon || '🌙'}
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '22px',
+                        flexShrink: 0,
+                      }}>
+                        {circle.icon || '◎'}
                       </div>
-                      <h3
-                        style={{
-                          fontSize: '16px',
-                          fontWeight: 600,
-                          margin: '0 0 4px 0',
-                          flex: 1,
-                        }}
-                      >
-                        {circle.name}
-                      </h3>
-                      <p
-                        style={{
-                          fontSize: '13px',
-                          color: 'var(--text2)',
-                          margin: 0,
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden',
-                          marginBottom: '12px',
-                          flex: 1,
-                        }}
-                      >
+                      <div style={{ flex: 1 }}>
+                        <h3 style={{ fontSize: '16px', fontWeight: '700', margin: '0 0 2px 0', color: 'var(--ink)' }}>
+                          {circle.name}
+                        </h3>
+                        <p style={{ fontSize: '12px', margin: '2px 0', color: 'var(--text2)' }}>
+                          {circle.member_count || 1} members
+                        </p>
+                        <p style={{ fontSize: '11px', margin: '2px 0 0 0', fontWeight: '600', color: 'rgba(180, 124, 255, 0.8)' }}>
+                          Moderated · Safe space
+                        </p>
+                      </div>
+                      <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'rgba(180, 124, 255, 0.5)', flexShrink: 0 }} />
+                    </div>
+                    {circle.description && (
+                      <p style={{ fontSize: '13px', margin: '0', color: 'var(--text2)', lineHeight: '1.5' }}>
                         {circle.description}
                       </p>
-                      <div
-                        style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                        }}
-                      >
-                        <span
-                          style={{
-                            fontSize: '12px',
-                            color: 'var(--text2)',
-                          }}
-                        >
-                          {circle.member_count || 1} members
-                        </span>
-                        <button
-                          className="btn btn-sm btn-ghost"
-                          onClick={e => {
-                            e.stopPropagation();
-                            handleLeaveCircle(circle.id);
-                          }}
-                          style={{ padding: '4px 8px' }}
-                        >
-                          Leave
-                        </button>
-                      </div>
+                    )}
+                    <div style={{
+                      paddingTop: '8px',
+                      borderTop: '1px solid var(--border)',
+                      textAlign: 'right',
+                    }}>
+                      <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--accent)' }}>Enter Circle →</span>
                     </div>
-                  ))}
+                  </div>
+                ))}
+              </>
+            ) : (
+              <div style={{
+                textAlign: 'center',
+                paddingTop: '60px',
+                paddingBottom: '60px',
+              }}>
+                <div style={{
+                  width: '80px',
+                  height: '80px',
+                  borderRadius: 'var(--radius-lg)',
+                  background: 'rgba(180, 124, 255, 0.15)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '36px',
+                  margin: '0 auto 16px',
+                }}>
+                  ◎
                 </div>
-              </section>
-            )}
-
-            {/* Discover Circles */}
-            {discoverCircles.length > 0 && (
-              <section>
-                <h2
-                  style={{
-                    fontSize: '16px',
-                    fontWeight: 600,
-                    color: 'var(--text2)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                    marginBottom: '12px',
-                  }}
-                >
-                  Discover Circles
-                </h2>
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns:
-                      'repeat(auto-fill, minmax(160px, 1fr))',
-                    gap: '12px',
-                  }}
-                >
-                  {discoverCircles.map(circle => (
-                    <div
-                      key={circle.id}
-                      className="card"
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        padding: '16px',
-                      }}
-                    >
-                      <div style={{ fontSize: '32px', marginBottom: '8px' }}>
-                        {circle.icon || '🌙'}
-                      </div>
-                      <h3
-                        style={{
-                          fontSize: '16px',
-                          fontWeight: 600,
-                          margin: '0 0 4px 0',
-                          flex: 1,
-                        }}
-                      >
-                        {circle.name}
-                      </h3>
-                      <p
-                        style={{
-                          fontSize: '13px',
-                          color: 'var(--text2)',
-                          margin: 0,
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden',
-                          marginBottom: '12px',
-                          flex: 1,
-                        }}
-                      >
-                        {circle.description}
-                      </p>
-                      <div
-                        style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                        }}
-                      >
-                        <span
-                          style={{
-                            fontSize: '12px',
-                            color: 'var(--text2)',
-                          }}
-                        >
-                          {circle.member_count || 1} members
-                        </span>
-                        <button
-                          className={myCircles.find(m => m.id === circle.id) ? 'btn btn-sm btn-outline' : 'btn btn-sm btn-primary'}
-                          onClick={() => !myCircles.find(m => m.id === circle.id) && handleJoinCircle(circle.id)}
-                          disabled={joiningCircleId === circle.id}
-                          style={{
-                            padding: '4px 8px',
-                            opacity: joiningCircleId === circle.id ? 0.6 : 1,
-                            cursor: myCircles.find(m => m.id === circle.id) ? 'default' : 'pointer',
-                          }}
-                        >
-                          {joiningCircleId === circle.id ? 'Joining...' : myCircles.find(m => m.id === circle.id) ? 'Joined \u2713' : 'Join'}
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {myCircles.length === 0 && discoverCircles.length === 0 && (
-              <div className="page-empty">
-                <Users size={48} style={{ color: 'var(--text2)' }} />
-                <h2 style={{ fontSize: '20px', fontWeight: 600 }}>
-                  No circles yet
-                </h2>
-                <p style={{ color: 'var(--text2)' }}>
-                  Propose a circle or discover existing ones
+                <h2 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--ink)', margin: '0 0 8px 0' }}>Find your community</h2>
+                <p style={{
+                  fontSize: '14px',
+                  color: 'var(--text2)',
+                  lineHeight: '1.6',
+                  marginBottom: '16px',
+                }}>
+                  Circles are moderated spaces for honest conversation, shared learning, and mutual support.
                 </p>
+                <button
+                  onClick={() => setShowProposeModal(true)}
+                  style={{
+                    padding: '12px 28px',
+                    borderRadius: 'var(--radius-full)',
+                    border: `1.5px solid var(--accent)`,
+                    background: 'transparent',
+                    color: 'var(--accent)',
+                    fontSize: '14px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    fontFamily: 'Outfit, sans-serif',
+                  }}
+                >
+                  Propose a Circle
+                </button>
               </div>
+            )}
+
+            {/* Browse all section */}
+            {myCircles.length > 0 && discoverCircles.length > 0 && (
+              <>
+                <h2 style={{
+                  fontSize: '10px',
+                  fontWeight: '800',
+                  letterSpacing: '1.5px',
+                  textTransform: 'uppercase',
+                  color: 'var(--text2)',
+                  marginTop: '32px',
+                  marginBottom: '12px',
+                }}>
+                  Browse All
+                </h2>
+                {discoverCircles.map(circle => (
+                  <div
+                    key={circle.id}
+                    style={{
+                      background: 'var(--bg2)',
+                      borderRadius: 'var(--radius-lg)',
+                      padding: '16px',
+                      marginBottom: '12px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '12px',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <div style={{
+                        width: '48px',
+                        height: '48px',
+                        borderRadius: 'var(--radius-sm)',
+                        background: 'rgba(180, 124, 255, 0.15)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '22px',
+                        flexShrink: 0,
+                      }}>
+                        {circle.icon || '◎'}
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <h3 style={{ fontSize: '16px', fontWeight: '700', margin: '0 0 2px 0', color: 'var(--ink)' }}>
+                          {circle.name}
+                        </h3>
+                        <p style={{ fontSize: '12px', margin: '2px 0', color: 'var(--text2)' }}>
+                          {circle.member_count || 1} members
+                        </p>
+                        <p style={{ fontSize: '11px', margin: '2px 0 0 0', fontWeight: '600', color: 'rgba(180, 124, 255, 0.8)' }}>
+                          Moderated · Safe space
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => handleJoinCircle(circle.id)}
+                        disabled={joiningCircleId === circle.id}
+                        style={{
+                          padding: '7px 18px',
+                          borderRadius: 'var(--radius-full)',
+                          background: 'var(--accent)',
+                          color: '#fff',
+                          border: 'none',
+                          fontSize: '13px',
+                          fontWeight: '700',
+                          cursor: 'pointer',
+                          fontFamily: 'Outfit, sans-serif',
+                          opacity: joiningCircleId === circle.id ? 0.6 : 1,
+                        }}
+                      >
+                        {joiningCircleId === circle.id ? 'Joining...' : 'Join'}
+                      </button>
+                    </div>
+                    {circle.description && (
+                      <p style={{ fontSize: '13px', margin: '0', color: 'var(--text2)', lineHeight: '1.5' }}>
+                        {circle.description}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </>
             )}
           </div>
         )}
