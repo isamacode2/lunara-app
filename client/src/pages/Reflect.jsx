@@ -509,7 +509,6 @@ export default function Reflect() {
           )}
         </div>
 
-        <div style={{ height: '8px' }} />
       </div>
 
       {/* Floating Action Button */}
@@ -540,7 +539,7 @@ const s = {
   scrollContent: {
     flex: 1,
     overflow: 'auto',
-    paddingBottom: '24px',
+    paddingBottom: '0',
   },
 
   // Header

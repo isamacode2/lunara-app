@@ -147,8 +147,8 @@ button { font-family: 'Outfit', sans-serif; cursor: pointer; border: none; outli
 .modal-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px; }
 
 /* Page layout */
-.page { display: flex; flex-direction: column; min-height: 100%; padding-bottom: 20px; }
-.page-scroll { flex: 1; overflow-y: auto; padding-bottom: 20px; }
+.page { display: flex; flex-direction: column; min-height: 100%; padding-bottom: 0; }
+.page-scroll { flex: 1; overflow-y: auto; padding-bottom: 0; }
 .page-header { padding: 20px 20px 12px; flex-shrink: 0; }
 .page-header h1 { font-size: 28px; }
 .page-center { height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px; padding: 20px; }

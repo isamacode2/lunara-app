@@ -360,13 +360,13 @@ export default function Circles() {
     );
 
     return (
-      <div style={{ backgroundColor: 'var(--bg)', minHeight: '100vh', paddingBottom: '100px' }}>
+      <div style={{ backgroundColor: 'var(--bg)', minHeight: '100%', paddingBottom: '0' }}>
         {/* Welcome Header */}
         <div style={{
           background: 'var(--bg2)',
           borderBottomLeftRadius: '28px',
           borderBottomRightRadius: '28px',
-          paddingTop: '60px',
+          paddingTop: '24px',
           paddingBottom: '12px',
           paddingLeft: '20px',
           paddingRight: '20px',
@@ -810,7 +810,7 @@ export default function Circles() {
                 {/* Post Header */}
                 <div
                   style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '12px', cursor: post.is_anonymous ? 'default' : 'pointer' }}
-                  onClick={() => !post.is_anonymous && post.user_id && openProfilePreview(post.user_id)}
+                  onClick={() => !post.is_anonymous && post.author_id && openProfilePreview(post.author_id)}
                 >
                   <div style={{
                     width: '40px', height: '40px', borderRadius: '50%', flexShrink: 0, overflow: 'hidden',

@@ -586,7 +586,6 @@ export default function Guide() {
           </div>
         </div>
 
-        <div style={{ height: '8px' }} />
       </div>
 
       {/* Subscription Modal */}
@@ -643,7 +642,7 @@ const s = {
   scrollContent: {
     flex: 1,
     overflow: 'auto',
-    padding: '24px 12px 20px',
+    padding: '24px 12px 0',
   },
 
   // Hero

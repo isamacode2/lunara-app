@@ -184,7 +184,7 @@ export default function Home() {
   }
 
   return (
-    <div className="page" style={{ overflow: 'auto', paddingBottom: '20px' }}>
+    <div className="page" style={{ overflow: 'auto', paddingBottom: '0' }}>
       {/* Welcome Section */}
       <div style={s.welcomeSection}>
         <h1 style={s.welcomeGreeting}>
@@ -709,7 +709,7 @@ const s = {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
     gap: '8px',
-    margin: '16px 20px 32px 20px',
+    margin: '16px 20px 0 20px',
   },
   quickActionBtn: {
     padding: '12px',
