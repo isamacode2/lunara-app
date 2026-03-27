@@ -360,7 +360,7 @@ export default function Circles() {
     );
 
     return (
-      <div style={{ backgroundColor: 'var(--bg)', minHeight: '100%', paddingBottom: '0' }}>
+      <div style={{ backgroundColor: 'var(--bg)', minHeight: '100%', paddingBottom: '80px' }}>
         {/* Welcome Header */}
         <div style={{
           background: 'var(--bg2)',

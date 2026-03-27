@@ -642,7 +642,7 @@ const s = {
   scrollContent: {
     flex: 1,
     overflow: 'auto',
-    padding: '24px 12px 0',
+    padding: '24px 12px 80px',
   },
 
   // Hero

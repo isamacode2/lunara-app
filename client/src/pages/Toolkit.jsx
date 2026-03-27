@@ -438,7 +438,7 @@ export default function Toolkit() {
   const totalGuides = CATEGORIES.reduce((sum, cat) => sum + cat.items.length, 0);
 
   return (
-    <div className="page" style={{ overflow: 'auto', paddingBottom: '0' }}>
+    <div className="page" style={{ overflow: 'auto', paddingBottom: '80px' }}>
       {/* Header */}
       <div style={s.header}>
         <div style={s.eyebrow}>RELATIONSHIP TOOLKIT</div>
