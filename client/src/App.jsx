@@ -32,7 +32,7 @@ function ProtectedLayout() {
   return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       <TopBar />
-      <div style={{ flex: 1, overflow: 'auto', paddingBottom: '80px' }}><Outlet /></div>
+      <div style={{ flex: 1, overflow: 'auto', paddingBottom: '72px' }}><Outlet /></div>
       <BottomNav />
     </div>
   );

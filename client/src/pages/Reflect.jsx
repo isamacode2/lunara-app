@@ -527,13 +527,13 @@ const s = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    height: '100vh',
+    height: '100%',
     background: 'var(--bg)',
   },
   container: {
     display: 'flex',
     flexDirection: 'column',
-    height: '100vh',
+    height: '100%',
     background: 'var(--bg)',
     overflow: 'hidden',
   },
@@ -545,9 +545,7 @@ const s = {
 
   // Header
   headerSection: {
-    paddingTop: '24px',
-    paddingBottom: '24px',
-    paddingHorizontal: '20px',
+    padding: '24px 20px',
     borderBottomLeftRadius: '28px',
     borderBottomRightRadius: '28px',
     background: 'var(--bg2)',
@@ -570,8 +568,7 @@ const s = {
 
   // Challenge Card
   challengeCard: {
-    marginHorizontal: '20px',
-    marginTop: '24px',
+    margin: '24px 20px 0',
     padding: '16px',
     borderRadius: '16px',
     border: '1.5px solid var(--accent)',
@@ -622,8 +619,7 @@ const s = {
 
   // Quick Prompts
   promptsSection: {
-    marginHorizontal: '20px',
-    marginTop: '24px',
+    margin: '24px 20px 0',
   },
   sectionHeading: {
     fontSize: '14px',
@@ -658,8 +654,7 @@ const s = {
 
   // Reflections Section
   reflectionsSection: {
-    marginHorizontal: '20px',
-    marginTop: '24px',
+    margin: '24px 20px 0',
   },
   reflectionCard: {
     padding: '12px',
@@ -699,10 +694,9 @@ const s = {
     marginTop: '8px',
   },
   tagPill: {
-    paddingVertical: '4px',
-    paddingHorizontal: '10px',
+    padding: '4px 10px',
     borderRadius: '9999px',
-    background: 'rgba(var(--accent-rgb), 0.15)',
+    background: 'var(--accent-dim)',
     color: 'var(--accent)',
     fontSize: '11px',
     fontWeight: '600',
@@ -716,8 +710,7 @@ const s = {
   },
   reflectionActionBtn: {
     flex: 1,
-    paddingVertical: '8px',
-    paddingHorizontal: '12px',
+    padding: '8px 12px',
     borderRadius: '8px',
     border: '1px solid var(--text3)',
     background: 'var(--bg)',
@@ -730,8 +723,7 @@ const s = {
   // Empty State
   emptyState: {
     textAlign: 'center',
-    paddingHorizontal: '20px',
-    paddingVertical: '32px',
+    padding: '32px 20px',
     borderRadius: '12px',
     marginBottom: '24px',
     background: 'var(--bg2)',
@@ -761,8 +753,7 @@ const s = {
     flexDirection: 'column',
   },
   emptyActionBtn: {
-    paddingVertical: '10px',
-    paddingHorizontal: '16px',
+    padding: '10px 16px',
     borderRadius: '8px',
     background: 'var(--accent)',
     color: '#fff',
@@ -790,9 +781,7 @@ const s = {
     background: 'var(--bg)',
     borderTopLeftRadius: '28px',
     borderTopRightRadius: '28px',
-    paddingHorizontal: '20px',
-    paddingTop: '24px',
-    paddingBottom: '20px',
+    padding: '24px 20px 20px',
     overflow: 'auto',
   },
   modalHeader: {
@@ -830,9 +819,7 @@ const s = {
   },
   textarea: {
     width: '100%',
-    borderWidth: '1px',
-    borderColor: 'var(--text3)',
-    borderStyle: 'solid',
+    border: '1px solid var(--border)',
     borderRadius: '8px',
     padding: '12px',
     minHeight: '150px',
@@ -861,12 +848,9 @@ const s = {
     gap: '8px',
   },
   tagChip: {
-    paddingVertical: '7px',
-    paddingHorizontal: '14px',
+    padding: '7px 14px',
     borderRadius: '9999px',
-    borderWidth: '1px',
-    borderColor: 'var(--text3)',
-    borderStyle: 'solid',
+    border: '1px solid var(--border)',
     fontSize: '12px',
     fontWeight: '600',
     cursor: 'pointer',
@@ -875,7 +859,7 @@ const s = {
   // Buttons
   primaryBtn: {
     width: '100%',
-    paddingVertical: '14px',
+    padding: '14px 0',
     borderRadius: '8px',
     background: 'var(--accent)',
     color: '#fff',
@@ -887,11 +871,9 @@ const s = {
     textAlign: 'center',
   },
   secondaryBtn: {
-    paddingVertical: '12px',
+    padding: '12px 0',
     borderRadius: '8px',
-    borderWidth: '1px',
-    borderColor: 'var(--text3)',
-    borderStyle: 'solid',
+    border: '1px solid var(--border)',
     background: 'transparent',
     color: 'var(--text2)',
     fontSize: '14px',
@@ -909,14 +891,10 @@ const s = {
   statsStrip: {
     display: 'flex',
     flexDirection: 'column',
-    marginHorizontal: '20px',
-    marginTop: '24px',
-    paddingVertical: '12px',
-    paddingHorizontal: '12px',
+    margin: '24px 20px 0',
+    padding: '12px',
     borderRadius: '12px',
-    borderWidth: '1px',
-    borderColor: 'var(--text3)',
-    borderStyle: 'solid',
+    border: '1px solid var(--border)',
     background: 'var(--bg2)',
     gap: '8px',
   },
@@ -950,7 +928,7 @@ const s = {
   // FAB
   fab: {
     position: 'fixed',
-    bottom: '100px',
+    bottom: '84px',
     right: '20px',
     width: '56px',
     height: '56px',

@@ -423,7 +423,7 @@ export default function Circles() {
                         width: '48px',
                         height: '48px',
                         borderRadius: 'var(--radius-sm)',
-                        background: 'rgba(180, 124, 255, 0.15)',
+                        background: 'var(--accent-dim)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -439,11 +439,11 @@ export default function Circles() {
                         <p style={{ fontSize: '12px', margin: '2px 0', color: 'var(--text2)' }}>
                           {circle.member_count || 1} members
                         </p>
-                        <p style={{ fontSize: '11px', margin: '2px 0 0 0', fontWeight: '600', color: 'rgba(180, 124, 255, 0.8)' }}>
+                        <p style={{ fontSize: '11px', margin: '2px 0 0 0', fontWeight: '600', color: 'var(--accent)' }}>
                           Moderated · Safe space
                         </p>
                       </div>
-                      <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'rgba(180, 124, 255, 0.5)', flexShrink: 0 }} />
+                      <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent)', flexShrink: 0 }} />
                     </div>
                     {circle.description && (
                       <p style={{ fontSize: '13px', margin: '0', color: 'var(--text2)', lineHeight: '1.5' }}>
@@ -470,7 +470,7 @@ export default function Circles() {
                   width: '80px',
                   height: '80px',
                   borderRadius: 'var(--radius-lg)',
-                  background: 'rgba(180, 124, 255, 0.15)',
+                  background: 'var(--accent-dim)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -539,7 +539,7 @@ export default function Circles() {
                         width: '48px',
                         height: '48px',
                         borderRadius: 'var(--radius-sm)',
-                        background: 'rgba(180, 124, 255, 0.15)',
+                        background: 'var(--accent-dim)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -555,7 +555,7 @@ export default function Circles() {
                         <p style={{ fontSize: '12px', margin: '2px 0', color: 'var(--text2)' }}>
                           {circle.member_count || 1} members
                         </p>
-                        <p style={{ fontSize: '11px', margin: '2px 0 0 0', fontWeight: '600', color: 'rgba(180, 124, 255, 0.8)' }}>
+                        <p style={{ fontSize: '11px', margin: '2px 0 0 0', fontWeight: '600', color: 'var(--accent)' }}>
                           Moderated · Safe space
                         </p>
                       </div>

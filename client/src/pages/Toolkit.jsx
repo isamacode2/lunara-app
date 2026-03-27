@@ -540,7 +540,7 @@ export default function Toolkit() {
                     key={item.title}
                     style={{
                       ...s.itemCard,
-                      borderBottomWidth: index === category.items.length - 1 ? 0 : '1px',
+                      borderBottom: index === category.items.length - 1 ? 'none' : '1px solid var(--border)',
                     }}
                     onClick={() => handleItemClick(item)}
                   >
@@ -805,16 +805,12 @@ const s = {
   // Items
   itemsContainer: {
     borderTop: '1px solid var(--border)',
-    paddingHorizontal: '16px',
-    paddingLeft: '16px',
-    paddingRight: '16px',
+    padding: '0 16px',
   },
   itemCard: {
     display: 'flex',
     alignItems: 'flex-start',
-    paddingVertical: '12px',
-    paddingTop: '12px',
-    paddingBottom: '12px',
+    padding: '12px 0',
     borderBottom: '1px solid var(--border)',
     borderLeft: 'none',
     borderRight: 'none',

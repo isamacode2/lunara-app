@@ -184,7 +184,7 @@ export default function Home() {
   }
 
   return (
-    <div className="page" style={{ overflow: 'auto', paddingBottom: '100px' }}>
+    <div className="page" style={{ overflow: 'auto', paddingBottom: '20px' }}>
       {/* Welcome Section */}
       <div style={s.welcomeSection}>
         <h1 style={s.welcomeGreeting}>
@@ -365,11 +365,7 @@ export default function Home() {
 const s = {
   // Welcome section
   welcomeSection: {
-    paddingTop: '24px',
-    paddingBottom: '24px',
-    paddingHorizontal: '20px',
-    paddingLeft: '20px',
-    paddingRight: '20px',
+    padding: '24px 20px',
     borderBottomLeftRadius: '28px',
     borderBottomRightRadius: '28px',
     background: 'var(--bg2)',
@@ -407,7 +403,7 @@ const s = {
     width: '48px',
     height: '48px',
     borderRadius: '12px',
-    background: 'rgba(167, 139, 250, 0.1)',
+    background: 'var(--accent-dim)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -477,7 +473,6 @@ const s = {
   challengeButton: {
     paddingTop: '14px',
     paddingBottom: '14px',
-    paddingHorizontal: '16px',
     paddingLeft: '16px',
     paddingRight: '16px',
     borderRadius: '12px',
@@ -502,7 +497,7 @@ const s = {
     alignItems: 'center',
     alignSelf: 'center',
     marginBottom: '12px',
-    background: 'rgba(167, 139, 250, 0.1)',
+    background: 'var(--accent-dim)',
     display: 'flex',
     fontSize: '36px',
     color: 'var(--accent)',
@@ -527,7 +522,6 @@ const s = {
   recommendation: {
     paddingTop: '12px',
     paddingBottom: '12px',
-    paddingHorizontal: '16px',
     paddingLeft: '16px',
     paddingRight: '16px',
     borderRadius: '8px',
@@ -570,7 +564,6 @@ const s = {
     alignItems: 'center',
     paddingTop: '12px',
     paddingBottom: '12px',
-    paddingHorizontal: '16px',
     paddingLeft: '16px',
     paddingRight: '16px',
     borderRadius: '20px',
@@ -636,7 +629,6 @@ const s = {
   reflectionActionButton: {
     paddingTop: '8px',
     paddingBottom: '8px',
-    paddingHorizontal: '12px',
     paddingLeft: '12px',
     paddingRight: '12px',
     fontSize: '12px',
@@ -669,7 +661,6 @@ const s = {
     margin: '12px 20px',
     paddingTop: '12px',
     paddingBottom: '12px',
-    paddingHorizontal: '16px',
     paddingLeft: '16px',
     paddingRight: '16px',
     borderRadius: '12px',

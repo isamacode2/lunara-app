@@ -608,26 +608,24 @@ const s = {
   container: {
     display: 'flex',
     flexDirection: 'column',
-    height: '100vh',
+    height: '100%',
     background: 'var(--bg)',
     overflow: 'hidden',
   },
   scrollContent: {
     flex: 1,
     overflow: 'auto',
-    paddingHorizontal: '12px',
-    paddingTop: '24px',
+    padding: '24px 12px 20px',
   },
 
   // Hero
   hero: {
     marginBottom: '32px',
-    paddingHorizontal: '8px',
+    padding: '0 8px',
   },
   heroBadge: {
     display: 'inline-block',
-    paddingHorizontal: '12px',
-    paddingVertical: '6px',
+    padding: '6px 12px',
     borderRadius: '9999px',
     backgroundColor: 'var(--bg2)',
     marginBottom: '12px',
@@ -651,7 +649,7 @@ const s = {
   // Sections
   section: {
     marginBottom: '32px',
-    paddingHorizontal: '8px',
+    padding: '0 8px',
   },
   sectionLabel: {
     fontSize: '12px',
@@ -870,12 +868,8 @@ const s = {
 
   // Module View
   moduleHeader: {
-    borderBottomWidth: '1px',
-    borderBottomColor: 'var(--text3)',
-    borderBottomStyle: 'solid',
-    paddingHorizontal: '12px',
-    paddingTop: '12px',
-    paddingBottom: '16px',
+    borderBottom: '1px solid var(--border)',
+    padding: '12px 12px 16px',
   },
   backButton: {
     background: 'none',
@@ -913,8 +907,7 @@ const s = {
   threadScroll: {
     flex: 1,
     overflow: 'auto',
-    paddingHorizontal: '12px',
-    paddingTop: '16px',
+    padding: '16px 12px 0',
   },
   starterContainer: {
     marginBottom: '16px',
@@ -958,8 +951,7 @@ const s = {
   },
   userMessage: {
     maxWidth: '80%',
-    paddingHorizontal: '12px',
-    paddingVertical: '8px',
+    padding: '8px 12px',
     borderRadius: '12px',
     background: 'var(--accent)',
   },
@@ -993,7 +985,7 @@ const s = {
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
-    paddingVertical: '12px',
+    padding: '12px 0',
   },
   processingText: {
     fontSize: '14px',
@@ -1019,11 +1011,8 @@ const s = {
 
   // Input Area
   inputArea: {
-    borderTopWidth: '1px',
-    borderTopColor: 'var(--text3)',
-    borderTopStyle: 'solid',
-    paddingHorizontal: '12px',
-    paddingVertical: '12px',
+    borderTop: '1px solid var(--border)',
+    padding: '12px',
     background: 'var(--bg2)',
   },
   inputRow: {
@@ -1033,8 +1022,7 @@ const s = {
   },
   input: {
     flex: 1,
-    paddingVertical: '8px',
-    paddingHorizontal: '10px',
+    padding: '8px 10px',
     fontSize: '14px',
     borderRadius: '8px',
     border: '1px solid var(--text3)',
