@@ -428,7 +428,7 @@ export default function Safety() {
               </p>
               <a
                 style={linkStyle}
-                href="https://getlunara.co.uk/safety"
+                href="https://lunara.dating/safety"
                 target="_blank"
                 rel="noopener noreferrer"
                 onMouseEnter={(e) => e.target.style.opacity = '0.7'}
